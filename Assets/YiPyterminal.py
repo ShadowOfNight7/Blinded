@@ -1,9 +1,10 @@
 from pynput import mouse
 import Assets.CodingAssets as CodingAssets
-import keyboard
 import threading
+import keyboard
 import math
 import time
+import copy
 import sys
 import os
 
@@ -342,7 +343,7 @@ def deleteItem(item: str) -> None:
 
 
 # Functions: Key Binds
-def updateKeyStatus(keysBinds: list = ["all"]) -> None:
+def updateKeyBindStatus(keysBinds: list = ["all"]) -> None:
     if keysBinds == ["all"]:
         for key in keyBindsStatus:
             keyBindsStatus[key]["state"] = keyboard.is_pressed(
@@ -365,6 +366,13 @@ def getKeyBinds(keyBind: str, update: bool = False) -> bool:
 
 def changeKeyBind(keyBind: str, newKey: str) -> None:
     keyBindsStatus[keyBind]["keybind"] = newKey
+
+
+def getkeyBindStatus() -> dict:
+    with threadingLock:
+        global keyBindsStatusCopy
+        keyBindsStatusCopy = keyBindsStatus.deepcopy()
+    return keyBindsStatusCopy
 
 
 # Functions: Mouse Binds
@@ -493,6 +501,35 @@ def addBorder(
             + (cornerCharacter if right else "")
         )
     return "\n".join(borderedLines)
+
+
+def generateLine(point1: tuple, point2: tuple, character: str) -> str:
+    point1X, point1Y = point1
+    point2X, point2Y = point2
+
+    distanceX = point2X - point1X
+    distanceY = point2Y - point1Y
+    line = [[" " for _ in range(distanceX)] for _ in range(distanceY)]
+    if abs(distanceX) >= abs(distanceY):
+        step = 1 if distanceX > 0 else -1
+        for x in range(point1X, point2X, step):
+            y = point1Y + distanceY * ((x + 0.5 - point1X) / distanceX)
+            y = round(y)
+            if 0 <= y < len(line) and 0 <= x < len(line[0]):
+                line[y][x] = character
+                if 0 <= x - step < len(line[0]):
+                    line[y][x - step] = character
+    else:
+        step = 1 if distanceY > 0 else -1
+        for y in range(point1Y, point2Y, step):
+            x = point1X + distanceX * ((y + 0.5 - point1Y) / distanceY)
+            x = round(x)
+            if 0 <= y < len(line) and 0 <= x < len(line[0]):
+                line[y][x] = character
+                if 0 <= y - step < len(line):
+                    line[y - step][x] = character
+
+    return "\n".join("".join(row) for row in line)
 
 
 def style(

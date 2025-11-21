@@ -522,7 +522,7 @@ score = 0
 clickbufferDelay = False
 clickbuffer = False
 
-while True:
+while False:
     startTime = time.perf_counter()
     pyterm.clearLetters()
     pyterm.updateKeys()

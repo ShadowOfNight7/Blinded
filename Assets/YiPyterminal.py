@@ -43,6 +43,7 @@ items = {
         "parent object": "screen",
         "parent anchor": "top left",
         "child anchor": "center",
+        "is empty character part of hitbox": False,
     },
 }
 keyBindsStatus = {
@@ -197,6 +198,7 @@ def createItem(
     currentFrame: int = 0,
     xBias: int = 0,
     yBias: int = 0,
+    isEmptyCharacterPartOfHitbox: bool = False,
 ) -> None:
     items[name] = {
         "animation frames": animationFrames,
@@ -210,6 +212,7 @@ def createItem(
         "parent object": parentObject,
         "parent anchor": parentAnchor,
         "child anchor": childAnchor,
+        "is empty character part of hitbox": isEmptyCharacterPartOfHitbox,
     }
     updateItemLocation(name)
 
@@ -305,6 +308,10 @@ def updateItemLocation(item: str) -> None:
         )
     items[item]["x"] = xAnchor + items[item]["x bias"]
     items[item]["y"] = yAnchor + items[item]["y bias"]
+
+
+def checkItemIsClicked(item: str, mouseCoords: tuple, isLeftClick=True) -> None:
+    pass
 
 
 def getTopLeft(item: str) -> tuple:

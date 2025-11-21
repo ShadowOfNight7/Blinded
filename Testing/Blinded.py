@@ -60,7 +60,7 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "map"
+phase = "title"
 
 
 #Oddly Specific Variables

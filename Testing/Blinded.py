@@ -90,8 +90,6 @@ while True:
     
     keyboard.block_key("ctrl")
     location = Cursor.get_mouse_coords(character_size, True)
-
-    screen = [[" " for i in range(os.get_terminal_size().columns - 1)] for i in range(os.get_terminal_size().lines - 1)]
     
     # addItems(assets["background"])
 
@@ -107,12 +105,12 @@ while True:
         pyterm.addItem(assets["Title1"], 0, -22 - max(riseTitle - 8, 0), "center", "center")
         if ((-63 + os.get_terminal_size().columns/2) <= location[0] <= (-19 + os.get_terminal_size().columns/2)) and ((8 + os.get_terminal_size().lines/2) <= location[1] <= (14 + os.get_terminal_size().lines/2)) and (riseTitle == 0) and (not (Settings or SevenSins)):
             pyterm.addItem(assets["TitlePlayHover"], -40, -3, "center", "center")
-            if mousedetect.ClickDetect("Left", "On"):
+            if MouseDetect.ClickDetect("Left", "On"):
                 rise = True
                 SevenSins = True
         if ((17 + os.get_terminal_size().columns/2) <= location[0] <= (61 + os.get_terminal_size().columns/2)) and ((1 + os.get_terminal_size().lines/2) <= location[1] <= (8 + os.get_terminal_size().lines/2)) and (riseTitle == 0) and (not (Settings or SevenSins)):
             pyterm.addItem(assets["TitleOptionsHover"], 40, -8, "center", "center")
-            if mousedetect.ClickDetect("Left", "On"):
+            if MouseDetect.ClickDetect("Left", "On"):
                 rise = True
                 Settings = True
         #Settings Overlay
@@ -121,7 +119,7 @@ while True:
             pyterm.addItem(assets["TitleReturn"], -55, -100 + riseTitle, "center", "center")
             if ((-73 + os.get_terminal_size().columns/2) <= location[0] <= (-39 + os.get_terminal_size().columns/2)) and ((-18 + os.get_terminal_size().lines/2) <= location[1] <= (-14 + os.get_terminal_size().lines/2)):
                 pyterm.addItem(assets["TitleReturnHover"], -55, -100 + riseTitle, "center", "center")
-                if mousedetect.ClickDetect("Left", "On"):
+                if MouseDetect.ClickDetect("Left", "On"):
                     rise = False
             if (riseTitle == 0) and (not rise):
                 Settings = False
@@ -169,7 +167,7 @@ while True:
             pyterm.addItem(assets["TitleReturn"], -55, -100 + riseTitle, "center", "center")
             if ((-73 + os.get_terminal_size().columns/2) <= location[0] <= (-39 + os.get_terminal_size().columns/2)) and ((-18 + os.get_terminal_size().lines/2) <= location[1] <= (-14 + os.get_terminal_size().lines/2)):
                 pyterm.addItem(assets["TitleReturnHover"], -55, -100 + riseTitle, "center", "center")
-                if mousedetect.ClickDetect("Left", "On"):
+                if MouseDetect.ClickDetect("Left", "On"):
                     rise = False
             if (riseTitle == 0) and (not rise):
                 SevenSins = False
@@ -209,7 +207,7 @@ while True:
 
 
     pyterm.addItem(assets["EmptyBackground"], 0, 0, "center", "center")
-    pyterm.addItem(str(location) + " " + str(mousedetect.ClickDetect("Left", "On")), 0, 0, "bottom left", "bottom left")
+    pyterm.addItem(str(location) + " " + str(MouseDetect.ClickDetect("Left", "On")), 0, 0, "bottom left", "bottom left")
     
 
 

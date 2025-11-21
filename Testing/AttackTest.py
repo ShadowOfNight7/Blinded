@@ -1,6 +1,6 @@
 import keyboard, random, threading, math, time, sys, os, pygetwindow, mouse
 from YiPyterminal import Pyterminal, assets, pyterm
-import Cursor, mousedetect
+import Cursor, MouseDetect
 
 MainClock = 1000
 FalseTime = time.time()
@@ -43,7 +43,7 @@ def CheckButton(ButtonId, Click = True) -> bool:
         if (i["Id"] == ButtonId):
             if ((i["Point1"][0] >= location[0] >= i["Point2"][0]) or (i["Point1"][0] <= location[0] <= i["Point2"][0])) and ((i["Point1"][1] >= location[1] >= i["Point2"][1]) or (i["Point1"][1] <= location[1] <= i["Point2"][1])):
                 if Click:
-                    if (mousedetect.ClickDetect()) and (clickbuffer == False): 
+                    if (MouseDetect.ClickDetect()) and (clickbuffer == False): 
                         return True
                     else:
                         return False
@@ -101,7 +101,7 @@ def AimMinigame(Speedrange: tuple, Repeats = 1):
     aimMinigame["CurrentWait"] += 1
     pyterm.addItem(assets["AimMinigame"].splitlines()[aimMinigame["CurrentFrame"] - 1], 0, 7, "center", "center")
 
-    if (mousedetect.ClickDetect("Left", "On") or mousedetect.GeneralDetect(32, "On")) and (clickbuffer == False):
+    if (MouseDetect.ClickDetect("Left", "On") or MouseDetect.GeneralDetect(32, "On")) and (clickbuffer == False):
         score += aimMinigame["CurrentFrame"] / 6
         aimMinigame["Repeats"] -= 1
         aimMinigame["CurrentFrame"] = 0
@@ -120,13 +120,13 @@ def KeyboardMinigame(Inputs: list, Speed: int, Time: int):
         keyboardMinigame["CurrentKey"] = random.choice(Inputs)
     Inputs.remove(keyboardMinigame["CurrentKey"])
     for i in Inputs:
-        if mousedetect.KeyboardDetect(i, "On"):
+        if MouseDetect.KeyboardDetect(i, "On"):
             Inputs.remove(i)
             keyboardMinigame["Next"] = 0
             keyboardMinigame["CurrentKey"] = random.choice(Inputs)
             score -= 0.5
             score = max(score, 0)
-    if mousedetect.KeyboardDetect(keyboardMinigame["CurrentKey"], "On"):
+    if MouseDetect.KeyboardDetect(keyboardMinigame["CurrentKey"], "On"):
         keyboardMinigame["Next"] = 0
         keyboardMinigame["CurrentKey"] = random.choice(Inputs)
         score += 0.75
@@ -147,7 +147,7 @@ def Spam(Time: int, Type = 32, Message = "Spam Spacebar!"):
     if spamMinigame["Time"] <= 0:
         spamMinigame["Time"] = Time
         spamMinigame["Key"] = Type
-    if mousedetect.GeneralDetect(spamMinigame["Key"], "On"):
+    if MouseDetect.GeneralDetect(spamMinigame["Key"], "On"):
         score += 0.125
     spamMinigame["Time"] -= 1
     pyterm.addItem(Message, 0, 7, "center", "center")
@@ -185,28 +185,28 @@ def SimonSays(Amount: int, InitialSpeed: int, Time: int):
     elif simonSays["Phase"] == "Gameplay":
         GridCenter = pyterm.addItem(assets["Grid"], 0, 0, "center", "center")
         pyterm.addItem(str(simonSays["Order"][simonSays["PlayerFrame"]]), 0, 0, "bottom left", "bottom left")
-        if (GridCenter[0] - 20 <= location[0] <= GridCenter[0] - 1) and (GridCenter[1] - 7 <= location[1] <= GridCenter[1] - 1) and (mousedetect.ClickDetect("Left", "On")): #y7, x9
+        if (GridCenter[0] - 20 <= location[0] <= GridCenter[0] - 1) and (GridCenter[1] - 7 <= location[1] <= GridCenter[1] - 1) and (MouseDetect.ClickDetect("Left", "On")): #y7, x9
             if (simonSays["Order"][simonSays["PlayerFrame"]] == "TL"):
                 simonSays["PlayerFrame"] += 1
                 pyterm.addItem(assets["GridTL"], 0, 0, "center", "center")
                 score += 1
             else:
                 score = max(score - 1, 0)
-        elif (GridCenter[0] - 20 <= location[0] <= GridCenter[0] - 1) and (GridCenter[1] + 7 >= location[1] >= GridCenter[1] + 1) and (mousedetect.ClickDetect("Left", "On")): #y7, x9
+        elif (GridCenter[0] - 20 <= location[0] <= GridCenter[0] - 1) and (GridCenter[1] + 7 >= location[1] >= GridCenter[1] + 1) and (MouseDetect.ClickDetect("Left", "On")): #y7, x9
             if (simonSays["Order"][simonSays["PlayerFrame"]] == "BL"):
                 simonSays["PlayerFrame"] += 1
                 pyterm.addItem(assets["GridBL"], 0, 0, "center", "center")
                 score += 1
             else:
                 score = max(score - 1, 0)
-        elif (GridCenter[0] + 20 >= location[0] >= GridCenter[0] + 1) and (GridCenter[1] - 7 <= location[1] <= GridCenter[1] - 1) and (mousedetect.ClickDetect("Left", "On")): #y7, x9
+        elif (GridCenter[0] + 20 >= location[0] >= GridCenter[0] + 1) and (GridCenter[1] - 7 <= location[1] <= GridCenter[1] - 1) and (MouseDetect.ClickDetect("Left", "On")): #y7, x9
             if (simonSays["Order"][simonSays["PlayerFrame"]] == "TR"):
                 simonSays["PlayerFrame"] += 1
                 pyterm.addItem(assets["GridTR"], 0, 0, "center", "center")
                 score += 1
             else:
                 score = max(score - 1, 0)
-        elif (GridCenter[0] + 20 >= location[0] >= GridCenter[0] + 1) and (GridCenter[1] + 7 >= location[1] >= GridCenter[1] + 1) and (mousedetect.ClickDetect("Left", "On")): #y7, x9
+        elif (GridCenter[0] + 20 >= location[0] >= GridCenter[0] + 1) and (GridCenter[1] + 7 >= location[1] >= GridCenter[1] + 1) and (MouseDetect.ClickDetect("Left", "On")): #y7, x9
             if (simonSays["Order"][simonSays["PlayerFrame"]] == "BR"):
                 simonSays["PlayerFrame"] += 1
                 pyterm.addItem(assets["GridBR"], 0, 0, "center", "center")
@@ -251,12 +251,12 @@ def Reaction(TimeRange: float, Repetitions: int):
     reaction["Time"] -= 1
     if reaction["Time"] <= 0:
         pyterm.addItem(str(assets["ReactionFlash"]), 0, 0, "center", "centre")
-        if mousedetect.ClickDetect("Left", "On"):
+        if MouseDetect.ClickDetect("Left", "On"):
             reaction["Repetitions"] -= 1
             reaction["Time"] = random.randint(TimeRange[0], TimeRange[1])
         else:
             score += 0.16
-    elif mousedetect.ClickDetect("Left", "On"):
+    elif MouseDetect.ClickDetect("Left", "On"):
         score += 1
 
     if reaction["Repetitions"] == 0:
@@ -326,17 +326,17 @@ def MouseMinigame(Speed: int, Time: int):
         mouseMinigame["Next"] = 0
         mouseMinigame["CurrentKey"] = random.choice(Inputs)
     Inputs.remove(mouseMinigame["CurrentKey"])
-    if ((mouseMinigame["CurrentKey"] == "Left") or (mouseMinigame["CurrentKey"] == "Not Right") or (mouseMinigame["CurrentKey"] == "Not Middle")) and (mousedetect.ClickDetect("Left", "On")):
+    if ((mouseMinigame["CurrentKey"] == "Left") or (mouseMinigame["CurrentKey"] == "Not Right") or (mouseMinigame["CurrentKey"] == "Not Middle")) and (MouseDetect.ClickDetect("Left", "On")):
         mouseMinigame["Next"] = 0
         mouseMinigame["CurrentKey"] = random.choice(Inputs)
         score += 0.75
         time.sleep(0.1)
-    elif ((mouseMinigame["CurrentKey"] == "Right") or (mouseMinigame["CurrentKey"] == "Not Left") or (mouseMinigame["CurrentKey"] == "Not Middle")) and (mousedetect.ClickDetect("Right", "On")):
+    elif ((mouseMinigame["CurrentKey"] == "Right") or (mouseMinigame["CurrentKey"] == "Not Left") or (mouseMinigame["CurrentKey"] == "Not Middle")) and (MouseDetect.ClickDetect("Right", "On")):
         mouseMinigame["Next"] = 0
         mouseMinigame["CurrentKey"] = random.choice(Inputs)
         score += 0.75
         time.sleep(0.1)
-    elif ((mouseMinigame["CurrentKey"] == "Middle") or (mouseMinigame["CurrentKey"] == "Not Right") or (mouseMinigame["CurrentKey"] == "Not Left") or (mouseMinigame["CurrentKey"] == "Not Left Or Right")) and (mousedetect.ClickDetect("Middle", "On")):
+    elif ((mouseMinigame["CurrentKey"] == "Middle") or (mouseMinigame["CurrentKey"] == "Not Right") or (mouseMinigame["CurrentKey"] == "Not Left") or (mouseMinigame["CurrentKey"] == "Not Left Or Right")) and (MouseDetect.ClickDetect("Middle", "On")):
         mouseMinigame["Next"] = 0
         mouseMinigame["CurrentKey"] = random.choice(Inputs)
         score += 0.75
@@ -378,19 +378,19 @@ def DodgeGrid(Character: str, SpeedRange: float, Time: int, SpawnRate: int, Inve
     pyterm.addItem(str(assets["GridMove"]), 0, 0, "center", "center")
     if keyboard.is_pressed("w"):
         dodgeGrid["Location"][1] -= 0.2
-        if mousedetect.KeyboardDetect("w", "on"):
+        if MouseDetect.KeyboardDetect("w", "on"):
             dodgeGrid["Location"][1] -= 0.3
     if keyboard.is_pressed("s"):
         dodgeGrid["Location"][1] += 0.2
-        if mousedetect.KeyboardDetect("s", "on"):
+        if MouseDetect.KeyboardDetect("s", "on"):
             dodgeGrid["Location"][1] += 0.3
     if keyboard.is_pressed("a"):
         dodgeGrid["Location"][0] -= 0.5
-        if mousedetect.KeyboardDetect("a", "on"):
+        if MouseDetect.KeyboardDetect("a", "on"):
             dodgeGrid["Location"][0] -= 0.7
     if keyboard.is_pressed("d"):
         dodgeGrid["Location"][0] += 0.5
-        if mousedetect.KeyboardDetect("d", "on"):
+        if MouseDetect.KeyboardDetect("d", "on"):
             dodgeGrid["Location"][0] += 0.7
     if (not keyboard.is_pressed("d")) and (not keyboard.is_pressed("a")):
         dodgeGrid["Location"][0] = round(dodgeGrid["Location"][0])
@@ -431,19 +431,19 @@ def TrackingMinigame(Character: int, SpawnRate: int, SpeedRange: float, DespawnR
     pyterm.addItem(str(assets["GridMove"]), 0, 0, "center", "center")
     if keyboard.is_pressed("w"):
         trackingMinigame["Location"][1] -= 0.2
-        if mousedetect.KeyboardDetect("w", "on"):
+        if MouseDetect.KeyboardDetect("w", "on"):
             trackingMinigame["Location"][1] -= 0.3
     if keyboard.is_pressed("s"):
         trackingMinigame["Location"][1] += 0.2
-        if mousedetect.KeyboardDetect("s", "on"):
+        if MouseDetect.KeyboardDetect("s", "on"):
             trackingMinigame["Location"][1] += 0.3
     if keyboard.is_pressed("a"):
         trackingMinigame["Location"][0] -= 0.5
-        if mousedetect.KeyboardDetect("a", "on"):
+        if MouseDetect.KeyboardDetect("a", "on"):
             trackingMinigame["Location"][0] -= 0.7
     if keyboard.is_pressed("d"):
         trackingMinigame["Location"][0] += 0.5
-        if mousedetect.KeyboardDetect("d", "on"):
+        if MouseDetect.KeyboardDetect("d", "on"):
             trackingMinigame["Location"][0] += 0.7
     if (not keyboard.is_pressed("d")) and (not keyboard.is_pressed("a")):
         trackingMinigame["Location"][0] = round(trackingMinigame["Location"][0])

@@ -342,7 +342,7 @@ def deleteItem(item: str) -> None:
 
 
 # Functions: Key Binds
-def updateKeys(keysBinds: list = ["all"]) -> None:
+def updateKeyStatus(keysBinds: list = ["all"]) -> None:
     if keysBinds == ["all"]:
         for key in keyBindsStatus:
             keyBindsStatus[key]["state"] = keyboard.is_pressed(
@@ -363,8 +363,39 @@ def getKeyBinds(keyBind: str, update: bool = False) -> bool:
     return keyBindsStatus[keyBind]["state"]
 
 
+def changeKeyBind(keyBind: str, newKey: str) -> None:
+    keyBindsStatus[keyBind]["keybind"] = newKey
+
+
 # Functions: Mouse Binds
-pass
+def onMove(x, y):
+    with threadingLock:
+        mouseStatus["aboslute position"] = (x, y)
+
+
+def onClick(x, y, button, pressed):
+    with threadingLock:
+        mouseStatus["aboslute position"] = (x, y)
+        if str(button) == "Button.left":
+            mouseStatus["left button"] = pressed
+        if str(button) == "Button.right":
+            mouseStatus["right button"] = pressed
+        if str(button) == "Button.middle":
+            mouseStatus["middle button"] = pressed
+
+
+def onScroll(x, y, dx, dy):
+    with threadingLock:
+        mouseStatus["aboslute position"] = (x, y)
+        mouseStatus["scroll x"] = dx
+        mouseStatus["scroll y"] = dy
+
+
+def startAsynchronousMouseListener() -> mouse.Listener:
+    global mouseListener
+    mouseListener = mouse.Listener(on_move=onMove, on_click=onClick, on_scroll=onScroll)
+    mouseListener.start()
+    return mouseListener
 
 
 # Functions: Debug Messages

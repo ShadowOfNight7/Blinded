@@ -1,6 +1,8 @@
 import keyboard, random, math, time, sys, os, mouse
-from YiPyterminal import Pyterminal, assets, pyterm
-import Cursor, MouseDetect, AttackTest
+from Testing.YiPyterminal import Pyterminal, assets, pyterm
+import Testing.Cursor as Cursor
+import Testing.MouseDetect as MouseDetect
+import Testing.AttackTest as AttackTest
 
 
 

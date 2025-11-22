@@ -1,6 +1,7 @@
 import keyboard, random, threading, math, time, sys, os, pygetwindow, mouse
-from YiPyterminal import Pyterminal, assets, pyterm
-import Cursor, MouseDetect
+from Testing.YiPyterminal import Pyterminal, assets, pyterm
+import Testing.Cursor as Cursor
+import Testing.MouseDetect as MouseDetect
 
 MainClock = 1000
 FalseTime = time.time()
@@ -516,7 +517,7 @@ buttons = []
 timed = 99
 AimTarget = []
 character_size = (10, 10)
-character_size = Cursor.initialize(2)
+# character_size = Cursor.initialize(2)
 score = 0
 
 clickbufferDelay = False

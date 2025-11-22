@@ -1,5 +1,4 @@
 import win32api, win32con
-from YiPyterminal import assets
 
 ClickLeftBefore = False
 ClickRightBefore = False
@@ -18,8 +17,6 @@ def ClickDetect(Type = "Left", SubType = "Held"):
                     return True
                 else:
                     return False
-        else:
-            ClickLeftBefore = False
         ClickLeftBefore = True
     else:
         if SubType.lower() == "off":
@@ -42,8 +39,7 @@ def ClickDetect(Type = "Left", SubType = "Held"):
                     return True
                 else:
                     return False
-        else:
-            ClickRightBefore = False
+        ClickRightBefore = True
     else:
         if SubType.lower() == "off":
             if ClickRightBefore == True:
@@ -65,8 +61,7 @@ def ClickDetect(Type = "Left", SubType = "Held"):
                     return True
                 else:
                     return False
-        else:
-            ClickMiddleBefore = False
+        ClickMiddleBefore = True
     else:
         if SubType.lower() == "off":
             if ClickMiddleBefore == True:
@@ -132,4 +127,3 @@ def GeneralDetect(Type: int, SubType = "Held"):
         return False
     return False
 
-print(assets.keys())

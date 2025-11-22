@@ -1,9 +1,9 @@
-import keyboard, random, math, time, sys, os, mouse
+import keyboard, random, math, time, sys, os, mouse, ctypes
 from Testing.YiPyterminal import Pyterminal, assets, pyterm
 import Testing.Cursor as Cursor
 import Testing.MouseDetect as MouseDetect
 import Testing.AttackTest as AttackTest
-
+from YiPyterminalTesting import generateLine
 
 
 def colourText(rgb: list, text: str, transparency = 1, background = False):
@@ -46,6 +46,9 @@ def PhaseChange(Phase: str):
         SevenSins = False
     if phase.lower() == "map":
         mapOffset = [0, 0]
+        InitialHold = (0, 0)
+        locationMapDiff = [0, 0]
+        mapOffsetCopy = [0, 0]
 
 
 
@@ -62,7 +65,7 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "title"
+phase = "map"
 
 
 #Oddly Specific Variables
@@ -71,16 +74,19 @@ rise = False
 Settings = False
 SevenSins = False
 
-Hierarchy = 10
+Hierarchy = 3
 RandomAdd = []
 RandomAddMini = []
 for i in range(Hierarchy):
     RandomAdd.append(random.randint(0, 359))
-    RandomAddMini.append([random.randint(-round(100/((i + 1) * 2 + 1)), round(100/((i + 1) * 2 + 1))) for i2 in range((i + 1) * 2 + 1)])
+    RandomAddMini.append([random.randint(-round(150/((i + 1) * 2 + 1)), round(150/((i + 1) * 2 + 1))) for i2 in range((i + 1) * 2 + 1)])
 mapOffset = [0, 0]
 hierarchyLocations = []
 hierarchyLocations2 = []
-
+InitialHold = (0, 0)
+locationMapDiff = [0, 0]
+mapOffsetCopy = [0, 0]
+GetRoomLoc = True
 
 while True:
     startTime = time.perf_counter()
@@ -89,7 +95,11 @@ while True:
     MainClock += 1
 
     #Code Start
-    
+
+    ctypes.windll.user32.OpenClipboard()
+    ctypes.windll.user32.EmptyClipboard()
+    # ctypes.windll.user32.CloseClipboard()
+
     keyboard.block_key("ctrl")
     location = Cursor.get_mouse_coords(character_size, True)
     
@@ -118,9 +128,9 @@ while True:
         #Settings Overlay
         if Settings:
             pyterm.addItem(assets["TitleSettings"], 0, -70 + min(riseTitle, 55), "center", "center")
-            pyterm.addItem(assets["TitleReturn"], -55, -100 + riseTitle, "center", "center")
+            pyterm.addItem(assets["TitleReturn"], -55, -90 + min(riseTitle, 60), "center", "center")
             if ((-73 + os.get_terminal_size().columns/2) <= location[0] <= (-39 + os.get_terminal_size().columns/2)) and ((-18 + os.get_terminal_size().lines/2) <= location[1] <= (-14 + os.get_terminal_size().lines/2)):
-                pyterm.addItem(assets["TitleReturnHover"], -55, -100 + riseTitle, "center", "center")
+                pyterm.addItem(assets["TitleReturnHover"], -55, -90 + min(riseTitle, 60), "center", "center")
                 if MouseDetect.ClickDetect("Left", "On"):
                     rise = False
             if (riseTitle == 0) and (not rise):
@@ -186,17 +196,48 @@ while True:
 
 
     elif phase.lower() == "map":
+        if GetRoomLoc == False:
+            for tier in hierarchyLocations:
+                for rooms in tier:
+                    for connect in rooms["Connections"]:
+                        pyterm.addItem(generateLine(rooms["Location"], connect["Location"], "#"))
+
+
         pyterm.addItem(assets["BlackHole"], round(mapOffset[0]), round(mapOffset[1]), "center", "center")
         pyterm.addItem("x", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
         for i in range(Hierarchy):
             MaxRooms = (i + 1) * 2 + 1
             Angle = 360/MaxRooms
             for i2 in range(MaxRooms):
-                roomLoc = pyterm.addItem(assets.get("BlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * 10 + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * 10/2 + mapOffset[1]), "center", "center")
-                hierarchyLocations2.append(roomLoc)
-            hierarchyLocations.append(hierarchyLocations2)
-            hierarchyLocations2 = []
+                roomLoc = pyterm.addItem(assets.get("BlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
+                if GetRoomLoc == True:
+                    hierarchyLocations2.append({"Location": roomLoc, "id": (i + 1, i2 + 1), "Connections": []}) #Connections: [{"id": (_, _), "Location": (_, _)}]
+            if GetRoomLoc == True:
+                hierarchyLocations.append(hierarchyLocations2)
+                hierarchyLocations2 = []
         
+
+        if GetRoomLoc == True:
+            for tier in hierarchyLocations:
+                for rooms in tier:
+                    if rooms["id"][0] != 1:
+                        leastDistanceRoom = 10**100
+                        ClosestPastRoom = ""
+                        for pastrooms in hierarchyLocations[rooms["id"][0] - 2]: 
+                            if ((pastrooms["Location"][0] - rooms["Location"][0]) ** 2 + (pastrooms["Location"][1] - rooms["Location"][1]) ** 2) < leastDistanceRoom:
+                                leastDistanceRoom = (pastrooms["Location"][0] - rooms["Location"][0]) ** 2 + (pastrooms["Location"][1] - rooms["Location"][1]) ** 2
+                                ClosestPastRoom = pastrooms
+                        rooms["Connections"].append({"id": ClosestPastRoom["id"], "Location": ClosestPastRoom["Location"]})
+                        ClosestPastRoom["Connections"].append({"id": rooms["id"], "Location": rooms["Location"]})
+        GetRoomLoc = False
+
+        if MouseDetect.ClickDetect("Right", "On"):
+            InitialHold = location
+            mapOffsetCopy = mapOffset.copy()
+        elif MouseDetect.ClickDetect("Right", "Held"):
+            locationMapDiff = [location[0] - InitialHold[0], location[1] - InitialHold[1]]
+            mapOffset = [mapOffsetCopy[0] + locationMapDiff[0], mapOffsetCopy[1] + locationMapDiff[1]]
+
         if keyboard.is_pressed("w"):
             mapOffset[1] += 1
         if keyboard.is_pressed("s"):
@@ -210,7 +251,6 @@ while True:
 
     pyterm.addItem(assets["EmptyBackground"], 0, 0, "center", "center")
     pyterm.addItem(str(location) + " " + str(MouseDetect.ClickDetect("Left", "On")), 0, 0, "bottom left", "bottom left")
-    
 
 
     pyterm.renderScreen()

@@ -218,11 +218,13 @@ def renderLiteralItem(
                 )
 
 
-def renderScreen() -> None:
+def renderScreen(backgroundCharacter: str = " ") -> None:
     if constantlyCheckScreenSize == True:
         updateScreenSize()
     global screenRender
-    screenRender = [[" " for _ in range(screenWidth)] for _ in range(screenHeight)]
+    screenRender = [
+        [backgroundCharacter for _ in range(screenWidth)] for _ in range(screenHeight)
+    ]
     for row in range(screenHeight):
         for coords in lettersToRender:
             if coords[1] == row:
@@ -481,7 +483,7 @@ def getTopLeft(item: str) -> tuple:
 def getTopRight(item: str) -> tuple:
     if item in itemObjects:
         return (
-            itemObjects[item]["x"] + itemObjects[item]["width"],
+            itemObjects[item]["x"] + itemObjects[item]["width"] - 1,
             itemObjects[item]["y"],
         )
 
@@ -490,15 +492,15 @@ def getBottomLeft(item: str) -> tuple:
     if item in itemObjects:
         return (
             itemObjects[item]["x"],
-            itemObjects[item]["y"] + itemObjects[item]["height"],
+            itemObjects[item]["y"] + itemObjects[item]["height"] - 1,
         )
 
 
 def getBottomRight(item: str) -> tuple:
     if item in itemObjects:
         return (
-            itemObjects[item]["x"] + itemObjects[item]["width"],
-            itemObjects[item]["y"] + itemObjects[item]["height"],
+            itemObjects[item]["x"] + itemObjects[item]["width"] - 1,
+            itemObjects[item]["y"] + itemObjects[item]["height"] - 1,
         )
 
 
@@ -652,36 +654,36 @@ def removeDebugMessage(position: int, firstAdded: bool = True) -> None:
         debugMessages[len(debugMessages) - position].pop()
 
 
-def renderDebugMessages(messageLimit: int = 5) -> None:
+def renderDebugMessages(displayMessageLimit: int = 5) -> None:
     if debugMode == True:
-        for row in range(min(messageLimit, len(debugMessages))):
+        for row in range(min(displayMessageLimit, len(debugMessages))):
             renderLiteralItem(
                 debugMessages[len(debugMessages) - 1 - row],
                 yBias=-1 * row,
                 itemAnchor="bottom right",
                 screenAnchor="bottom right",
             )
-        if len(debugMessages) - messageLimit == 1:
+        if len(debugMessages) - displayMessageLimit == 1:
             renderLiteralItem(
                 "".join(
                     [
                         "> There is 1 more debug message",
                     ],
                 ),
-                yBias=-1 * messageLimit,
+                yBias=-1 * displayMessageLimit,
                 itemAnchor="bottom right",
                 screenAnchor="bottom right",
             )
-        elif len(debugMessages) > messageLimit:
+        elif len(debugMessages) > displayMessageLimit:
             renderLiteralItem(
                 "".join(
                     [
                         "> There are ",
-                        str(len(debugMessages) - messageLimit),
+                        str(len(debugMessages) - displayMessageLimit),
                         " more debug messages",
                     ],
                 ),
-                yBias=-1 * messageLimit,
+                yBias=-1 * displayMessageLimit,
                 itemAnchor="bottom right",
                 screenAnchor="bottom right",
             )

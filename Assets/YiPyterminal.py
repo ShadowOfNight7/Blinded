@@ -616,20 +616,28 @@ def getRelativeMouseCoords(
     )
     if absoluteMouseCoords == None:
         absoluteMouseCoords = mouseStatusCopy["absolute position"]
+    relativeMouseCoords = (
+        win32gui.ScreenToClient(hwnd, absoluteMouseCoords)[0]
+        + ctypes.windll.user32.GetSystemMetrics(5) * 2,
+        win32gui.ScreenToClient(hwnd, absoluteMouseCoords)[1]
+        - ctypes.windll.user32.GetSystemMetrics(4) * 2,
+    )
+    # import Testing.Cursor as Cursor
+    # return Cursor.get_mouse_coords(characterSize, get_text=True)
     if checkIfFullScreen() == True:
         return (
-            math.floor(absoluteMouseCoords[0] / characterSize[0]) - 1,
-            math.floor(absoluteMouseCoords[1] / characterSize[1]) + 2,
+            math.floor(relativeMouseCoords[0] / characterSize[0]) - 1,
+            math.floor(relativeMouseCoords[1] / characterSize[1]) + 2,
         )
     elif checkIfFullScreen() == "maximized":
         return (
-            math.floor(absoluteMouseCoords[0] / characterSize[0]) - 1,
-            math.floor(absoluteMouseCoords[1] / characterSize[1] + 0.5),
+            math.floor(relativeMouseCoords[0] / characterSize[0]) - 1,
+            math.floor(relativeMouseCoords[1] / characterSize[1] + 0.5),
         )
     else:
         return (
-            math.floor(absoluteMouseCoords[0] / characterSize[0]) - 1,
-            math.floor(absoluteMouseCoords[1] / characterSize[1]),
+            math.floor(relativeMouseCoords[0] / characterSize[0]) - 1,
+            math.floor(relativeMouseCoords[1] / characterSize[1]),
         )
 
 

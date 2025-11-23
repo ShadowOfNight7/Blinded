@@ -65,7 +65,7 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "map"
+phase = "title"
 
 
 #Oddly Specific Variables
@@ -74,12 +74,12 @@ rise = False
 Settings = False
 SevenSins = False
 
-Hierarchy = 3
+Hierarchy = 10
 RandomAdd = []
 RandomAddMini = []
 for i in range(Hierarchy):
     RandomAdd.append(random.randint(0, 359))
-    RandomAddMini.append([random.randint(-round(150/((i + 1) * 2 + 1)), round(150/((i + 1) * 2 + 1))) for i2 in range((i + 1) * 2 + 1)])
+    RandomAddMini.append([random.randint(-round(100/((i + 1) * 2 + 1)), round(100/((i + 1) * 2 + 1))) for i2 in range((i + 1) * 2 + 1)])
 mapOffset = [0, 0]
 hierarchyLocations = []
 hierarchyLocations2 = []
@@ -196,11 +196,11 @@ while True:
 
 
     elif phase.lower() == "map":
-        if GetRoomLoc == False:
-            for tier in hierarchyLocations:
-                for rooms in tier:
-                    for connect in rooms["Connections"]:
-                        pyterm.addItem(generateLine(rooms["Location"], connect["Location"], "#"))
+        # if GetRoomLoc == False:
+        #     for tier in hierarchyLocations:
+        #         for rooms in tier:
+        #             for connect in rooms["Connections"]:
+        #                 pyterm.addItem(generateLine(rooms["Location"], connect["Location"], "#"))
 
 
         pyterm.addItem(assets["BlackHole"], round(mapOffset[0]), round(mapOffset[1]), "center", "center")
@@ -209,9 +209,12 @@ while True:
             MaxRooms = (i + 1) * 2 + 1
             Angle = 360/MaxRooms
             for i2 in range(MaxRooms):
-                roomLoc = pyterm.addItem(assets.get("BlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
                 if GetRoomLoc == True:
+                    roomLoc = pyterm.addItem(assets.get("BlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
                     hierarchyLocations2.append({"Location": roomLoc, "id": (i + 1, i2 + 1), "Connections": []}) #Connections: [{"id": (_, _), "Location": (_, _)}]
+                else:
+                    if math.dist(hierarchyLocations[i][i2]["Location"], (-mapOffset[0], -mapOffset[1])) <= (10 + math.hypot(os.get_terminal_size().columns/2, os.get_terminal_size().lines/2)):
+                        pyterm.addItem(assets.get("BlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
             if GetRoomLoc == True:
                 hierarchyLocations.append(hierarchyLocations2)
                 hierarchyLocations2 = []

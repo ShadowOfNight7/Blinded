@@ -52,4 +52,4 @@ def generateLine(p1: tuple, p2: tuple, char: str):
     return "\n".join("".join(row) for row in line)
 
 
-print(generateLine((2, 0), (20, 10), "*"))
+# print(generateLine((2, 0), (20, 10), "*"))

@@ -26,6 +26,7 @@ import Assets.YiPyterminal as YiPyterminal
 # for i in x.splitlines():
 #     print(i)
 # exit()
+
 (9, 19)
 YiPyterminal.initializeTerminal(repetitions=1)
 
@@ -45,9 +46,11 @@ while True:
     YiPyterminal.addDebugMessage(YiPyterminal.mouseStatusCopy)
     # print(YiPyterminal.mouseStatusCopy)
     if YiPyterminal.checkItemIsClicked("line1"):
-        YiPyterminal.itemObjects["line1"]["current frame"] = 1
+        YiPyterminal.updateItemFrame("line1", 1)
+    if YiPyterminal.checkItemIsClicked("line1", button="right"):
+        YiPyterminal.updateItemFrame("line1", 0)
     if YiPyterminal.getKeyboardBindStatus("up", update=True) == True:
-        YiPyterminal.itemObjects["line1"]["current frame"] = 2
+        YiPyterminal.updateItemFrame("line1", 2)
     YiPyterminal.renderItem("line1")
     YiPyterminal.renderScreen()
     YiPyterminal.displayScreen()

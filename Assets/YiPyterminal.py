@@ -341,7 +341,7 @@ def updateItemLocation(item: str) -> None:
 
 
 def checkItemIsClicked(
-    item: str, mouseCoords: tuple | None = None, isLeftClick=True
+    item: str, button: str = "left", mouseCoords: tuple | None = None
 ) -> bool:
     if mouseCoords is None:
         mouseCoords = mouseStatusCopy["position"]
@@ -358,13 +358,17 @@ def checkItemIsClicked(
             relativeX = mouseCoords[0] - itemTopLeftX
             relativeY = mouseCoords[1] - itemTopLeftY
             if itemFrame[relativeY][relativeX] != "š":
-                if isLeftClick:
+                if button == "left":
                     return mouseStatusCopy["left button"]
-                else:
+                elif button == "right":
                     return mouseStatusCopy["right button"]
+                elif button == "middle":
+                    return mouseStatusCopy["middle button"]
+                else:
+                    addDebugMessage("Invalid button input in checkItemIsClicked()")
             else:
                 return False
-        if isLeftClick:
+        if button:
             return mouseStatusCopy["left button"]
         else:
             return mouseStatusCopy["right button"]
@@ -473,6 +477,7 @@ def updateItemSize(item: str) -> None:
 def updateItemFrame(item: str, newFrame: int) -> None:
     itemObjects[item]["current frame"] = newFrame
     updateItemSize(item)
+    updateItemLocation(item)
 
 
 def getTopLeft(item: str) -> tuple:
@@ -622,8 +627,6 @@ def getRelativeMouseCoords(
         win32gui.ScreenToClient(hwnd, absoluteMouseCoords)[1]
         - ctypes.windll.user32.GetSystemMetrics(4) * 2,
     )
-    # import Testing.Cursor as Cursor
-    # return Cursor.get_mouse_coords(characterSize, get_text=True)
     if checkIfFullScreen() == True:
         return (
             math.floor(relativeMouseCoords[0] / characterSize[0]) - 1,
@@ -750,8 +753,8 @@ def generateLine(
 ) -> str:
     point1X, point1Y = point1
     point2X, point2Y = point2
-    width = abs(point2X - point1X) + 1
-    height = abs(point2Y - point1Y) + 1
+    width = abs(point2X - point1X)
+    height = abs(point2Y - point1Y)
     minX = min(point1X, point2X)
     minY = min(point1Y, point2Y)
     sx1, sy1 = point1X - minX, point1Y - minY

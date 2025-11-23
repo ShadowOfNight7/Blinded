@@ -1,7 +1,11 @@
-from pynput import mouse
+from ctypes.wintypes import HWND, DWORD, RECT
 import Assets.CodingAssets as CodingAssets
+from pynput import mouse
+import pygetwindow
 import threading
 import keyboard
+import win32gui
+import ctypes
 import math
 import time
 import copy
@@ -14,7 +18,7 @@ FPS = 100
 lettersToRender = {}
 screenRender = []
 debugMessages = []
-items = {
+itemObjects = {
     "example target": {
         "animation frames": [
             """
@@ -38,7 +42,7 @@ items = {
         "x bias": 0,
         "y bias": 0,
         "width": 1,
-        "length": 1,
+        "height": 1,
         "current frame": 0,
         "parent object": "screen",
         "parent anchor": "top left",
@@ -54,6 +58,7 @@ keyBindsStatus = {
 }
 mouseStatus = {
     "absolute position": (0, 0),
+    "position": (0, 0),
     "left button": False,
     "right button": False,
     "middle button": False,
@@ -69,6 +74,110 @@ threadingLock = threading.Lock()
 endEscapeCode = CodingAssets.endEscapeCode
 styleCodes = CodingAssets.styleCodes
 colorCodes = CodingAssets.colorCodes
+
+
+# Functions: Terminal Initialization
+def prepareTerminalInitialization() -> None:
+    global dwmapi, hwnd, fullScreenRect, maximizedScreenRect, win
+    dwmapi = ctypes.WinDLL("dwmapi")
+    hwnd = ctypes.windll.user32.FindWindowW(
+        0, win32gui.GetWindowText(win32gui.GetForegroundWindow())
+    )
+    ctypes.windll.user32.SetProcessDPIAware()
+    fullScreenRect = (
+        0,
+        0,
+        ctypes.windll.user32.GetSystemMetrics(0),
+        ctypes.windll.user32.GetSystemMetrics(1),
+    )
+    maximizedScreenRect = (
+        0,
+        0,
+        ctypes.windll.user32.GetSystemMetrics(16),
+        ctypes.windll.user32.GetSystemMetrics(17),
+    )
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    win = pygetwindow.getActiveWindow()
+
+
+def initializeTerminal(
+    repetitions: int = 2, overrideValue: tuple | None = None
+) -> tuple:
+    prepareTerminalInitialization()
+    global characterSize
+    if overrideValue != None:
+        characterSize = overrideValue
+        return characterSize
+    charSize = []
+    for i in range(repetitions):
+        charSize.append(getCharacterSize())
+        time.sleep(0.1)
+    charx, chary = 0, 0
+    for i in charSize:
+        charx += i[0]
+        chary += i[1]
+    pygetwindow.getActiveWindow().size = (
+        maximizedScreenRect[2],
+        maximizedScreenRect[3],
+    )
+    characterSize = (round(charx / repetitions), round(chary / repetitions))
+    return characterSize
+
+
+def getCharacterSize(sleepTime: float = 0.025) -> tuple:
+    pygetwindow.getActiveWindow().size = (0, 0)
+    time.sleep(sleepTime * 2)
+    currentSize = pygetwindow.getActiveWindow().size
+    currentLines = os.get_terminal_size().lines
+    while os.get_terminal_size().lines == currentLines:
+        pygetwindow.getActiveWindow().size = (
+            pygetwindow.getActiveWindow().size[0],
+            pygetwindow.getActiveWindow().size[1] + 1,
+        )
+        time.sleep(sleepTime)
+    currentSize = pygetwindow.getActiveWindow().size
+    currentLines = os.get_terminal_size().lines
+    while os.get_terminal_size().lines == currentLines:
+        pygetwindow.getActiveWindow().size = (
+            pygetwindow.getActiveWindow().size[0],
+            pygetwindow.getActiveWindow().size[1] + 1,
+        )
+        time.sleep(sleepTime)
+    charHeight = pygetwindow.getActiveWindow().size[1] - currentSize[1]
+    currentSize = pygetwindow.getActiveWindow().size
+    currentCol = os.get_terminal_size().columns
+    while os.get_terminal_size().columns == currentCol:
+        pygetwindow.getActiveWindow().size = (
+            pygetwindow.getActiveWindow().size[0] + 1,
+            pygetwindow.getActiveWindow().size[1],
+        )
+        time.sleep(sleepTime)
+    currentSize = pygetwindow.getActiveWindow().size
+    currentCol = os.get_terminal_size().columns
+    while os.get_terminal_size().columns == currentCol:
+        pygetwindow.getActiveWindow().size = (
+            pygetwindow.getActiveWindow().size[0] + 1,
+            pygetwindow.getActiveWindow().size[1],
+        )
+        time.sleep(sleepTime)
+    charWidth = pygetwindow.getActiveWindow().size[0] - currentSize[0]
+    return (charWidth, charHeight)
+
+
+def checkIfFullScreen() -> bool | str:
+    try:
+        hWnd = ctypes.windll.user32.GetForegroundWindow()
+        rect = win32gui.GetWindowRect(hWnd)
+        if rect == fullScreenRect:
+            return True
+        elif (rect[2] >= maximizedScreenRect[2]) and (
+            rect[3] >= maximizedScreenRect[3]
+        ):
+            return "maximized"
+        else:
+            return False
+    except:
+        return False
 
 
 # Functions: Rendering
@@ -95,41 +204,9 @@ def renderLiteralItem(
         if len(splitItem[rowNum]) > longestRowLen:
             longestRowLen = len(splitItem[rowNum])
         splitItem[rowNum] = list(splitItem[rowNum])
-    if screenAnchor == "top left":
-        xAnchor, yAnchor = 0, 0
-    elif screenAnchor == "top right":
-        xAnchor, yAnchor = screenWidth, 0
-    elif screenAnchor == "bottom left":
-        xAnchor, yAnchor = 0, screenHeight
-    elif screenAnchor == "bottom right":
-        xAnchor, yAnchor = screenWidth, screenHeight
-    elif screenAnchor == "center" or screenAnchor == "centre":
-        xAnchor, yAnchor = math.ceil(screenWidth / 2), math.ceil(screenHeight / 2)
-    else:
-
-        addDebugMessage(
-            "".join(["Invalid input for screenAnchor in addItem():", screenAnchor])
-        )
-    if itemAnchor == "top left":
-        yAnchor -= 0
-        xAnchor -= 0
-    elif itemAnchor == "top right":
-        xAnchor -= longestRowLen
-        yAnchor -= 0
-    elif itemAnchor == "bottom left":
-        xAnchor -= 0
-        yAnchor -= len(splitItem)
-    elif itemAnchor == "bottom right":
-        xAnchor -= longestRowLen
-        yAnchor -= len(splitItem)
-    elif itemAnchor == "center" or itemAnchor == "centre":
-        xAnchor -= math.ceil(longestRowLen / 2)
-        yAnchor -= math.ceil(len(splitItem) / 2)
-    else:
-
-        addDebugMessage(
-            "".join(["Invalid input for itemAnchor in addItem():", itemAnchor])
-        )
+    xAnchor, yAnchor = getAnchorPosition(
+        itemAnchor, screenAnchor, width=longestRowLen, height=len(splitItem)
+    )
     xAnchor += xBias
     yAnchor += yBias
     for rowNum in range(len(splitItem)):
@@ -155,8 +232,14 @@ def renderScreen() -> None:
         screenRender[row] = "".join(screenRender[row])
 
 
-def displayScreen(advanceMode: bool = True, clearScreen: bool = False) -> None:
-    if clearScreen:
+def displayScreen(
+    clearScreenData: dict = {"clear lettersToRender": True, "clear screenRender": True},
+    # resetMouseStatusAfterPrinting: bool = True,
+    displayDebugMessages: bool = True,
+    advanceMode: bool = True,
+    clearScreenBeforePrinting: bool = False,
+) -> None:
+    if clearScreenBeforePrinting:
         os.system("cls")
 
     if advanceMode == True:
@@ -168,6 +251,14 @@ def displayScreen(advanceMode: bool = True, clearScreen: bool = False) -> None:
 
     else:
         print(screenRender, end="")
+    if clearScreenData["clear lettersToRender"] == True:
+        clearLettersToRender()
+    if clearScreenData["clear screenRender"] == True:
+        clearScreenRender()
+    # if resetMouseStatusAfterPrinting == True:
+    #     resetMouseStatus()
+    if displayDebugMessages == True:
+        renderDebugMessages()
 
 
 def clearLettersToRender() -> None:
@@ -200,14 +291,14 @@ def createItem(
     yBias: int = 0,
     isEmptyCharacterPartOfHitbox: bool = False,
 ) -> None:
-    items[name] = {
+    itemObjects[name] = {
         "animation frames": animationFrames,
         "x": None,
         "y": None,
         "x bias": xBias,
         "y bias": yBias,
         "width": None,
-        "length": None,
+        "height": None,
         "current frame": currentFrame,
         "parent object": parentObject,
         "parent anchor": parentAnchor,
@@ -215,6 +306,7 @@ def createItem(
         "is empty character part of hitbox": isEmptyCharacterPartOfHitbox,
     }
     updateItemLocation(name)
+    updateItemSize(name)
 
 
 def renderItem(
@@ -223,18 +315,12 @@ def renderItem(
     xBias: str = 0,
     yBias: str = 0,
 ) -> None:
-    splitItem = items[item]["animation frames"][
-        items[item]["current frame"]
+    splitItem = itemObjects[item]["animation frames"][
+        itemObjects[item]["current frame"]
     ].splitlines()
 
-    longestRowLen = 0
-    for rowNum in range(len(splitItem)):
-        if len(splitItem[rowNum]) > longestRowLen:
-            longestRowLen = len(splitItem[rowNum])
-        splitItem[rowNum] = list(splitItem[rowNum])
-
-    xAnchor = xBias + items[item]["x bias"]
-    yAnchor = yBias + items[item]["y bias"]
+    xAnchor = xBias + itemObjects[item]["x bias"]
+    yAnchor = yBias + itemObjects[item]["y bias"]
     for rowNum in range(len(splitItem)):
         for columnNum in range(len(splitItem[rowNum])):
             if splitItem[rowNum][columnNum] != emptySpaceLetter:
@@ -245,36 +331,80 @@ def renderItem(
 
 
 def updateItemLocation(item: str) -> None:
-    parentObject = items[item]["parent object"]
-    parentAnchor = items[item]["parent anchor"]
-    childAnchor = items[item]["child anchor"]
+    itemObjects[item]["x"], itemObjects[item]["y"] = getAnchorPosition(
+        itemObjects[item]["child anchor"],
+        itemObjects[item]["parent anchor"],
+        itemObjects[item]["parent object"],
+    )
+
+
+def checkItemIsClicked(
+    item: str, mouseCoords: tuple | None = None, isLeftClick=True
+) -> bool:
+    if mouseCoords is None:
+        mouseCoords = mouseStatusCopy["position"]
+    itemTopLeftX, itemTopLeftY = getTopLeft(item)
+    itemBottomRightX, itemBottomRightY = getBottomRight(item)
+    if (
+        itemTopLeftX <= mouseCoords[0] <= itemBottomRightX
+        and itemTopLeftY <= mouseCoords[1] <= itemBottomRightY
+    ):
+        if itemObjects[item]["is empty character part of hitbox"] == False:
+            itemFrame = itemObjects[item]["animation frames"][
+                itemObjects[item]["current frame"]
+            ].splitlines()
+            relativeX = mouseCoords[0] - itemTopLeftX
+            relativeY = mouseCoords[1] - itemTopLeftY
+            if itemFrame[relativeY][relativeX] != "š":
+                if isLeftClick:
+                    return mouseStatusCopy["left button"]
+                else:
+                    return mouseStatusCopy["right button"]
+            else:
+                return False
+        if isLeftClick:
+            return mouseStatusCopy["left button"]
+        else:
+            return mouseStatusCopy["right button"]
+
+
+def getAnchorPosition(
+    childAnchor: str,
+    parentAnchor: str,
+    parentObject: str = "screen",
+    width: int | None = None,
+    height: int | None = None,
+    childObject: str | None = None,
+    xBias: int | None = None,
+    yBias: int | None = None,
+) -> tuple:
     if parentObject == "screen":
         if parentAnchor == "top left":
-            xAnchor, yAnchor = 0, 0
+            anchorX, anchorY = 0, 0
         elif parentAnchor == "top right":
-            xAnchor, yAnchor = screenWidth, 0
+            anchorX, anchorY = screenWidth, 0
         elif parentAnchor == "bottom left":
-            xAnchor, yAnchor = 0, screenHeight
+            anchorX, anchorY = 0, screenHeight
         elif parentAnchor == "bottom right":
-            xAnchor, yAnchor = screenWidth, screenHeight
+            anchorX, anchorY = screenWidth, screenHeight
         elif parentAnchor == "center" or parentAnchor == "centre":
-            xAnchor, yAnchor = math.ceil(screenWidth / 2), math.ceil(screenHeight / 2)
+            anchorX, anchorY = math.ceil(screenWidth / 2), math.ceil(screenHeight / 2)
         else:
             pass
             addDebugMessage(
                 "".join(["Invalid input for parentAnchor in addItem():", parentAnchor])
             )
-    elif parentObject in items:
+    elif parentObject in itemObjects:
         if parentAnchor == "top left":
-            xAnchor, yAnchor = getTopLeft(parentObject)
+            anchorX, anchorY = getTopLeft(parentObject)
         elif parentAnchor == "top right":
-            xAnchor, yAnchor = getTopRight(parentObject)
+            anchorX, anchorY = getTopRight(parentObject)
         elif parentAnchor == "bottom left":
-            xAnchor, yAnchor = getBottomLeft(parentObject)
+            anchorX, anchorY = getBottomLeft(parentObject)
         elif parentAnchor == "bottom right":
-            xAnchor, yAnchor = getBottomRight(parentObject)
+            anchorX, anchorY = getBottomRight(parentObject)
         elif parentAnchor == "center" or parentAnchor == "centre":
-            xAnchor, yAnchor = getCenter(parentObject)
+            anchorX, anchorY = getCenter(parentObject)
         else:
 
             addDebugMessage(
@@ -285,72 +415,107 @@ def updateItemLocation(item: str) -> None:
         addDebugMessage(
             "".join(["Invalid input for parentObject in addItem():", parentObject])
         )
-
+    if width == None:
+        if parentObject == "screen":
+            width = screenWidth
+        else:
+            width = itemObjects[parentObject]["width"]
+    if height == None:
+        if parentObject == "screen":
+            width = screenWidth
+        else:
+            height = itemObjects[parentObject]["height"]
     if childAnchor == "top left":
-        yAnchor -= 0
-        xAnchor -= 0
+        anchorY -= 0
+        anchorX -= 0
     elif childAnchor == "top right":
-        xAnchor -= items[item]["width"]
-        yAnchor -= 0
+        anchorX -= width
+        anchorY -= 0
     elif childAnchor == "bottom left":
-        xAnchor -= 0
-        yAnchor -= items[item]["length"]
+        anchorX -= 0
+        anchorY -= height
     elif childAnchor == "bottom right":
-        xAnchor -= items[item]["width"]
-        yAnchor -= items[item]["length"]
+        anchorX -= width
+        anchorY -= height
     elif childAnchor == "center" or childAnchor == "centre":
-        xAnchor -= math.ceil(items[item]["width"] / 2)
-        yAnchor -= math.ceil(items[item]["length"] / 2)
+        anchorX -= math.ceil(width / 2)
+        anchorY -= math.ceil(height / 2)
     else:
 
         addDebugMessage(
             "".join(["Invalid input for childAnchor in addItem():", childAnchor])
         )
-    items[item]["x"] = xAnchor + items[item]["x bias"]
-    items[item]["y"] = yAnchor + items[item]["y bias"]
+    if childObject != None:
+        anchorX + itemObjects[childObject]["x bias"]
+        anchorY + itemObjects[childObject]["y bias"]
+    else:
+        if xBias != None:
+            anchorX += xBias
+        if yBias != None:
+            anchorY += yBias
+    return (anchorX, anchorY)
 
 
-def checkItemIsClicked(item: str, mouseCoords: tuple, isLeftClick=True) -> None:
-    pass
+def updateItemSize(item: str) -> None:
+    splitItem = itemObjects[item]["animation frames"][
+        itemObjects[item]["current frame"]
+    ].splitlines()
+    longestRowLen = 0
+    for rowNum in range(len(splitItem)):
+        if len(splitItem[rowNum]) > longestRowLen:
+            longestRowLen = len(splitItem[rowNum])
+    itemObjects[item]["width"] = longestRowLen
+    itemObjects[item]["height"] = len(splitItem)
+
+
+def updateItemFrame(item: str, newFrame: int) -> None:
+    itemObjects[item]["current frame"] = newFrame
+    updateItemSize(item)
 
 
 def getTopLeft(item: str) -> tuple:
-    if item in items:
-        return (item[item]["x"], item[item]["y"])
+    if item in itemObjects:
+        return (itemObjects[item]["x"], itemObjects[item]["y"])
 
 
 def getTopRight(item: str) -> tuple:
-    if item in items:
-        return (item[item]["x"] + items[item]["width"], item[item]["y"])
+    if item in itemObjects:
+        return (
+            itemObjects[item]["x"] + itemObjects[item]["width"],
+            itemObjects[item]["y"],
+        )
 
 
 def getBottomLeft(item: str) -> tuple:
-    if item in items:
-        return (item[item]["x"], item[item]["y"] + items[item]["height"])
+    if item in itemObjects:
+        return (
+            itemObjects[item]["x"],
+            itemObjects[item]["y"] + itemObjects[item]["height"],
+        )
 
 
 def getBottomRight(item: str) -> tuple:
-    if item in items:
+    if item in itemObjects:
         return (
-            item[item]["x"] + items[item]["width"],
-            item[item]["y"] + items[item]["height"],
+            itemObjects[item]["x"] + itemObjects[item]["width"],
+            itemObjects[item]["y"] + itemObjects[item]["height"],
         )
 
 
 def getCenter(item: str) -> tuple:
-    if item in items:
+    if item in itemObjects:
         return (
-            item[item]["x"] + math.ceil(items[item]["width"] / 2),
-            item[item]["y"] + math.ceil(items[item]["height"] / 2),
+            itemObjects[item]["x"] + math.ceil(itemObjects[item]["width"] / 2),
+            itemObjects[item]["y"] + math.ceil(itemObjects[item]["height"] / 2),
         )
 
 
 def deleteItem(item: str) -> None:
-    del items[item]
+    del itemObjects[item]
 
 
 # Functions: Key Binds
-def updateKeyBindStatus(keysBinds: list = ["all"]) -> None:
+def updateKeyboardBindStatus(keysBinds: list = ["all"]) -> None:
     if keysBinds == ["all"]:
         for key in keyBindsStatus:
             keyBindsStatus[key]["state"] = keyboard.is_pressed(
@@ -363,34 +528,31 @@ def updateKeyBindStatus(keysBinds: list = ["all"]) -> None:
             )
 
 
-def getKeyBinds(keyBind: str, update: bool = False) -> bool:
+def getKeyboardBindStatus(keyBind: str, update: bool = False) -> bool:
     if update == True:
-        keyBindsStatus[keyBind]["state"] = keyboard.is_pressed(
-            keyBindsStatus[keyBind]["keybind"]
-        )
+        updateKeyboardBindStatus(keysBinds=[keyBind])
     return keyBindsStatus[keyBind]["state"]
 
 
-def changeKeyBind(keyBind: str, newKey: str) -> None:
+def copyKeyboardBindStatus(update: bool = False) -> dict:
+    if update == True:
+        updateKeyboardBindStatus()
+    return copy.deepcopy(getKeyboardBindStatus)
+
+
+def changeKeyboardBind(keyBind: str, newKey: str) -> None:
     keyBindsStatus[keyBind]["keybind"] = newKey
 
 
-def getkeyBindStatus() -> dict:
-    with threadingLock:
-        global keyBindsStatusCopy
-        keyBindsStatusCopy = keyBindsStatus.deepcopy()
-    return keyBindsStatusCopy
-
-
 # Functions: Mouse Binds
-def onMove(x, y):
+def onMove(x: int, y: int):
     with threadingLock:
-        mouseStatus["aboslute position"] = (x, y)
+        mouseStatus["absolute position"] = (x, y)
 
 
-def onClick(x, y, button, pressed):
+def onClick(x: int, y: int, button: object, pressed: bool):
     with threadingLock:
-        mouseStatus["aboslute position"] = (x, y)
+        mouseStatus["absolute position"] = (x, y)
         if str(button) == "Button.left":
             mouseStatus["left button"] = pressed
         if str(button) == "Button.right":
@@ -399,9 +561,9 @@ def onClick(x, y, button, pressed):
             mouseStatus["middle button"] = pressed
 
 
-def onScroll(x, y, dx, dy):
+def onScroll(x: int, y: int, dx: int, dy: int):
     with threadingLock:
-        mouseStatus["aboslute position"] = (x, y)
+        mouseStatus["absolute position"] = (x, y)
         mouseStatus["scroll x"] = dx
         mouseStatus["scroll y"] = dy
 
@@ -413,10 +575,68 @@ def startAsynchronousMouseListener() -> mouse.Listener:
     return mouseListener
 
 
+def copyMouseStatus(resetMouseStatusAfterCopy: bool = False) -> dict:
+    with threadingLock:
+        global mouseStatusCopy
+        mouseStatusCopy = copy.deepcopy(mouseStatus)
+        if resetMouseStatusAfterCopy == True:
+            # mouseStatus["left button"] = False
+            # mouseStatus["right button"] = False
+            # mouseStatus["middle button"] = False
+            mouseStatus["scroll x"] = 0
+            mouseStatus["scroll y"] = 0
+    mouseStatusCopy["position"] = getRelativeMouseCoords(
+        mouseStatusCopy["absolute position"]
+    )
+    return mouseStatusCopy
+
+
+def resetMouseStatus(onlyResetScroll=False) -> None:
+    with threadingLock:
+        if onlyResetScroll == True:
+            mouseStatus["left button"] = False
+            mouseStatus["right button"] = False
+            mouseStatus["middle button"] = False
+        mouseStatus["scroll x"] = 0
+        mouseStatus["scroll y"] = 0
+
+
+def getRelativeMouseCoords(
+    absoluteMouseCoords: tuple | None = None,
+) -> tuple:
+    rect = RECT()
+    DMWA_EXTENDED_FRAME_BOUNDS = 9
+    dwmapi.DwmGetWindowAttribute(
+        HWND(hwnd),
+        DWORD(DMWA_EXTENDED_FRAME_BOUNDS),
+        ctypes.byref(rect),
+        ctypes.sizeof(rect),
+    )
+    if absoluteMouseCoords == None:
+        absoluteMouseCoords = mouseStatusCopy["absolute position"]
+    if checkIfFullScreen() == True:
+        return (
+            math.floor(absoluteMouseCoords[0] / characterSize[0]) - 1,
+            math.floor(absoluteMouseCoords[1] / characterSize[1]) + 2,
+        )
+    elif checkIfFullScreen() == "maximized":
+        return (
+            math.floor(absoluteMouseCoords[0] / characterSize[0]) - 1,
+            math.floor(absoluteMouseCoords[1] / characterSize[1] + 0.5),
+        )
+    else:
+        return (
+            math.floor(absoluteMouseCoords[0] / characterSize[0]) - 1,
+            math.floor(absoluteMouseCoords[1] / characterSize[1]),
+        )
+
+
 # Functions: Debug Messages
-def addDebugMessage(message: str) -> None:
+def addDebugMessage(message: any) -> None:
     debugMessages.append(
-        "".join(["> ", time.strftime("%H:%M:%S", time.localtime()), " | ", message])
+        "".join(
+            ["> ", time.strftime("%H:%M:%S", time.localtime()), " | ", str(message)]
+        )
     )
 
 
@@ -467,6 +687,11 @@ def renderDebugMessages(messageLimit: int = 5) -> None:
             )
 
 
+def setDebugMode(state: bool) -> None:
+    global debugMode
+    debugMode = state
+
+
 # Functions: Miscellaneous
 def updateScreenSize() -> None:
     global screenWidth, screenHeight
@@ -510,33 +735,34 @@ def addBorder(
     return "\n".join(borderedLines)
 
 
-def generateLine(point1: tuple, point2: tuple, character: str) -> str:
+def generateLine(
+    point1: tuple, point2: tuple, character: str = "#", backgroundCharacter: str = "š"
+) -> str:
     point1X, point1Y = point1
     point2X, point2Y = point2
-
-    distanceX = point2X - point1X
-    distanceY = point2Y - point1Y
-    line = [[" " for _ in range(distanceX)] for _ in range(distanceY)]
-    if abs(distanceX) >= abs(distanceY):
-        step = 1 if distanceX > 0 else -1
-        for x in range(point1X, point2X, step):
-            y = point1Y + distanceY * ((x + 0.5 - point1X) / distanceX)
-            y = round(y)
-            if 0 <= y < len(line) and 0 <= x < len(line[0]):
-                line[y][x] = character
-                if 0 <= x - step < len(line[0]):
-                    line[y][x - step] = character
-    else:
-        step = 1 if distanceY > 0 else -1
-        for y in range(point1Y, point2Y, step):
-            x = point1X + distanceX * ((y + 0.5 - point1Y) / distanceY)
-            x = round(x)
-            if 0 <= y < len(line) and 0 <= x < len(line[0]):
-                line[y][x] = character
-                if 0 <= y - step < len(line):
-                    line[y - step][x] = character
-
-    return "\n".join("".join(row) for row in line)
+    width = abs(point2X - point1X) + 1
+    height = abs(point2Y - point1Y) + 1
+    minX = min(point1X, point2X)
+    minY = min(point1Y, point2Y)
+    sx1, sy1 = point1X - minX, point1Y - minY
+    sx2, sy2 = point2X - minX, point2Y - minY
+    canvas = [[backgroundCharacter for _ in range(width)] for _ in range(height)]
+    dx = abs(sx2 - sx1)
+    dy = abs(sy2 - sy1)
+    x, y = sx1, sy1
+    sx = 1 if sx1 < sx2 else -1
+    sy = 1 if sy1 < sy2 else -1
+    err = dx - dy
+    while not (x == sx2 and y == sy2):
+        canvas[y][x] = character
+        e2 = 2 * err
+        if e2 > -dy:
+            err -= dy
+            x += sx
+        if e2 < dx:
+            err += dx
+            y += sy
+    return "\n".join("".join(row) for row in canvas)
 
 
 def style(

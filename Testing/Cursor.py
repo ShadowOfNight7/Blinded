@@ -2,28 +2,15 @@ import mouse, ctypes, time, win32gui, os, math, pygetwindow
 from ctypes.wintypes import HWND, DWORD, RECT
 
 dwmapi = ctypes.WinDLL("dwmapi")
-hwnd = ctypes.windll.user32.FindWindowW(
-    0, win32gui.GetWindowText(win32gui.GetForegroundWindow())
-)
+hwnd = ctypes.windll.user32.FindWindowW(0, win32gui.GetWindowText(win32gui.GetForegroundWindow()))
 ctypes.windll.user32.SetProcessDPIAware()
 
-full_screen_rect = (
-    0,
-    0,
-    ctypes.windll.user32.GetSystemMetrics(0),
-    ctypes.windll.user32.GetSystemMetrics(1),
-)
-maximized_screen_rect = (
-    0,
-    0,
-    ctypes.windll.user32.GetSystemMetrics(16),
-    ctypes.windll.user32.GetSystemMetrics(17),
-)
+full_screen_rect = (0, 0, ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1))
+maximized_screen_rect = (0, 0, ctypes.windll.user32.GetSystemMetrics(16), ctypes.windll.user32.GetSystemMetrics(17))
 
 ctypes.windll.shcore.SetProcessDpiAwareness(2)
 
 win = pygetwindow.getActiveWindow()
-
 
 def is_full_screen():
     try:
@@ -31,18 +18,15 @@ def is_full_screen():
         rect = win32gui.GetWindowRect(hWnd)
         if rect == full_screen_rect:
             return True
-        elif (rect[2] >= maximized_screen_rect[2]) and (
-            rect[3] >= maximized_screen_rect[3]
-        ):
+        elif (rect[2] >= maximized_screen_rect[2]) and (rect[3] >= maximized_screen_rect[3]):
             return "maximized"
         else:
             return False
     except:
         return False
 
-
 def getsize():
-    pygetwindow.getActiveWindow().size = (0, 0)
+    pygetwindow.getActiveWindow().size = (0,0)
     time.sleep(0.05)
     currentsize = pygetwindow.getActiveWindow().size
     currentlines = os.get_terminal_size().lines
@@ -71,12 +55,11 @@ def getsize():
     charwidth = pygetwindow.getActiveWindow().size[0] - currentsize[0]
     return (charwidth, charheight)
 
-
-def initialize(repetitions=1):
+def initialize(repetitions = 1):
     charsize = []
     for i in range(repetitions):
-        charsize.append(getsize())
-        time.sleep(0.1)
+            charsize.append(getsize())
+            time.sleep(0.1)
     charx, chary = 0, 0
     for i in charsize:
         charx += i[0]
@@ -104,7 +87,6 @@ def get_mouse_coords(charactersize, get_text=False):
     else:
         return (math.floor(mouse_coords[0] / charactersize[0]) - 1, math.floor(mouse_coords[1] / charactersize[1]))
 
-
 def get_pixel_coords(charactersize, character_mouse_coords):
     rect = RECT()
     DMWA_EXTENDED_FRAME_BOUNDS = 9
@@ -115,5 +97,4 @@ def get_pixel_coords(charactersize, character_mouse_coords):
         mouse_coords = ((character_mouse_coords[0] + 1 + 0.5) * charactersize[0], (character_mouse_coords[1] - 0.5 + 0.5) * charactersize[1])
     else:
         mouse_coords = ((character_mouse_coords[0] + 1 + 0.5) * charactersize[0], (character_mouse_coords[1] + 0.5) * charactersize[1])
-
     return win32gui.ClientToScreen(hwnd, (round(mouse_coords[0] - ctypes.windll.user32.GetSystemMetrics(5) * 2), round(mouse_coords[1] + ctypes.windll.user32.GetSystemMetrics(4) * 2)))

@@ -1,4 +1,5 @@
 import Assets.YiPyterminal as YiPyterminal
+import time
 
 # print(YiPyterminal.FPS)
 # print(
@@ -39,6 +40,8 @@ YiPyterminal.createItem(
     ],
     xBias=0,
     yBias=0,
+    parentAnchor="center",
+    childAnchor="center",
 )
 YiPyterminal.startAsynchronousMouseListener()
 while True:

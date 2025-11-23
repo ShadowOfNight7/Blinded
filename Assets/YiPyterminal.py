@@ -101,7 +101,8 @@ def prepareTerminalInitialization() -> None:
 
 
 def initializeTerminal(
-    repetitions: int = 2, overrideValue: tuple | None = None
+    repetitions: int = 2,
+    overrideValue: tuple | None = None,
 ) -> tuple:
     prepareTerminalInitialization()
     global characterSize
@@ -205,7 +206,12 @@ def renderLiteralItem(
             longestRowLen = len(splitItem[rowNum])
         splitItem[rowNum] = list(splitItem[rowNum])
     xAnchor, yAnchor = getAnchorPosition(
-        itemAnchor, screenAnchor, width=longestRowLen, height=len(splitItem)
+        itemAnchor,
+        item,
+        screenAnchor,
+        width=longestRowLen,
+        height=len(splitItem),
+        isChildObjectLiteralStr=True,
     )
     xAnchor += xBias
     yAnchor += yBias
@@ -307,8 +313,8 @@ def createItem(
         "child anchor": childAnchor,
         "is empty character part of hitbox": isEmptyCharacterPartOfHitbox,
     }
-    updateItemLocation(name)
     updateItemSize(name)
+    updateItemLocation(name)
 
 
 def renderItem(
@@ -320,14 +326,20 @@ def renderItem(
     splitItem = itemObjects[item]["animation frames"][
         itemObjects[item]["current frame"]
     ].splitlines()
-
-    xAnchor = xBias + itemObjects[item]["x bias"]
-    yAnchor = yBias + itemObjects[item]["y bias"]
     for rowNum in range(len(splitItem)):
         for columnNum in range(len(splitItem[rowNum])):
             if splitItem[rowNum][columnNum] != emptySpaceLetter:
                 addLetter(
-                    (columnNum + xAnchor, rowNum + yAnchor),
+                    (
+                        columnNum
+                        + xBias
+                        + itemObjects[item]["x bias"]
+                        + itemObjects[item]["x"],
+                        rowNum
+                        + yBias
+                        + itemObjects[item]["y bias"]
+                        + itemObjects[item]["y"],
+                    ),
                     splitItem[rowNum][columnNum],
                 )
 
@@ -335,6 +347,7 @@ def renderItem(
 def updateItemLocation(item: str) -> None:
     itemObjects[item]["x"], itemObjects[item]["y"] = getAnchorPosition(
         itemObjects[item]["child anchor"],
+        item,
         itemObjects[item]["parent anchor"],
         itemObjects[item]["parent object"],
     )
@@ -376,13 +389,14 @@ def checkItemIsClicked(
 
 def getAnchorPosition(
     childAnchor: str,
+    childObject: str,
     parentAnchor: str,
     parentObject: str = "screen",
     width: int | None = None,
     height: int | None = None,
-    childObject: str | None = None,
     xBias: int | None = None,
     yBias: int | None = None,
+    isChildObjectLiteralStr: bool = False,
 ) -> tuple:
     if parentObject == "screen":
         if parentAnchor == "top left":
@@ -421,16 +435,13 @@ def getAnchorPosition(
         addDebugMessage(
             "".join(["Invalid input for parentObject in addItem():", parentObject])
         )
-    if width == None:
-        if parentObject == "screen":
-            width = screenWidth
-        else:
-            width = itemObjects[parentObject]["width"]
-    if height == None:
-        if parentObject == "screen":
-            width = screenWidth
-        else:
-            height = itemObjects[parentObject]["height"]
+    if isChildObjectLiteralStr == False:
+        if width == None:
+            width = itemObjects[childObject]["width"]
+        if height == None:
+            height = itemObjects[childObject]["height"]
+    elif isChildObjectLiteralStr == True:
+        width, height = getStrWidthAndHeight(childObject)
     if childAnchor == "top left":
         anchorY -= 0
         anchorX -= 0
@@ -447,11 +458,10 @@ def getAnchorPosition(
         anchorX -= math.ceil(width / 2)
         anchorY -= math.ceil(height / 2)
     else:
-
         addDebugMessage(
             "".join(["Invalid input for childAnchor in addItem():", childAnchor])
         )
-    if childObject != None:
+    if childObject != None and isChildObjectLiteralStr == False:
         anchorX + itemObjects[childObject]["x bias"]
         anchorY + itemObjects[childObject]["y bias"]
     else:
@@ -472,6 +482,15 @@ def updateItemSize(item: str) -> None:
             longestRowLen = len(splitItem[rowNum])
     itemObjects[item]["width"] = longestRowLen
     itemObjects[item]["height"] = len(splitItem)
+
+
+def getStrWidthAndHeight(itemStr: str) -> tuple:
+    splitItem = itemStr.splitlines()
+    longestRowLen = 0
+    for rowNum in range(len(splitItem)):
+        if len(splitItem[rowNum]) > longestRowLen:
+            longestRowLen = len(splitItem[rowNum])
+    return (longestRowLen, len(splitItem))
 
 
 def updateItemFrame(item: str, newFrame: int) -> None:

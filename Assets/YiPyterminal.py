@@ -196,7 +196,7 @@ def renderLiteralItem(
     screenAnchor: str = "top left",
     itemAnchor: str = "top left",
     emptySpaceLetter: str = "š",
-) -> None:
+) -> tuple:
 
     splitItem = item.splitlines()
     longestRowLen = 0
@@ -216,6 +216,7 @@ def renderLiteralItem(
                     (columnNum + xAnchor, rowNum + yAnchor),
                     splitItem[rowNum][columnNum],
                 )
+    return (xAnchor + math.floor(longestRowLen / 2), yAnchor + math.floor(len(splitItem) / 2))
 
 
 def renderScreen(backgroundCharacter: str = " ") -> None:
@@ -759,7 +760,7 @@ def generateLine(
     minY = min(point1Y, point2Y)
     sx1, sy1 = point1X - minX, point1Y - minY
     sx2, sy2 = point2X - minX, point2Y - minY
-    canvas = [[backgroundCharacter for _ in range(width)] for _ in range(height)]
+    canvas = [[backgroundCharacter for _ in range(width+1)] for _ in range(height+1)]
     dx = abs(sx2 - sx1)
     dy = abs(sy2 - sy1)
     x, y = sx1, sy1

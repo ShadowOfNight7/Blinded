@@ -57,8 +57,8 @@ def PhaseChange(Phase: str):
 timed = 99
 AimTarget = []
 character_size = (19, 37) #NORMAL
-# character_size = (9, 19) #PC
-# character_size = Cursor.initialize(2)
+character_size = (9, 19) #PC
+character_size = Cursor.initialize(2)
 score = 0
 
 MainClock = 1000

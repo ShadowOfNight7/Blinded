@@ -326,7 +326,7 @@ def renderItem(
     emptySpaceLetter: str = "š",
     xBias: str = 0,
     yBias: str = 0,
-) -> None:
+):
     updateItemLocation(item)
     splitItem = itemObjects[item]["animation frames"][
         itemObjects[item]["current frame"]
@@ -338,11 +338,11 @@ def renderItem(
                     (
                         columnNum
                         + xBias
-                        + itemObjects[item]["x bias"]
+                        # + itemObjects[item]["x bias"]
                         + itemObjects[item]["x"],
                         rowNum
                         + yBias
-                        + itemObjects[item]["y bias"]
+                        # + itemObjects[item]["y bias"]
                         + itemObjects[item]["y"],
                     ),
                     splitItem[rowNum][columnNum],

@@ -338,11 +338,11 @@ def renderItem(
                     (
                         columnNum
                         + xBias
-                        + itemObjects[item]["x bias"]
+                        # + itemObjects[item]["x bias"]
                         + itemObjects[item]["x"],
                         rowNum
                         + yBias
-                        + itemObjects[item]["y bias"]
+                        # + itemObjects[item]["y bias"]
                         + itemObjects[item]["y"],
                     ),
                     splitItem[rowNum][columnNum],

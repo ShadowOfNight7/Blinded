@@ -324,6 +324,9 @@ def renderItem(
     xBias: str = 0,
     yBias: str = 0,
 ) -> None:
+    # print(itemObjects)
+    # time.sleep(999)
+    updateItemLocation(item)
     splitItem = itemObjects[item]["animation frames"][
         itemObjects[item]["current frame"]
     ].splitlines()

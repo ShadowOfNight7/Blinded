@@ -222,7 +222,10 @@ def renderLiteralItem(
                     (columnNum + xAnchor, rowNum + yAnchor),
                     splitItem[rowNum][columnNum],
                 )
-    return (xAnchor + math.floor(longestRowLen / 2), yAnchor + math.floor(len(splitItem) / 2))
+    return (
+        xAnchor + math.floor(longestRowLen / 2),
+        yAnchor + math.floor(len(splitItem) / 2),
+    )
 
 
 def renderScreen(backgroundCharacter: str = " ") -> None:
@@ -324,8 +327,6 @@ def renderItem(
     xBias: str = 0,
     yBias: str = 0,
 ) -> None:
-    # print(itemObjects)
-    # time.sleep(999)
     updateItemLocation(item)
     splitItem = itemObjects[item]["animation frames"][
         itemObjects[item]["current frame"]
@@ -466,8 +467,8 @@ def getAnchorPosition(
             "".join(["Invalid input for childAnchor in addItem():", childAnchor])
         )
     if childObject != None and isChildObjectLiteralStr == False:
-        anchorX + itemObjects[childObject]["x bias"]
-        anchorY + itemObjects[childObject]["y bias"]
+        anchorX += itemObjects[childObject]["x bias"]
+        anchorY += itemObjects[childObject]["y bias"]
     else:
         if xBias != None:
             anchorX += xBias
@@ -535,8 +536,8 @@ def getBottomRight(item: str) -> tuple:
 def getCenter(item: str) -> tuple:
     if item in itemObjects:
         return (
-            itemObjects[item]["x"] + math.ceil(itemObjects[item]["width"] / 2),
-            itemObjects[item]["y"] + math.ceil(itemObjects[item]["height"] / 2),
+            itemObjects[item]["x"] + math.ceil((itemObjects[item]["width"] - 1) / 2),
+            itemObjects[item]["y"] + math.ceil((itemObjects[item]["height"] - 1) / 2),
         )
 
 
@@ -782,7 +783,9 @@ def generateLine(
     minY = min(point1Y, point2Y)
     sx1, sy1 = point1X - minX, point1Y - minY
     sx2, sy2 = point2X - minX, point2Y - minY
-    canvas = [[backgroundCharacter for _ in range(width+1)] for _ in range(height+1)]
+    canvas = [
+        [backgroundCharacter for _ in range(width + 1)] for _ in range(height + 1)
+    ]
     dx = abs(sx2 - sx1)
     dy = abs(sy2 - sy1)
     x, y = sx1, sy1

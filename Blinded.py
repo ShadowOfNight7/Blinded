@@ -56,8 +56,8 @@ def PhaseChange(Phase: str):
 
 timed = 99
 AimTarget = []
-# character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PC
+character_size = (19, 37) #NORMAL
+# character_size = (9, 19) #PC
 # character_size = Cursor.initialize(2)
 score = 0
 
@@ -200,7 +200,7 @@ while True:
         
         if not GetRoomLoc:
             for Line in LinesRooms:
-                pyterm.renderItem(Line["Line"], xBias = Line["Pos"][0] + mapOffset[0], yBias = Line["Pos"][1] + mapOffset[1])
+                pyterm.renderItem(Line["Line"], xBias = round(Line["Pos"][0]) + mapOffset[0], yBias = round(Line["Pos"][1]) + mapOffset[1])
 
         pyterm.renderLiteralItem(assets["BlackHole"], round(mapOffset[0]), round(mapOffset[1]), "center", "center")
         pyterm.renderLiteralItem("x", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
@@ -235,9 +235,9 @@ while True:
             for tier in hierarchyLocations:
                 for rooms in tier:
                     for connect in rooms["Connections"]:
-                        LinesRooms.append({"Line": pyterm.generateLine(rooms["Location"], connect["Location"]), "Pos": (min(rooms["Location"][0], connect["Location"][0]), min(rooms["Location"][1], connect["Location"][1]))})
+                        LinesRooms.append({"Line": pyterm.generateLine(rooms["Location"], connect["Location"]), "Pos": ((rooms["Location"][0] + connect["Location"][0])/2, (rooms["Location"][1] + connect["Location"][1])/2)})
             for Line in LinesRooms:
-                pyterm.createItem(Line["Line"], [Line["Line"]], "screen", "center")
+                pyterm.createItem(Line["Line"], [Line["Line"]], "screen", "center", "center")
         GetRoomLoc = False
 
         if MouseDetect.ClickDetect("Right", "On"):

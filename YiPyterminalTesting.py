@@ -46,7 +46,8 @@ YiPyterminal.createItem(
 YiPyterminal.startAsynchronousMouseListener()
 while True:
     YiPyterminal.copyMouseStatus(resetMouseStatusAfterCopy=True)
-    YiPyterminal.addDebugMessage(YiPyterminal.mouseStatusCopy)
+    # YiPyterminal.addDebugMessage(YiPyterminal.mouseStatusCopy)
+    YiPyterminal.addDebugMessage(YiPyterminal.itemObjects["line1"])
     # print(YiPyterminal.mouseStatusCopy)
     if YiPyterminal.checkItemIsClicked("line1"):
         YiPyterminal.updateItemFrame("line1", 1)

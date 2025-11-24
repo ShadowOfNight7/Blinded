@@ -504,6 +504,21 @@ def updateItemFrame(item: str, newFrame: int) -> None:
     updateItemLocation(item)
 
 
+def getAnchor(item: str, anchor: str) -> tuple:
+    if anchor == "top left":
+        return getTopLeft(item)
+    elif anchor == "top right":
+        return getTopRight(item)
+    elif anchor == "bottom left":
+        return getBottomLeft(item)
+    elif anchor == "bottom right":
+        return getBottomRight(item)
+    elif anchor == "center" or anchor == "centre":
+        return getCenter(item)
+    else:
+        addDebugMessage("".join(["Invalid input for anchor in getAnchor():", anchor]))
+
+
 def getTopLeft(item: str) -> tuple:
     if item in itemObjects:
         return (itemObjects[item]["x"], itemObjects[item]["y"])

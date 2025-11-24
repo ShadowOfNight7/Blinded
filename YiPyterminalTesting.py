@@ -27,7 +27,8 @@ import time
 # for i in x.splitlines():
 #     print(i)
 # exit()
-
+print(YiPyterminal.generateLine((5, 0), (0, 5)))
+exit()
 (9, 19)
 YiPyterminal.initializeTerminal(repetitions=1)
 

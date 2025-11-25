@@ -365,6 +365,7 @@ def updateItemLocation(item: str) -> None:
 def checkItemIsClicked(
     item: str, button: str = "left", mouseCoords: tuple | None = None
 ) -> bool:
+    global mouseStatusCopy
     if mouseCoords is None:
         mouseCoords = mouseStatusCopy["position"]
     itemTopLeftX, itemTopLeftY = getTopLeft(item)

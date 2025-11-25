@@ -730,7 +730,25 @@ assets = {
 |##############|
 |##############|
 š\############/š
-ššš¯¯¯¯¯¯¯¯¯¯ššš"""
+ššš¯¯¯¯¯¯¯¯¯¯ššš""",
+"SettingsRoomsNormal": """┌------------┐
+|   Normal   |
+└------------┘""",
+"SettingsRoomsNormalOn": """┌------------┐
+|>  Normal  <|
+└------------┘""",
+"SettingsRoomsObfuscated": """┌------------┐
+| Obfuscated |
+└------------┘""",
+"SettingsRoomsObfuscatedOn": """┌------------┐
+|>Obfuscated<|
+└------------┘""",
+"SettingsRoomsAnimated": """┌------------┐
+|  Animated  |
+└------------┘""",
+"SettingsRoomsAnimatedOn": """┌------------┐
+|> Animated <|
+└------------┘"""
 }
 
 #156 x 41

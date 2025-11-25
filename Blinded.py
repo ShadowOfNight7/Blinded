@@ -88,7 +88,7 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "map"
+phase = "title"
 
 
 #Oddly Specific Variables
@@ -96,6 +96,14 @@ riseTitle = 0
 rise = False
 Settings = False
 SevenSins = False
+pyterm.createItem("SettingsRoomsNormal", [assets.get("SettingsRoomsNormal"), assets.get("SettingsRoomsNormalOn")], "screen", "center", "center", 0)
+pyterm.createItem("SettingsRoomsObfuscated", [assets.get("SettingsRoomsObfuscated"), assets.get("SettingsRoomsObfuscatedOn")], "screen", "center", "center", 0)
+pyterm.createItem("SettingsRoomsAnimated", [assets.get("SettingsRoomsAnimated"), assets.get("SettingsRoomsAnimatedOn")], "screen", "center", "center", 0)
+SettingsRooms = 1
+
+
+
+
 
 Hierarchy = 7
 RandomAdd = []
@@ -115,7 +123,7 @@ Fractured, Unfractured = random.randint(3, 10), 5
 ClearedRooms = [(0, 1)]
 
 #Setting Variables
-RoomShadows = "Normal"#, "Obfuscated", "Flashing"
+RoomShadows = "Normal"#, "Obfuscated", "Animated"
 
 
 
@@ -134,6 +142,7 @@ while True:
 
     keyboard.block_key("ctrl")
     location = Cursor.get_mouse_coords(character_size, True)
+    LeftClick = MouseDetect.ClickDetect("Left", "On")
     
 
     if phase.lower() == "title":
@@ -143,19 +152,46 @@ while True:
         pyterm.renderLiteralItem(assets["Title1"], 0, -22 - max(riseTitle - 8, 0), "center", "center")
         if ((-63 + os.get_terminal_size().columns/2) <= location[0] <= (-19 + os.get_terminal_size().columns/2)) and ((8 + os.get_terminal_size().lines/2) <= location[1] <= (14 + os.get_terminal_size().lines/2)) and (riseTitle == 0) and (not (Settings or SevenSins)):
             pyterm.renderLiteralItem(assets["TitlePlayHover"], -40, -3, "center", "center")
-            if MouseDetect.ClickDetect("Left", "On"):
+            if LeftClick:
                 rise = True
                 SevenSins = True
         if ((17 + os.get_terminal_size().columns/2) <= location[0] <= (61 + os.get_terminal_size().columns/2)) and ((1 + os.get_terminal_size().lines/2) <= location[1] <= (8 + os.get_terminal_size().lines/2)) and (riseTitle == 0) and (not (Settings or SevenSins)):
             pyterm.renderLiteralItem(assets["TitleOptionsHover"], 40, -8, "center", "center")
-            if MouseDetect.ClickDetect("Left", "On"):
+            if LeftClick:
                 rise = True
                 Settings = True
         #Settings Overlay
         if Settings:
             pyterm.renderLiteralItem(assets["TitleSettings"], 0, -70 + min(riseTitle, 55), "center", "center")
             pyterm.renderLiteralItem(assets["TitleReturn"], -55, -90 + min(riseTitle, 60), "center", "center")
-            if ((-73 + os.get_terminal_size().columns/2) <= location[0] <= (-39 + os.get_terminal_size().columns/2)) and ((-18 + os.get_terminal_size().lines/2) <= location[1] <= (-14 + os.get_terminal_size().lines/2)):
+
+            #SettingsRooms
+            if LeftClick and ((round(os.get_terminal_size().columns/2) - 14 - 7) <= location[0] <= (round(os.get_terminal_size().columns/2) - 14 + 7)) and ((round(os.get_terminal_size().lines/2) - 10 - 2.5) <= location[1] <= (round(os.get_terminal_size().lines/2) - 10 + .5)):
+                SettingsRooms = 1
+            elif LeftClick and ((round(os.get_terminal_size().columns/2) - 0 - 7) <= location[0] <= (round(os.get_terminal_size().columns/2) - 0 + 7)) and ((round(os.get_terminal_size().lines/2) - 10 - 2.5) <= location[1] <= (round(os.get_terminal_size().lines/2) - 10 + .5)):
+                SettingsRooms = 2
+            elif LeftClick and ((round(os.get_terminal_size().columns/2) + 14 - 7) <= location[0] <= (round(os.get_terminal_size().columns/2) + 14 + 7)) and ((round(os.get_terminal_size().lines/2) - 10 - 2.5) <= location[1] <= (round(os.get_terminal_size().lines/2) - 10 + .5)):
+                SettingsRooms = 3
+
+
+            if SettingsRooms == 1:
+                pyterm.updateItemFrame("SettingsRoomsNormal", 1)
+                pyterm.updateItemFrame("SettingsRoomsObfuscated", 0)
+                pyterm.updateItemFrame("SettingsRoomsAnimated", 0)
+            elif SettingsRooms == 2:
+                pyterm.updateItemFrame("SettingsRoomsNormal", 0)
+                pyterm.updateItemFrame("SettingsRoomsObfuscated", 1)
+                pyterm.updateItemFrame("SettingsRoomsAnimated", 0)
+            elif SettingsRooms == 3:
+                pyterm.updateItemFrame("SettingsRoomsNormal", 0)
+                pyterm.updateItemFrame("SettingsRoomsObfuscated", 0)
+                pyterm.updateItemFrame("SettingsRoomsAnimated", 1)
+            pyterm.renderItem("SettingsRoomsNormal", xBias=-14, yBias=-10)
+            pyterm.renderItem("SettingsRoomsObfuscated", xBias=0, yBias=-10)
+            pyterm.renderItem("SettingsRoomsAnimated", xBias=14, yBias=-10)
+
+
+            if ((os.get_terminal_size().columns/2 - 55 - 17.5) <= location[0] <= (os.get_terminal_size().columns/2 - 55 + 17.5)) and ((os.get_terminal_size().lines/2 - 30 + 17.5 - 2.5 - 2) <= location[1] <= (os.get_terminal_size().lines/2 - 30 + 17.5 + 2.5 - 2)):
                 pyterm.renderLiteralItem(assets["TitleReturnHover"], -55, -90 + min(riseTitle, 60), "center", "center")
                 if MouseDetect.ClickDetect("Left", "On"):
                     rise = False
@@ -320,7 +356,7 @@ while True:
 
 
     # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
-    pyterm.renderLiteralItem(str(location) + " " + str(MouseDetect.ClickDetect("Left", "On")), 0, 0, "bottom left", "bottom left")
+    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick), 0, 0, "bottom left", "bottom left")
 
 
     pyterm.renderScreen()

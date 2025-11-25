@@ -336,12 +336,10 @@ def renderItem(
             if splitItem[rowNum][columnNum] != emptySpaceLetter:
                 addLetter(
                     (
-                        columnNum
-                        + xBias
+                        columnNum + xBias
                         # + itemObjects[item]["x bias"]
                         + itemObjects[item]["x"],
-                        rowNum
-                        + yBias
+                        rowNum + yBias
                         # + itemObjects[item]["y bias"]
                         + itemObjects[item]["y"],
                     ),
@@ -792,23 +790,23 @@ def generateLine(
 ) -> str:
     point1X, point1Y = point1
     point2X, point2Y = point2
-    width = abs(point2X - point1X)
-    height = abs(point2Y - point1Y)
+    width = abs(point2X - point1X) + 1
+    height = abs(point2Y - point1Y) + 1
     minX = min(point1X, point2X)
     minY = min(point1Y, point2Y)
     sx1, sy1 = point1X - minX, point1Y - minY
     sx2, sy2 = point2X - minX, point2Y - minY
-    canvas = [
-        [backgroundCharacter for _ in range(width + 1)] for _ in range(height + 1)
-    ]
+    canvas = [[backgroundCharacter for _ in range(width)] for _ in range(height)]
     dx = abs(sx2 - sx1)
     dy = abs(sy2 - sy1)
     x, y = sx1, sy1
     sx = 1 if sx1 < sx2 else -1
     sy = 1 if sy1 < sy2 else -1
     err = dx - dy
-    while not (x == sx2 and y == sy2):
+    while True:
         canvas[y][x] = character
+        if x == sx2 and y == sy2:
+            break
         e2 = 2 * err
         if e2 > -dy:
             err -= dy

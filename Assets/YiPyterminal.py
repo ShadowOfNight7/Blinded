@@ -326,7 +326,13 @@ def renderItem(
     emptySpaceLetter: str = "š",
     xBias: str = 0,
     yBias: str = 0,
-):
+    createItemIfNotExists: bool = False,
+    createItemArgs: dict | None = None,
+) -> None:
+    if item not in itemObjects and createItemIfNotExists == True:
+        if createItemArgs == None:
+            createItemArgs = {}
+        createItem(item, **createItemArgs)
     updateItemLocation(item)
     splitItem = itemObjects[item]["animation frames"][
         itemObjects[item]["current frame"]

@@ -27,38 +27,40 @@ import time
 # for i in x.splitlines():
 #     print(i)
 # exit()
-print("YiPyterminal.generateLine((0, 0), (5, 5))")
-print(YiPyterminal.generateLine((0, 0), (5, 5)))
-print()
-print("YiPyterminal.generateLine((0, 5), (5, 0))")
-print(YiPyterminal.generateLine((0, 5), (5, 0)))
-print()
-print("YiPyterminal.generateLine((5, 0), (0, 5))")
-print(YiPyterminal.generateLine((5, 0), (0, 5)))
-print()
-print("YiPyterminal.generateLine((5, 5), (0, 0))")
-print(YiPyterminal.generateLine((5, 5), (0, 0)))
-print()
-print("YiPyterminal.generateLine((5, 5), (5, 5))")
-print(YiPyterminal.generateLine((5, 5), (5, 5)))
-exit()
 (9, 19)
 YiPyterminal.initializeTerminal(repetitions=1)
 
-YiPyterminal.createItem(
-    "line1",
-    [
-        YiPyterminal.generateLine((0, 0), (20, 10)),
-        YiPyterminal.generateLine((0, 0), (10, 10)),
-        YiPyterminal.generateLine((0, 0), (5, 5)),
-    ],
-    xBias=0,
-    yBias=0,
-    parentAnchor="center",
-    childAnchor="center",
-)
+# YiPyterminal.createItem(
+#     "line1",
+#     [
+#         YiPyterminal.generateLine((0, 0), (20, 10)),
+#         YiPyterminal.generateLine((0, 0), (10, 10)),
+#         YiPyterminal.generateLine((0, 0), (5, 5)),
+#         YiPyterminal.generateLine((5, 0), (5, 5)),
+#     ],
+#     xBias=0,
+#     yBias=0,
+#     parentAnchor="center",
+#     childAnchor="center",
+# )
 YiPyterminal.startAsynchronousMouseListener()
 while True:
+    YiPyterminal.renderItem(
+        "line1",
+        createItemIfNotExists=True,
+        createItemArgs={
+            "animationFrames": [
+                YiPyterminal.generateLine((0, 0), (20, 10)),
+                YiPyterminal.generateLine((0, 0), (10, 10)),
+                YiPyterminal.generateLine((0, 0), (5, 5)),
+                YiPyterminal.generateLine((5, 0), (5, 5)),
+            ],
+            "xBias": 0,
+            "yBias": 0,
+            "parentAnchor": "center",
+            "childAnchor": "center",
+        },
+    )
     YiPyterminal.copyMouseStatus(resetMouseStatusAfterCopy=True)
     # YiPyterminal.addDebugMessage(YiPyterminal.mouseStatusCopy)
     YiPyterminal.addDebugMessage(YiPyterminal.itemObjects["line1"])
@@ -69,6 +71,8 @@ while True:
         YiPyterminal.updateItemFrame("line1", 0)
     if YiPyterminal.getKeyboardBindStatus("up", update=True) == True:
         YiPyterminal.updateItemFrame("line1", 2)
-    YiPyterminal.renderItem("line1")
+    if YiPyterminal.getKeyboardBindStatus("down", update=True) == True:
+        YiPyterminal.updateItemFrame("line1", 3)
+    # YiPyterminal.renderItem("line1")
     YiPyterminal.renderScreen()
     YiPyterminal.displayScreen()

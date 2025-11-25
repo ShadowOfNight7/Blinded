@@ -88,7 +88,7 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "map"
+phase = "title"
 
 
 #Oddly Specific Variables
@@ -114,7 +114,8 @@ LinesRooms = []
 Fractured, Unfractured = random.randint(3, 10), 5
 ClearedRooms = [(0, 1)]
 
-
+#Setting Variables
+RoomShadows = "Normal", "Obfuscated", "Flashing"
 
 
 

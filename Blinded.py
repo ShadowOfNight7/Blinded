@@ -57,7 +57,7 @@ def PhaseChange(Phase: str):
 timed = 99
 AimTarget = []
 character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PC
+# character_size = (9, 19) #PC
 # character_size = Cursor.initialize(2)
 score = 0
 
@@ -107,7 +107,7 @@ while True:
     ctypes.windll.user32.EmptyClipboard()
     # ctypes.windll.user32.CloseClipboard()
 
-    # keyboard.block_key("ctrl")
+    keyboard.block_key("ctrl")
     location = Cursor.get_mouse_coords(character_size, True)
     
 
@@ -201,7 +201,7 @@ while True:
         if not GetRoomLoc:
             for Line in LinesRooms:
                 # pyterm.renderItem(Line["Line"], xBias = round(Line["Pos"][0]) + mapOffset[0], yBias = round(Line["Pos"][1]) + mapOffset[1])
-                pyterm.renderItem(Line["Line"], xBias=mapOffset[0], yBias=mapOffset[1])
+                pyterm.renderItem(str(Line["Pos1"]) + str(Line["Pos2"]), xBias=mapOffset[0], yBias=mapOffset[1])
 
         if GetRoomLoc:
             roomLoc = pyterm.renderLiteralItem(assets.get("FilledBlackHole"), 0, 0, "center", "center")
@@ -213,19 +213,20 @@ while True:
             MaxRooms = (i + 1) * 2 + 1
             Angle = 360/MaxRooms
             for i2 in range(MaxRooms):
-                if GetRoomLoc == True:
+                if GetRoomLoc:
                     roomLoc = pyterm.renderLiteralItem(assets.get("FilledBlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
                     pyterm.createItem(str((i + 1, i2 + 1)), [assets.get("FilledBlackHole")], "screen", "center", "center", 0, round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2))
                     hierarchyLocations2.append({"Location": roomLoc, "id": (i + 1, i2 + 1), "Connections": [], "Movements": []}) #Connections: [{"id": (_, _), "Location": (_, _)}]
                 else:
                     # if math.dist(hierarchyLocations[i][i2]["Location"], (-mapOffset[0], -mapOffset[1])) <= (10 + math.hypot(os.get_terminal_size().columns/2, os.get_terminal_size().lines/2)):
                     pyterm.renderItem(str((i + 1, i2 + 1)), xBias = mapOffset[0], yBias = mapOffset[1])
+                    # pyterm.renderLiteralItem(str(hierarchyLocations[i + 1][i2]["Connections"]), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
                     # pyterm.renderLiteralItem(assets.get("FilledBlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
             if GetRoomLoc == True:
                 hierarchyLocations.append(hierarchyLocations2)
                 hierarchyLocations2 = []
 
-        if GetRoomLoc == True:
+        if GetRoomLoc:
             for tier in hierarchyLocations:
                 for rooms in tier:
                     if rooms["id"][0] != 0:
@@ -238,20 +239,21 @@ while True:
                         rooms["Connections"].append({"id": ClosestPastRoom["id"], "Location": ClosestPastRoom["Location"]})
                         rooms["Movements"].append({"id": ClosestPastRoom["id"], "Location": ClosestPastRoom["Location"]})
                         ClosestPastRoom["Movements"].append({"id": rooms["id"], "Location": rooms["Location"]})
-                #Connect To Neighbours:
-                    if random.randint(1, 25) <= 10:
-                        leastDistanceRoom = 10**100
-                        ClosestCurrentRoom = ""
-                        for otherRooms in tier:
-                            if otherRooms["id"][1] != rooms["id"][1]:
-                                if ((otherRooms["Location"][0] - rooms["Location"][0]) ** 2 + (otherRooms["Location"][1] - rooms["Location"][1]) ** 2) < leastDistanceRoom:
-                                    leastDistanceRoom = (otherRooms["Location"][0] - rooms["Location"][0]) ** 2 + (otherRooms["Location"][1] - rooms["Location"][1]) ** 2
-                                    ClosestCurrentRoom = otherRooms
-                        #TypeError: string indices must be integers, not 'str'
-                        if (not ({"id": ClosestCurrentRoom["id"], "Location": ClosestCurrentRoom["Location"]}) in rooms["Connections"]) and (not ({"id": ClosestCurrentRoom["id"], "Location": ClosestCurrentRoom["Location"]}) in rooms["Movements"]):
-                            rooms["Connections"].append({"id": ClosestCurrentRoom["id"], "Location": ClosestCurrentRoom["Location"]})
-                            rooms["Movements"].append({"id": ClosestCurrentRoom["id"], "Location": ClosestCurrentRoom["Location"]})
-                            ClosestCurrentRoom["Movements"].append({"id": rooms["id"], "Location": rooms["Location"]})
+                        #Connect To Neighbours:
+                        if random.randint(1, 25) <= 25:
+                            leastDistanceRoom = 10**100
+                            ClosestCurrentRoom = ""
+                            for otherRooms in hierarchyLocations[rooms["id"][0]]:
+                                if otherRooms["id"] != rooms["id"]:
+                                    if ((otherRooms["Location"][0] - rooms["Location"][0]) ** 2 + (otherRooms["Location"][1] - rooms["Location"][1]) ** 2) < leastDistanceRoom:
+                                        leastDistanceRoom = (otherRooms["Location"][0] - rooms["Location"][0]) ** 2 + (otherRooms["Location"][1] - rooms["Location"][1]) ** 2
+                                        ClosestCurrentRoom = otherRooms
+                            #TypeError: string indices must be integers, not 'str'
+                            if (not ({"id": ClosestCurrentRoom["id"], "Location": ClosestCurrentRoom["Location"]}) in rooms["Connections"]) and (not ({"id": ClosestCurrentRoom["id"], "Location": ClosestCurrentRoom["Location"]}) in rooms["Movements"]):
+                                if (((10 + (rooms["id"][0] - 1)/3) * ((rooms["id"][0]) * 2 + 1) + 3) ** 2 < ((10 + (rooms["id"][0])/3) * ((rooms["id"][0] + 1) * 2 + 1) ** 2 + (0.5 * math.dist(ClosestCurrentRoom["Location"], rooms["Location"])) ** 2)):
+                                    rooms["Connections"].append({"id": ClosestCurrentRoom["id"], "Location": ClosestCurrentRoom["Location"]})
+                                    rooms["Movements"].append({"id": ClosestCurrentRoom["id"], "Location": ClosestCurrentRoom["Location"]})
+                                    ClosestCurrentRoom["Movements"].append({"id": rooms["id"], "Location": rooms["Location"]})
         if GetRoomLoc:
             for tier in hierarchyLocations:
                 for rooms in tier:
@@ -260,13 +262,13 @@ while True:
             for Line in LinesRooms:
                 if min(Line["Pos1"][0], Line["Pos2"][0]) == Line["Pos1"][0]:
                     if min(Line["Pos1"][1], Line["Pos2"][1]) == Line["Pos1"][1]:
-                        pyterm.createItem(Line["Line"], [Line["Line"]], str(Line["Id"]), "center", "top left")
+                        pyterm.createItem(str(Line["Pos1"]) + str(Line["Pos2"]), [Line["Line"]], str(Line["Id"]), "center", "top left")
                     else:
-                        pyterm.createItem(Line["Line"], [Line["Line"]], str(Line["Id"]), "center", "bottom left")
+                        pyterm.createItem(str(Line["Pos1"]) + str(Line["Pos2"]), [Line["Line"]], str(Line["Id"]), "center", "bottom left")
                 elif min(Line["Pos1"][1], Line["Pos2"][1]) == Line["Pos1"][1]:
-                    pyterm.createItem(Line["Line"], [Line["Line"]], str(Line["Id"]), "center", "top right")
+                    pyterm.createItem(str(Line["Pos1"]) + str(Line["Pos2"]), [Line["Line"]], str(Line["Id"]), "center", "top right")
                 else:
-                    pyterm.createItem(Line["Line"], [Line["Line"]], str(Line["Id"]), "center", "bottom right")
+                    pyterm.createItem(str(Line["Pos1"]) + str(Line["Pos2"]), [Line["Line"]], str(Line["Id"]), "center", "bottom right")
         GetRoomLoc = False
 
         if MouseDetect.ClickDetect("Right", "On"):
@@ -277,13 +279,13 @@ while True:
             mapOffset = [mapOffsetCopy[0] + locationMapDiff[0], mapOffsetCopy[1] + locationMapDiff[1]]
 
         if keyboard.is_pressed("w"):
-            mapOffset[1] += 1
+            mapOffset[1] += 2
         if keyboard.is_pressed("s"):
-            mapOffset[1] -= 1
+            mapOffset[1] -= 2
         if keyboard.is_pressed("a"):
-            mapOffset[0] += 2
+            mapOffset[0] += 4
         if keyboard.is_pressed("d"):
-            mapOffset[0] -= 2
+            mapOffset[0] -= 4
 
 
 

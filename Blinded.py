@@ -88,7 +88,7 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "title"
+phase = "map"
 
 
 #Oddly Specific Variables
@@ -115,7 +115,7 @@ Fractured, Unfractured = random.randint(3, 10), 5
 ClearedRooms = [(0, 1)]
 
 #Setting Variables
-RoomShadows = "Normal", "Obfuscated", "Flashing"
+RoomShadows = "Normal"#, "Obfuscated", "Flashing"
 
 
 
@@ -132,7 +132,7 @@ while True:
     ctypes.windll.user32.EmptyClipboard()
     # ctypes.windll.user32.CloseClipboard()
 
-    # keyboard.block_key("ctrl")
+    keyboard.block_key("ctrl")
     location = Cursor.get_mouse_coords(character_size, True)
     
 
@@ -319,7 +319,7 @@ while True:
 
 
 
-    pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
+    # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
     pyterm.renderLiteralItem(str(location) + " " + str(MouseDetect.ClickDetect("Left", "On")), 0, 0, "bottom left", "bottom left")
 
 

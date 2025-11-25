@@ -70,8 +70,6 @@ def SetRoomPhase(id: tuple):
                 if not (assets.get("FilledBlackHoleClose") in itemObjects[str(id)]):
                     itemObjects[str(id)]["animation frames"][0] = assets.get("FilledBlackHoleClose")
                 return None
-    else:
-        itemObjects[str(id)]["animation frames"][0] = "".join(random.choice('*&^%$#@!') if ch=='#' else ch for ch in assets.get("FilledBlackHoleFar"))
     return None
 
 
@@ -241,7 +239,7 @@ while True:
             for i2 in range(MaxRooms):
                 if GetRoomLoc:
                     roomLoc = pyterm.renderLiteralItem(assets.get("FilledBlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
-                    pyterm.createItem(str((i + 1, i2 + 1)), [assets.get("FilledBlackHole")], "screen", "center", "center", 0, round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2))
+                    pyterm.createItem(str((i + 1, i2 + 1)), ["".join(random.choice('*&^%$#@!') if ch=='#' else ch for ch in assets.get("FilledBlackHoleFar"))], "screen", "center", "center", 0, round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2))
                     hierarchyLocations2.append({"Location": roomLoc, "id": (i + 1, i2 + 1), "Connections": [], "Movements": []}) #Connections: [{"id": (_, _), "Location": (_, _)}]
                 else:
                     # if math.dist(hierarchyLocations[i][i2]["Location"], (-mapOffset[0], -mapOffset[1])) <= (10 + math.hypot(os.get_terminal_size().columns/2, os.get_terminal_size().lines/2)):

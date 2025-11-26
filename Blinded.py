@@ -59,7 +59,7 @@ def PhaseChange(Phase: str):
 
 #Oddly Specific Functions
 def SetRoomPhase(id: tuple):
-    global ClearedRooms, itemObjects, hierarchyLocations
+    global ClearedRooms, itemObjects, hierarchyLocations, SettingsRooms
     if (id in ClearedRooms):
         if not (assets.get("FilledBlackHole") in itemObjects[str(id)]["animation frames"]):
             itemObjects[str(id)]["animation frames"][0] = assets.get("FilledBlackHole")
@@ -70,6 +70,14 @@ def SetRoomPhase(id: tuple):
                 if not (assets.get("FilledBlackHoleClose") in itemObjects[str(id)]):
                     itemObjects[str(id)]["animation frames"][0] = assets.get("FilledBlackHoleClose")
                 return None
+    else:
+        if (SettingsRooms == 1):
+            pyterm.updateItemFrame(str(id), 0)
+        elif (SettingsRooms == 2):
+            pyterm.updateItemFrame(str(id), 1)
+        elif (SettingsRooms == 3):
+            pyterm.updateItemFrame(str(id), 1)
+            itemObjects[str(id)]["animation frames"][1] = "".join(random.choice('*&^%$#@!') if a=='#' else a for a in assets.get("FilledBlackHoleFar"))
     return None
 
 
@@ -80,7 +88,7 @@ def SetRoomPhase(id: tuple):
 timed = 99
 AimTarget = []
 character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PC
+# character_size = (9, 19) #PC
 # character_size = Cursor.initialize(2)
 score = 0
 
@@ -105,7 +113,7 @@ SettingsRooms = 1
 
 
 
-Hierarchy = 7
+Hierarchy = 14
 RandomAdd = []
 RandomAddMini = []
 for i in range(Hierarchy):
@@ -140,9 +148,10 @@ while True:
     ctypes.windll.user32.EmptyClipboard()
     # ctypes.windll.user32.CloseClipboard()
 
-    keyboard.block_key("ctrl")
+    # keyboard.block_key("ctrl")
     location = Cursor.get_mouse_coords(character_size, True)
     LeftClick = MouseDetect.ClickDetect("Left", "On")
+    RightClick = MouseDetect.ClickDetect("Right", "On")
     
 
     if phase.lower() == "title":
@@ -150,12 +159,12 @@ while True:
         pyterm.renderLiteralItem(assets["TitleOptions"], 40, -8 - max(riseTitle - 3, 0), "center", "center")
         pyterm.renderLiteralItem(assets["TitlePlay"], -40, -3 - max(riseTitle, 0), "center", "center")
         pyterm.renderLiteralItem(assets["Title1"], 0, -22 - max(riseTitle - 8, 0), "center", "center")
-        if ((-63 + os.get_terminal_size().columns/2) <= location[0] <= (-19 + os.get_terminal_size().columns/2)) and ((8 + os.get_terminal_size().lines/2) <= location[1] <= (14 + os.get_terminal_size().lines/2)) and (riseTitle == 0) and (not (Settings or SevenSins)):
+        if ((-63 + os.get_terminal_size().columns/2) <= location[0] <= (-19 + os.get_terminal_size().columns/2)) and ((8 + os.get_terminal_size().lines/2) <= location[1] <= (15 + os.get_terminal_size().lines/2)) and (riseTitle == 0) and (not (Settings or SevenSins)):
             pyterm.renderLiteralItem(assets["TitlePlayHover"], -40, -3, "center", "center")
             if LeftClick:
                 rise = True
                 SevenSins = True
-        if ((17 + os.get_terminal_size().columns/2) <= location[0] <= (61 + os.get_terminal_size().columns/2)) and ((1 + os.get_terminal_size().lines/2) <= location[1] <= (8 + os.get_terminal_size().lines/2)) and (riseTitle == 0) and (not (Settings or SevenSins)):
+        if ((17 + os.get_terminal_size().columns/2) <= location[0] <= (61 + os.get_terminal_size().columns/2)) and ((2 + os.get_terminal_size().lines/2) <= location[1] <= (9 + os.get_terminal_size().lines/2)) and (riseTitle == 0) and (not (Settings or SevenSins)):
             pyterm.renderLiteralItem(assets["TitleOptionsHover"], 40, -8, "center", "center")
             if LeftClick:
                 rise = True
@@ -186,20 +195,22 @@ while True:
                 pyterm.updateItemFrame("SettingsRoomsNormal", 0)
                 pyterm.updateItemFrame("SettingsRoomsObfuscated", 0)
                 pyterm.updateItemFrame("SettingsRoomsAnimated", 1)
-            pyterm.renderItem("SettingsRoomsNormal", xBias=-14, yBias=-10)
-            pyterm.renderItem("SettingsRoomsObfuscated", xBias=0, yBias=-10)
-            pyterm.renderItem("SettingsRoomsAnimated", xBias=14, yBias=-10)
+            pyterm.renderItem("SettingsRoomsNormal", xBias=-14, yBias= -65 + min(riseTitle, 55))
+            pyterm.renderItem("SettingsRoomsObfuscated", xBias=0, yBias= -65 + min(riseTitle, 55))
+            pyterm.renderItem("SettingsRoomsAnimated", xBias=14, yBias=-65 + min(riseTitle, 55))
 
 
-            if ((os.get_terminal_size().columns/2 - 55 - 17.5) <= location[0] <= (os.get_terminal_size().columns/2 - 55 + 17.5)) and ((os.get_terminal_size().lines/2 - 30 + 17.5 - 2.5 - 2) <= location[1] <= (os.get_terminal_size().lines/2 - 30 + 17.5 + 2.5 - 2)):
+            if ((os.get_terminal_size().columns/2 - 55 - 17.5) <= location[0] <= (os.get_terminal_size().columns/2 - 55 + 17.5)) and ((os.get_terminal_size().lines/2 - 30 + 17.5 - 2.5 - 3) <= location[1] <= (os.get_terminal_size().lines/2 - 30 + 17.5 + 2.5 - 3)):
                 pyterm.renderLiteralItem(assets["TitleReturnHover"], -55, -90 + min(riseTitle, 60), "center", "center")
-                if MouseDetect.ClickDetect("Left", "On"):
+                if LeftClick:
                     rise = False
             if (riseTitle == 0) and (not rise):
                 Settings = False
         
         #7Sins Overlay
         if SevenSins:
+            if keyboard.is_pressed("v"):
+                PhaseChange("map")
             GreedLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), 60, -73 + min(riseTitle, 64), "center", "center")
             PrideLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), 40, -76 + min(riseTitle, 61), "center", "center")
             EnvyLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), 20, -67 + min(riseTitle, 58), "center", "center")
@@ -241,7 +252,7 @@ while True:
             pyterm.renderLiteralItem(assets["TitleReturn"], -55, -100 + riseTitle, "center", "center")
             if ((-73 + os.get_terminal_size().columns/2) <= location[0] <= (-39 + os.get_terminal_size().columns/2)) and ((-18 + os.get_terminal_size().lines/2) <= location[1] <= (-14 + os.get_terminal_size().lines/2)):
                 pyterm.renderLiteralItem(assets["TitleReturnHover"], -55, -100 + riseTitle, "center", "center")
-                if MouseDetect.ClickDetect("Left", "On"):
+                if LeftClick:
                     rise = False
             if (riseTitle == 0) and (not rise):
                 SevenSins = False
@@ -276,7 +287,7 @@ while True:
             for i2 in range(MaxRooms):
                 if GetRoomLoc:
                     roomLoc = pyterm.renderLiteralItem(assets.get("FilledBlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
-                    pyterm.createItem(str((i + 1, i2 + 1)), ["".join(random.choice('*&^%$#@!') if ch=='#' else ch for ch in assets.get("FilledBlackHoleFar"))], "screen", "center", "center", 0, round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2))
+                    pyterm.createItem(str((i + 1, i2 + 1)), [assets["FilledBlackHoleFar"], "".join(random.choice('*&^%$#@!') if a=='#' else a for a in assets.get("FilledBlackHoleFar"))], "screen", "center", "center", 0, round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2))
                     hierarchyLocations2.append({"Location": roomLoc, "id": (i + 1, i2 + 1), "Connections": [], "Movements": []}) #Connections: [{"id": (_, _), "Location": (_, _)}]
                 else:
                     # if math.dist(hierarchyLocations[i][i2]["Location"], (-mapOffset[0], -mapOffset[1])) <= (10 + math.hypot(os.get_terminal_size().columns/2, os.get_terminal_size().lines/2)):
@@ -337,7 +348,7 @@ while True:
             for rooms in tier:
                 SetRoomPhase(rooms["id"])
 
-        if MouseDetect.ClickDetect("Right", "On"):
+        if RightClick:
             InitialHold = location
             mapOffsetCopy = mapOffset.copy()
         elif MouseDetect.ClickDetect("Right", "Held"):

@@ -38,7 +38,7 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
 
 
 def PhaseChange(Phase: str):
-    global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy
+    global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom
     phase = Phase
     if phase.lower() == "title":
         riseTitle = 0
@@ -50,6 +50,8 @@ def PhaseChange(Phase: str):
         InitialHold = (0, 0)
         locationMapDiff = [0, 0]
         mapOffsetCopy = [0, 0]
+        TargetLocation = [0, 0, 0]
+        FocusRoom = (0, 1)
     elif phase.lower() == "battle":
         ""
 
@@ -131,6 +133,8 @@ GetRoomLoc = True
 LinesRooms = []
 Fractured, Unfractured = random.randint(3, 10), 5
 ClearedRooms = [(0, 1)]
+TargetLocation = [0, 0, 0]
+FocusRoom = (0, 1)
 
 #Setting Variables
 RoomShadows = "Normal"#, "Obfuscated", "Animated"
@@ -371,18 +375,34 @@ while True:
                     if keyboard.is_pressed('e') and not (room["id"] in ClearedRooms):
                         ClearedRooms.append(room["id"])
                     elif LeftClick:
-                        ""
+                        TargetLocation[2] = 1
+                        TargetLocation[0] = -room["Location"][0]
+                        TargetLocation[1] = -room["Location"][1]
+                if (-room["Location"][0] - 10 <= mapOffset[0] <= -room["Location"][0] + 10) and (-room["Location"][1] - 5 <= mapOffset[1] <= -room["Location"][1] + 5):
+                    FocusRoom = room["id"]
 
         if keyboard.is_pressed("w"):
             mapOffset[1] += 2
+            TargetLocation[2] = 0
         if keyboard.is_pressed("s"):
             mapOffset[1] -= 2
+            TargetLocation[2] = 0
         if keyboard.is_pressed("a"):
             mapOffset[0] += 4
+            TargetLocation[2] = 0
         if keyboard.is_pressed("d"):
             mapOffset[0] -= 4
+            TargetLocation[2] = 0
         if keyboard.is_pressed("q"):
-            mapOffset = [0, 0]
+            TargetLocation = [0, 0, 1]
+        
+        if TargetLocation[2] == 1:
+            if (abs(TargetLocation[0] - mapOffset[0]) <= 1) and (abs(TargetLocation[1] - mapOffset[1]) <= 1):
+                TargetLocation[2] = 0
+                mapOffset[0] = round(TargetLocation[0])
+                mapOffset[1] = round(TargetLocation[1])
+            mapOffset[0] += round((TargetLocation[0] - mapOffset[0])/3)
+            mapOffset[1] += round((TargetLocation[1] - mapOffset[1])/3)
 
 
 

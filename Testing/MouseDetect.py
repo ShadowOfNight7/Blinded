@@ -17,16 +17,17 @@ def ClickDetect(Type = "Left", SubType = "Held"):
                     return True
                 else:
                     return False
-        ClickLeftBefore = True
+            ClickLeftBefore = True
     else:
-        if SubType.lower() == "off":
-            if ClickLeftBefore == True:
-                ClickLeftBefore = False
-                return True
-            else:
-                ClickLeftBefore = False
-                return False
-        ClickLeftBefore = False
+        if Type.lower() == "left":
+            if SubType.lower() == "off":
+                if ClickLeftBefore == True:
+                    ClickLeftBefore = False
+                    return True
+                else:
+                    ClickLeftBefore = False
+                    return False
+            ClickLeftBefore = False
 
     if win32api.GetAsyncKeyState(win32con.VK_RBUTTON):
         if Type.lower() == "right":
@@ -39,16 +40,17 @@ def ClickDetect(Type = "Left", SubType = "Held"):
                     return True
                 else:
                     return False
-        ClickRightBefore = True
+            ClickRightBefore = True
     else:
-        if SubType.lower() == "off":
-            if ClickRightBefore == True:
-                ClickRightBefore = False
-                return True
-            else:
-                ClickRightBefore = False
-                return False
-        ClickRightBefore = False
+        if Type.lower() == "right":
+            if SubType.lower() == "off":
+                if ClickRightBefore == True:
+                    ClickRightBefore = False
+                    return True
+                else:
+                    ClickRightBefore = False
+                    return False
+            ClickRightBefore = False
     
     if win32api.GetAsyncKeyState(win32con.VK_MBUTTON):
         if Type.lower() == "middle":
@@ -61,16 +63,17 @@ def ClickDetect(Type = "Left", SubType = "Held"):
                     return True
                 else:
                     return False
-        ClickMiddleBefore = True
+            ClickMiddleBefore = True
     else:
-        if SubType.lower() == "off":
-            if ClickMiddleBefore == True:
-                ClickMiddleBefore = False
-                return True
-            else:
-                ClickMiddleBefore = False
-                return False
-        ClickMiddleBefore = False
+        if Type.lower() == "middle":
+            if SubType.lower() == "off":
+                if ClickMiddleBefore == True:
+                    ClickMiddleBefore = False
+                    return True
+                else:
+                    ClickMiddleBefore = False
+                    return False
+            ClickMiddleBefore = False
     return False
 
 Letters = {"a": False, "b": False, "c": False, "d": False, "e": False, "f": False, "g": False, "h": False, "i": False, "j": False, "k": False, "l": False, "m": False, "n": False, "o": False, "p": False, "q": False, "r": False, "s": False, "t": False, "u": False, "v": False, "w": False, "x": False, "y": False, "z": False}

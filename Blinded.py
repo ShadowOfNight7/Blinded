@@ -113,7 +113,7 @@ SettingsRooms = 1
 
 
 
-Hierarchy = 14
+Hierarchy = 7
 RandomAdd = []
 RandomAddMini = []
 for i in range(Hierarchy):
@@ -152,7 +152,7 @@ while True:
     location = Cursor.get_mouse_coords(character_size, True)
     LeftClick = MouseDetect.ClickDetect("Left", "On")
     RightClick = MouseDetect.ClickDetect("Right", "On")
-    
+
 
     if phase.lower() == "title":
         pyterm.renderLiteralItem(assets["background"], 0, 0, "center", "center")
@@ -200,7 +200,7 @@ while True:
             pyterm.renderItem("SettingsRoomsAnimated", xBias=14, yBias=-65 + min(riseTitle, 55))
 
 
-            if ((os.get_terminal_size().columns/2 - 55 - 17.5) <= location[0] <= (os.get_terminal_size().columns/2 - 55 + 17.5)) and ((os.get_terminal_size().lines/2 - 30 + 17.5 - 2.5 - 3) <= location[1] <= (os.get_terminal_size().lines/2 - 30 + 17.5 + 2.5 - 3)):
+            if ((os.get_terminal_size().columns/2 - 55 - 17.5) <= location[0] <= (os.get_terminal_size().columns/2 - 55 + 17.5)) and ((os.get_terminal_size().lines/2 - 30 + 17.5 - 2.5 - 3) <= location[1] <= (os.get_terminal_size().lines/2 - 30 + 17.5 + 2.5 - 3)) and (riseTitle == 70):
                 pyterm.renderLiteralItem(assets["TitleReturnHover"], -55, -90 + min(riseTitle, 60), "center", "center")
                 if LeftClick:
                     rise = False
@@ -250,8 +250,8 @@ while True:
 
             pyterm.renderLiteralItem(assets.get("Title7Sins"), 0, -92 + min(riseTitle, 66), "center", "center")
             pyterm.renderLiteralItem(assets["TitleReturn"], -55, -100 + riseTitle, "center", "center")
-            if ((-73 + os.get_terminal_size().columns/2) <= location[0] <= (-39 + os.get_terminal_size().columns/2)) and ((-18 + os.get_terminal_size().lines/2) <= location[1] <= (-14 + os.get_terminal_size().lines/2)):
-                pyterm.renderLiteralItem(assets["TitleReturnHover"], -55, -100 + riseTitle, "center", "center")
+            if ((os.get_terminal_size().columns/2 - 55 - 17.5) <= location[0] <= (os.get_terminal_size().columns/2 - 55 + 17.5)) and ((os.get_terminal_size().lines/2 - 30 + 17.5 - 2.5 - 3) <= location[1] <= (os.get_terminal_size().lines/2 - 30 + 17.5 + 2.5 - 3)) and (riseTitle == 70):
+                pyterm.renderLiteralItem(assets["TitleReturnHover"], -55, -90 + min(riseTitle, 60), "center", "center")
                 if LeftClick:
                     rise = False
             if (riseTitle == 0) and (not rise):
@@ -278,9 +278,12 @@ while True:
         if GetRoomLoc:
             roomLoc = pyterm.renderLiteralItem(assets.get("FilledBlackHole"), 0, 0, "center", "center")
             pyterm.createItem(str((0, 1)), [assets["FilledBlackHole"]], "screen", "center", "center", 0, 0, 0)
-            hierarchyLocations.append([{"Location": roomLoc, "id": (0, 1), "Connections": [], "Movements": []}])
+            hierarchyLocations.append([{"Location": (0, 0), "id": (0, 1), "Connections": [], "Movements": []}])
         pyterm.renderItem(str((0, 1)), xBias = mapOffset[0], yBias = mapOffset[1])
-        pyterm.renderLiteralItem("x", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
+        if (os.get_terminal_size().columns/2 + mapOffset[0] - 8 <= location[0] <= os.get_terminal_size().columns/2 + mapOffset[0] + 8 - 1) and (os.get_terminal_size().lines/2 + mapOffset[1] - 4 <= location[1] <= os.get_terminal_size().lines/2 + mapOffset[1] + 4):
+            pyterm.renderLiteralItem("AAA", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
+        else:
+            pyterm.renderLiteralItem("x", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
         for i in range(Hierarchy):
             MaxRooms = (i + 1) * 3 + 1
             Angle = 360/MaxRooms
@@ -288,7 +291,7 @@ while True:
                 if GetRoomLoc:
                     roomLoc = pyterm.renderLiteralItem(assets.get("FilledBlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
                     pyterm.createItem(str((i + 1, i2 + 1)), [assets["FilledBlackHoleFar"], "".join(random.choice('*&^%$#@!') if a=='#' else a for a in assets.get("FilledBlackHoleFar"))], "screen", "center", "center", 0, round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2))
-                    hierarchyLocations2.append({"Location": roomLoc, "id": (i + 1, i2 + 1), "Connections": [], "Movements": []}) #Connections: [{"id": (_, _), "Location": (_, _)}]
+                    hierarchyLocations2.append({"Location": (round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2)), "id": (i + 1, i2 + 1), "Connections": [], "Movements": []}) #Connections: [{"id": (_, _), "Location": (_, _)}]
                 else:
                     # if math.dist(hierarchyLocations[i][i2]["Location"], (-mapOffset[0], -mapOffset[1])) <= (10 + math.hypot(os.get_terminal_size().columns/2, os.get_terminal_size().lines/2)):
                     pyterm.renderItem(str((i + 1, i2 + 1)), xBias = mapOffset[0], yBias = mapOffset[1])
@@ -301,7 +304,7 @@ while True:
         if GetRoomLoc:
             for tier in hierarchyLocations:
                 for rooms in tier:
-                    if rooms["id"][0] != 0:
+                    if rooms["id"][0] > 0:
                         leastDistanceRoom = 10**100
                         ClosestPastRoom = ""
                         for pastrooms in hierarchyLocations[rooms["id"][0] - 1]: 
@@ -312,7 +315,7 @@ while True:
                         rooms["Movements"].append({"id": ClosestPastRoom["id"], "Location": ClosestPastRoom["Location"]})
                         ClosestPastRoom["Movements"].append({"id": rooms["id"], "Location": rooms["Location"]})
                         #Connect To Neighbours:
-                        if random.randint(1, Fractured) <= Unfractured:
+                        if (random.randint(1, Fractured) <= Unfractured) and (rooms["id"][0] > 1):
                             leastDistanceRoom = 10**100
                             ClosestCurrentRoom = ""
                             for otherRooms in hierarchyLocations[rooms["id"][0]]:
@@ -348,12 +351,25 @@ while True:
             for rooms in tier:
                 SetRoomPhase(rooms["id"])
 
-        if RightClick:
+        #DetectRooms
+        
+
+
+
+        if not MouseDetect.ClickDetect("Right", "Held"):
             InitialHold = location
             mapOffsetCopy = mapOffset.copy()
-        elif MouseDetect.ClickDetect("Right", "Held"):
+        else:
             locationMapDiff = [location[0] - InitialHold[0], location[1] - InitialHold[1]]
             mapOffset = [mapOffsetCopy[0] + locationMapDiff[0], mapOffsetCopy[1] + locationMapDiff[1]]
+
+        for tier in hierarchyLocations:
+            for room in tier:
+                if (room["Location"][0] + os.get_terminal_size().columns/2 + mapOffset[0] - 8 <= location[0] <= room["Location"][0] + os.get_terminal_size().columns/2 + mapOffset[0] + 8 - 1) and (room["Location"][1] + os.get_terminal_size().lines/2 + mapOffset[1] - 4 <= location[1] <= room["Location"][1] + os.get_terminal_size().lines/2 + mapOffset[1] + 4):
+                    if keyboard.is_pressed('e') and not (room["id"] in ClearedRooms):
+                        ClearedRooms.append(room["id"])
+                    elif LeftClick:
+                        ""
 
         if keyboard.is_pressed("w"):
             mapOffset[1] += 2
@@ -363,11 +379,13 @@ while True:
             mapOffset[0] += 4
         if keyboard.is_pressed("d"):
             mapOffset[0] -= 4
+        if keyboard.is_pressed("q"):
+            mapOffset = [0, 0]
 
 
 
     # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
-    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick), 0, 0, "bottom left", "bottom left")
+    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick), 0, 0, "bottom left", "bottom left")
 
 
     pyterm.renderScreen()

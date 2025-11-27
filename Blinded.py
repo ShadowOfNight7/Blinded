@@ -45,11 +45,13 @@ def PhaseChange(Phase: str):
         rise = False
         Settings = False
         SevenSins = False
-    if phase.lower() == "map":
+    elif phase.lower() == "map":
         mapOffset = [0, 0]
         InitialHold = (0, 0)
         locationMapDiff = [0, 0]
         mapOffsetCopy = [0, 0]
+    elif phase.lower() == "battle":
+        ""
 
 
 

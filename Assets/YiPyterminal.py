@@ -14,6 +14,9 @@ import os
 
 # Variables: Constants
 FPS = 100
+SCREEN_WIDTH_LIMIT = 156
+SCREEN_HEIGHT_LIMIT = 41
+
 # Variables: Lists and Dictionaries
 lettersToRender = {}
 screenRender = []
@@ -228,7 +231,10 @@ def renderLiteralItem(
     )
 
 
-def renderScreen(backgroundCharacter: str = " ") -> None:
+def renderScreen(
+    backgroundCharacter: str = " ",
+    screenLimits: tuple = (SCREEN_WIDTH_LIMIT, SCREEN_HEIGHT_LIMIT),
+) -> None:
     if constantlyCheckScreenSize == True:
         updateScreenSize()
     global screenRender
@@ -239,7 +245,16 @@ def renderScreen(backgroundCharacter: str = " ") -> None:
         for coords in lettersToRender:
             if coords[1] == row:
                 if 0 <= coords[0] < len(screenRender[row]):
-                    screenRender[row][coords[0]] = lettersToRender[coords]
+                    if (
+                        math.ceil((screenWidth - 1) / 2) - screenLimits[0] // 2
+                        <= coords[0]
+                        <= math.ceil((screenWidth - 1) / 2) + screenLimits[0] // 2
+                    ) and (
+                        math.ceil((screenHeight - 1) / 2) - screenLimits[1] // 2
+                        <= coords[1]
+                        <= math.ceil((screenHeight - 1) / 2) + screenLimits[1] // 2
+                    ):
+                        screenRender[row][coords[0]] = lettersToRender[coords]
     for row in range(len(screenRender)):
         screenRender[row] = "".join(screenRender[row])
 

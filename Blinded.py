@@ -7,7 +7,6 @@ import Assets.YiPyterminal as pyterm
 from Assets.YiPyterminal import itemObjects
 
 # fmt: off
-
 def colourText(rgb: list, text: str, transparency = 1, background = False):
     returntext = ""
     if not background:
@@ -26,7 +25,6 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
             returntext += "\n"
     return returntext
 
-
 # def addItems(Item: str, Coords = (0, 0)):
 #     global screen
 #     lines = Item.splitlines()
@@ -36,7 +34,6 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
 #                 screen[i + Coords[0]][i2 + Coords[1]] = lines[i][i2]
 #             except IndexError:
 #                 continue
-
 
 def PhaseChange(Phase: str):
     global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry
@@ -59,12 +56,6 @@ def PhaseChange(Phase: str):
         ""
     elif phase.lower() == "puzzle":
         ""
-
-
-
-
-
-
 
 #Oddly Specific Functions
 def SetRoomPhase(id: tuple):
@@ -89,24 +80,16 @@ def SetRoomPhase(id: tuple):
             itemObjects[str(id)]["animation frames"][1] = "".join(random.choice('*&^%$#@!') if a=='#' else a for a in assets.get("FilledBlackHoleFar"))
     return None
 
-
-
-
-
-
 timed = 99
 AimTarget = []
 character_size = (19, 37) #NORMAL
 character_size = (9, 19) #PC
 # character_size = Cursor.initialize(2)
 score = 0
-
 MainClock = 1000
 FalseTime = time.time()
 transparency = 1
-
 phase = "map"
-
 NonCenterOffset = 0
 
 #Oddly Specific Variables
@@ -118,10 +101,6 @@ pyterm.createItem("SettingsRoomsNormal", [assets.get("SettingsRoomsNormal"), ass
 pyterm.createItem("SettingsRoomsObfuscated", [assets.get("SettingsRoomsObfuscated"), assets.get("SettingsRoomsObfuscatedOn")], "screen", "center", "center", 0)
 pyterm.createItem("SettingsRoomsAnimated", [assets.get("SettingsRoomsAnimated"), assets.get("SettingsRoomsAnimatedOn")], "screen", "center", "center", 0)
 SettingsRooms = 1
-
-
-
-
 
 Hierarchy = 7
 RandomAdd = []
@@ -155,39 +134,27 @@ pyterm.createItem("RoomType", ["Type: Battle"], "screen", "top right", "center",
 pyterm.createItem("RoomDifficulty", ["Difficulty: 1.05"], "screen", "top right", "center", 0)
 pyterm.createItem("RoomRewards", ["Rewards:", "- Light", "- Gold", "- Exp"], "screen", "top right", "center", 0)
 
-
-
-
 #Setting Variables
 RoomShadows = "Normal"#, "Obfuscated", "Animated"
-
-
-
 
 while True:
     startTime = time.perf_counter()
     pyterm.clearLettersToRender()
     pyterm.updateKeyboardBindStatus()
     MainClock += 1
-
-    #Code Start
-
     ctypes.windll.user32.OpenClipboard()
     ctypes.windll.user32.EmptyClipboard()
     # ctypes.windll.user32.CloseClipboard()
-
     if Cursor.is_full_screen() == "maximized":
         NonCenterOffset = 1
     elif Cursor.is_full_screen():
         NonCenterOffset = 3
     else:
         NonCenterOffset = 0
-
     # keyboard.block_key("ctrl")
     location = Cursor.get_mouse_coords(character_size, True)
     LeftClick = MouseDetect.ClickDetect("Left", "On")
     RightClick = MouseDetect.ClickDetect("Right", "On")
-
 
     if phase.lower() == "title":
         pyterm.renderLiteralItem(assets["background"], 0, 0, "center", "center")
@@ -297,11 +264,6 @@ while True:
             riseTitle += 2
         elif (not rise) and (riseTitle != 0):
             riseTitle -= 2
-            
-
-
-
-
 
     elif phase.lower() == "map":
         
@@ -488,11 +450,8 @@ while True:
         pass
     # fmt: off
 
-
     # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
     pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick), 0, 0, "bottom left", "bottom left")
-
-
     pyterm.renderScreen()
     elapsedTime = time.perf_counter() - startTime
     if elapsedTime < (1 / pyterm.FPS):

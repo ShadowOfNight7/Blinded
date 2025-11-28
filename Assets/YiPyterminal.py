@@ -346,11 +346,8 @@ def renderItem(
     for rowNum in range(len(splitItem)):
         for columnNum in range(len(splitItem[rowNum])):
             coords = (
-                columnNum
-                + xBias
-                + itemObjects[item]["x bias"]
-                + itemObjects[item]["x"],
-                rowNum + yBias + itemObjects[item]["y bias"] + itemObjects[item]["y"],
+                columnNum + xBias + itemObjects[item]["x"],
+                rowNum + yBias + itemObjects[item]["y"],
             )
             if splitItem[rowNum][columnNum] != emptySpaceLetter:
                 if screenLimits != None:

@@ -96,7 +96,7 @@ def SetRoomPhase(id: tuple):
 timed = 99
 AimTarget = []
 character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PC
+# character_size = (9, 19) #PC
 # character_size = Cursor.initialize(2)
 score = 0
 
@@ -104,8 +104,9 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "map"
+phase = "title"
 
+NonCenterOffset = 0
 
 #Oddly Specific Variables
 riseTitle = 0
@@ -149,6 +150,9 @@ pyterm.createItem("RoomEntryAnimation", RoomEntryList, "screen", "center", "cent
 AnimateRoomEntry = False
 pyterm.createItem("RoomHierarchy", ["Hierarchy: 0"], "screen", "top right", "center", 0)
 pyterm.createItem("RoomNo.", ["Room Number: 1"], "screen", "top right", "center", 0)
+pyterm.createItem("RoomType", ["Type: Battle"], "screen", "top right", "center", 0)
+pyterm.createItem("RoomDifficulty", ["Difficulty: 1.05"], "screen", "top right", "center", 0)
+pyterm.createItem("RoomRewards", ["Rewards:", "- Light", "- Gold", "- Exp"], "screen", "top right", "center", 0)
 
 
 
@@ -170,6 +174,13 @@ while True:
     ctypes.windll.user32.OpenClipboard()
     ctypes.windll.user32.EmptyClipboard()
     # ctypes.windll.user32.CloseClipboard()
+
+    if Cursor.is_full_screen() == "maximized":
+        NonCenterOffset = 1
+    elif Cursor.is_full_screen():
+        NonCenterOffset = 3
+    else:
+        NonCenterOffset = 0
 
     # keyboard.block_key("ctrl")
     location = Cursor.get_mouse_coords(character_size, True)
@@ -422,9 +433,10 @@ while True:
                     itemObjects["RoomHierarchy"]["animation frames"][0] = "Hierarchy: ???"
                     itemObjects["RoomNo."]["animation frames"][0] = "Room Number: ???"
                     pyterm.updateItemFrame("RoomSidebar", 3)
-                pyterm.renderItem("RoomSidebar")
-                pyterm.renderItem("RoomHierarchy", xBias = -12, yBias = 4)
-                pyterm.renderItem("RoomNo.", xBias = -12, yBias = 5)
+                pyterm.renderItem("RoomSidebar", yBias = NonCenterOffset)
+                pyterm.renderItem("RoomHierarchy", xBias = -12, yBias = 4 + NonCenterOffset)
+                pyterm.renderItem("RoomNo.", xBias = -12, yBias = 5 + NonCenterOffset)
+                #pyterm.renderItem("RoomNo.", xBias = -12, yBias = 13)
         
         if AnimateRoomEntry:
             if itemObjects["RoomEntryAnimation"]["current frame"] + 1 >= 15:
@@ -476,7 +488,7 @@ while True:
     pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick), 0, 0, "bottom left", "bottom left")
 
 
-    pyterm.renderScreen()
+    pyterm.renderScreen(screenLimits=(999, 999))
     elapsedTime = time.perf_counter() - startTime
     if elapsedTime < (1 / pyterm.FPS):
         time.sleep((1 / pyterm.FPS) - elapsedTime)

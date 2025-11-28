@@ -516,7 +516,7 @@ buttons = []
 
 timed = 99
 AimTarget = []
-character_size = (10, 10)
+character_size = (19, 37)
 # character_size = Cursor.initialize(2)
 score = 0
 
@@ -598,9 +598,9 @@ while False:
 
 
     #CircleDefend
-    # if CircleDefend(0.25 * pyterm.fps, (20, 45), 15 * pyterm.fps):
-        # input("\r")
-        # score = 0
+    if CircleDefend(0.25 * pyterm.fps, (20, 45), 15 * pyterm.fps):
+        input("\r")
+        score = 0
 
 
     #DodgeGrid
@@ -610,9 +610,9 @@ while False:
 
 
     #Tracking
-    if TrackingMinigame("O", 0 * pyterm.fps, (15, 25), 4 * pyterm.fps, 20 * pyterm.fps):
-        input("\r")
-        score = 0
+    # if TrackingMinigame("O", 0 * pyterm.fps, (15, 25), 4 * pyterm.fps, 20 * pyterm.fps):
+    #     input("\r")
+    #     score = 0
 
 
     # if MouseMinigame(1.5 * pyterm.fps, 8 * pyterm.fps):

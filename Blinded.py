@@ -97,7 +97,7 @@ def SetRoomPhase(id: tuple):
 timed = 99
 AimTarget = []
 character_size = (19, 37) #NORMAL
-# character_size = (9, 19) #PC
+character_size = (9, 19) #PC
 # character_size = Cursor.initialize(2)
 score = 0
 
@@ -105,7 +105,7 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "battle"
+phase = "map"
 
 NonCenterOffset = 0
 
@@ -434,7 +434,7 @@ while True:
                     itemObjects["RoomHierarchy"]["animation frames"][0] = "Hierarchy: ???"
                     itemObjects["RoomNo."]["animation frames"][0] = "Room Number: ???"
                     pyterm.updateItemFrame("RoomSidebar", 3)
-                pyterm.renderItem("RoomSidebar", yBias = NonCenterOffset)
+                pyterm.renderItem("RoomSidebar", yBias = NonCenterOffset, screenLimits=(999, 999))
                 pyterm.renderItem("RoomHierarchy", xBias = -12, yBias = 4 + NonCenterOffset)
                 pyterm.renderItem("RoomNo.", xBias = -12, yBias = 5 + NonCenterOffset)
                 #pyterm.renderItem("RoomNo.", xBias = -12, yBias = 13)
@@ -493,7 +493,7 @@ while True:
     pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick), 0, 0, "bottom left", "bottom left")
 
 
-    pyterm.renderScreen(screenLimits=(999, 999))
+    pyterm.renderScreen()
     elapsedTime = time.perf_counter() - startTime
     if elapsedTime < (1 / pyterm.FPS):
         time.sleep((1 / pyterm.FPS) - elapsedTime)

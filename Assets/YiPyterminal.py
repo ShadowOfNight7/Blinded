@@ -348,9 +348,8 @@ def renderItem(
             coords = (
                 columnNum
                 + xBias
-                + itemObjects[item]["x bias"]
                 + itemObjects[item]["x"],
-                rowNum + yBias + itemObjects[item]["y bias"] + itemObjects[item]["y"],
+                rowNum + yBias + itemObjects[item]["y"],
             )
             if splitItem[rowNum][columnNum] != emptySpaceLetter:
                 if screenLimits != None:

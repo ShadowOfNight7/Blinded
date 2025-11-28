@@ -6,6 +6,7 @@ import Testing.AttackTest as AttackTest
 import Assets.YiPyterminal as pyterm
 from Assets.YiPyterminal import itemObjects
 
+# fmt: off
 
 def colourText(rgb: list, text: str, transparency = 1, background = False):
     returntext = ""
@@ -104,7 +105,7 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "title"
+phase = "battle"
 
 NonCenterOffset = 0
 
@@ -482,6 +483,10 @@ while True:
             else:
                 mapOffset[0] += round((TargetLocation[0] - mapOffset[0])/3 + 1 * (TargetLocation[0] - mapOffset[0])/max(abs(TargetLocation[0] - mapOffset[0]), 0.1))
                 mapOffset[1] += round((TargetLocation[1] - mapOffset[1])/3 + 1 * (TargetLocation[1] - mapOffset[1])/max(abs(TargetLocation[1] - mapOffset[1]), 0.1))
+    # fmt: on
+    elif phase.lower() == "battle":
+        pass
+    # fmt: off
 
 
     # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
@@ -493,4 +498,3 @@ while True:
     if elapsedTime < (1 / pyterm.FPS):
         time.sleep((1 / pyterm.FPS) - elapsedTime)
     pyterm.displayScreen()
-

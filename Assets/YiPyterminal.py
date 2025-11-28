@@ -14,8 +14,8 @@ import os
 
 # Variables: Constants
 FPS = 100
-SCREEN_WIDTH_LIMIT = 156
-SCREEN_HEIGHT_LIMIT = 41
+screenWidthLimit = 156
+screenHeightLimit = 41
 
 # Variables: Lists and Dictionaries
 lettersToRender = {}
@@ -233,7 +233,6 @@ def renderLiteralItem(
 
 def renderScreen(
     backgroundCharacter: str = " ",
-    screenLimits: tuple = (SCREEN_WIDTH_LIMIT, SCREEN_HEIGHT_LIMIT),
 ) -> None:
     if constantlyCheckScreenSize == True:
         updateScreenSize()
@@ -245,16 +244,7 @@ def renderScreen(
         for coords in lettersToRender:
             if coords[1] == row:
                 if 0 <= coords[0] < len(screenRender[row]):
-                    if (
-                        math.ceil((screenWidth - 1) / 2) - screenLimits[0] // 2
-                        <= coords[0]
-                        <= math.ceil((screenWidth - 1) / 2) + screenLimits[0] // 2
-                    ) and (
-                        math.ceil((screenHeight - 1) / 2) - screenLimits[1] // 2
-                        <= coords[1]
-                        <= math.ceil((screenHeight - 1) / 2) + screenLimits[1] // 2
-                    ):
-                        screenRender[row][coords[0]] = lettersToRender[coords]
+                    screenRender[row][coords[0]] = lettersToRender[coords]
     for row in range(len(screenRender)):
         screenRender[row] = "".join(screenRender[row])
 
@@ -343,6 +333,7 @@ def renderItem(
     yBias: str = 0,
     createItemIfNotExists: bool = False,
     createItemArgs: dict | None = None,
+    screenLimits: None | tuple = (screenWidthLimit, screenHeightLimit),
 ) -> None:
     if item not in itemObjects and createItemIfNotExists == True:
         if createItemArgs == None:
@@ -354,16 +345,27 @@ def renderItem(
     ].splitlines()
     for rowNum in range(len(splitItem)):
         for columnNum in range(len(splitItem[rowNum])):
+            coords = (
+                columnNum
+                + xBias
+                + itemObjects[item]["x bias"]
+                + itemObjects[item]["x"],
+                rowNum + yBias + itemObjects[item]["y bias"] + itemObjects[item]["y"],
+            )
             if splitItem[rowNum][columnNum] != emptySpaceLetter:
+                if screenLimits != None:
+                    if (
+                        not math.ceil((screenWidth - 1) / 2) - screenLimits[0] // 2
+                        <= coords[0]
+                        <= math.ceil((screenWidth - 1) / 2) + screenLimits[0] // 2
+                    ) or (
+                        not math.ceil((screenHeight - 1) / 2) - screenLimits[1] // 2
+                        <= coords[1]
+                        <= math.ceil((screenHeight - 1) / 2) + screenLimits[1] // 2
+                    ):
+                        continue
                 addLetter(
-                    (
-                        columnNum + xBias
-                        # + itemObjects[item]["x bias"]
-                        + itemObjects[item]["x"],
-                        rowNum + yBias
-                        # + itemObjects[item]["y bias"]
-                        + itemObjects[item]["y"],
-                    ),
+                    coords,
                     splitItem[rowNum][columnNum],
                 )
 

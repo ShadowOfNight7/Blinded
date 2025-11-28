@@ -14,60 +14,16 @@ import os
 
 # Variables: Constants
 FPS = 100
-screenWidthLimit = 156
-screenHeightLimit = 41
 
 # Variables: Lists and Dictionaries
+screenWidthLimit = 156
+screenHeightLimit = 41
 lettersToRender = {}
 screenRender = []
 debugMessages = []
-itemObjects = {
-    "example target": {
-        "animation frames": [
-            """
-šššš|šššš
-šššš|šššš
-----+----
-šššš|šššš
-šššš|šššš
-""",
-            """
-šš|šš
---+--
-šš|šš
-""",
-            """
-+
-""",
-        ],
-        "x": 0,
-        "y": 0,
-        "x bias": 0,
-        "y bias": 0,
-        "width": 1,
-        "height": 1,
-        "current frame": 0,
-        "parent object": "screen",
-        "parent anchor": "top left",
-        "child anchor": "center",
-        "is empty character part of hitbox": False,
-    },
-}
-keyBindsStatus = {
-    "up": {"state": False, "keybind": "w"},
-    "left": {"state": False, "keybind": "a"},
-    "down": {"state": False, "keybind": "s"},
-    "right": {"state": False, "keybind": "d"},
-}
-mouseStatus = {
-    "absolute position": (0, 0),
-    "position": (0, 0),
-    "left button": False,
-    "right button": False,
-    "middle button": False,
-    "scroll x": 0,
-    "scroll y": 0,
-}
+itemObjects = CodingAssets.itemObjects
+keyBindsStatus = CodingAssets.keyBindsStatus
+mouseStatus = CodingAssets.mouseStatus
 # Variables: Other
 screenWidth = os.get_terminal_size().columns
 screenHeight = os.get_terminal_size().lines
@@ -776,32 +732,52 @@ def addBorder(
     bottom: bool = True,
     left: bool = True,
     right: bool = True,
-    borderCharacter: str = "-",
-    cornerCharacter: str = "+",
+    borderCharacter: dict = {"top": "-", "bottom": "-", "left": "|", "right": "|"},
+    cornerCharacter: dict = {
+        "top left": "┌",
+        "top right": "┐",
+        "bottom left": "└",
+        "bottom right": "┘",
+    },
+    padding: dict = {"top": 0, "bottom": 0, "left": 1, "right": 1},
+    paddingCharacter: str = " ",
+    lineAdjustmentFunction: str = "middle",
 ) -> str:
-    lines = text.splitlines()
+    lines = ["" for _ in range(padding["top"])]
+    lines.extend(text.splitlines())
+    lines.extend(["" for _ in range(padding["bottom"])])
     maxLen = max(len(line) for line in lines)
+    innerWidth = maxLen + padding["left"] + padding["right"]
     borderedLines = []
     if top:
         borderedLines.append(
-            (cornerCharacter if left else "")
-            + (borderCharacter * (maxLen + (1 if right else 0) + (1 if left else 0)))
-            + (cornerCharacter if right else "")
+            (cornerCharacter["top left"] if left else "")
+            + str(borderCharacter["top"]) * innerWidth
+            + (cornerCharacter["top right"] if right else "")
         )
     for line in lines:
-        padded = line.ljust(maxLen)
+        if lineAdjustmentFunction == "left":
+            paddedLine = line.ljust(maxLen, paddingCharacter)
+        elif lineAdjustmentFunction == "right":
+            paddedLine = line.rjust(maxLen, paddingCharacter)
+        else:
+            paddedLine = line.center(maxLen, paddingCharacter)
         borderedLine = ""
         if left:
-            borderedLine += "| "
-        borderedLine += padded
+            borderedLine += (
+                str(borderCharacter["left"]) + paddingCharacter * padding["left"]
+            )
+        borderedLine += paddedLine
         if right:
-            borderedLine += " |"
+            borderedLine += paddingCharacter * padding["right"] + str(
+                borderCharacter["right"]
+            )
         borderedLines.append(borderedLine)
     if bottom:
         borderedLines.append(
-            (cornerCharacter if left else "")
-            + (borderCharacter * (maxLen + (1 if right else 0) + (1 if left else 0)))
-            + (cornerCharacter if right else "")
+            (cornerCharacter["bottom left"] if left else "")
+            + str(borderCharacter["bottom"]) * innerWidth
+            + (cornerCharacter["bottom right"] if right else "")
         )
     return "\n".join(borderedLines)
 

@@ -1,3 +1,35 @@
+itemObjects = {
+    "example target": {
+        "animation frames": [
+            """
+šššš|šššš
+šššš|šššš
+----+----
+šššš|šššš
+šššš|šššš
+""",
+            """
+šš|šš
+--+--
+šš|šš
+""",
+            """
++
+""",
+        ],
+        "x": 0,
+        "y": 0,
+        "x bias": 0,
+        "y bias": 0,
+        "width": 1,
+        "height": 1,
+        "current frame": 0,
+        "parent object": "screen",
+        "parent anchor": "top left",
+        "child anchor": "center",
+        "is empty character part of hitbox": False,
+    },
+}
 keyBindsStatus = {
     "up": {"state": False, "keybind": "w"},
     "left": {"state": False, "keybind": "a"},

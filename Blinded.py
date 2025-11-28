@@ -53,7 +53,7 @@ def PhaseChange(Phase: str):
         FocusRoom = False
         AnimateRoomEntry = False
     elif phase.lower() == "battle":
-        ""
+        enemies = []
     elif phase.lower() == "puzzle":
         ""
 

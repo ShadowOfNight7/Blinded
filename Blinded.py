@@ -39,7 +39,7 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
 
 
 def PhaseChange(Phase: str):
-    global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry
+    global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry, player_x, player_y
     phase = Phase
     if phase.lower() == "title":
         riseTitle = 0
@@ -55,6 +55,9 @@ def PhaseChange(Phase: str):
         FocusRoom = {"Location": (0, 0), "id": (0, 1), "Connections": [], "Movements": []}
         FocusRoom = False
         AnimateRoomEntry = False
+    elif phase.lower() == "room":
+        player_x, player_y = 0, 0
+
     elif phase.lower() == "battle":
         ""
     elif phase.lower() == "puzzle":
@@ -96,8 +99,8 @@ def SetRoomPhase(id: tuple):
 
 timed = 99
 AimTarget = []
-character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PC
+# character_size = (19, 37) #NORMAL
+character_size = (9, 19) #PCS
 # character_size = Cursor.initialize(2)
 score = 0
 
@@ -105,7 +108,7 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "map"
+phase = "room"
 
 NonCenterOffset = 0
 
@@ -155,7 +158,9 @@ pyterm.createItem("RoomType", ["Type: Battle"], "screen", "top right", "center",
 pyterm.createItem("RoomDifficulty", ["Difficulty: 1.05"], "screen", "top right", "center", 0)
 pyterm.createItem("RoomRewards", ["Rewards:", "- Light", "- Gold", "- Exp"], "screen", "top right", "center", 0)
 
-
+player_x, player_y = 0, 0
+player_hitbox = [1, 1]
+pyterm.createItem("PlayerMove", ["O"], "screen", "center", "center", 0)
 
 
 #Setting Variables
@@ -308,13 +313,12 @@ while True:
         if not GetRoomLoc:
             for Line in LinesRooms:
                 # pyterm.renderItem(Line["Line"], xBias = round(Line["Pos"][0]) + mapOffset[0], yBias = round(Line["Pos"][1]) + mapOffset[1])
-                pyterm.renderItem(str(Line["Pos1"]) + str(Line["Pos2"]), xBias=mapOffset[0], yBias=mapOffset[1])
+                pyterm.renderItem(str(Line["Pos1"]) + str(Line["Pos2"]), xBias=mapOffset[0], yBias=mapOffset[1], screenLimits=(999, 999))
 
         if GetRoomLoc:
-            roomLoc = pyterm.renderLiteralItem(assets.get("FilledBlackHole"), 0, 0, "center", "center")
             pyterm.createItem(str((0, 1)), [assets["FilledBlackHole"]], "screen", "center", "center", 0, 0, 0)
             hierarchyLocations.append([{"Location": (0, 0), "id": (0, 1), "Connections": [], "Movements": []}])
-        pyterm.renderItem(str((0, 1)), xBias = mapOffset[0], yBias = mapOffset[1])
+        pyterm.renderItem(str((0, 1)), xBias = mapOffset[0], yBias = mapOffset[1], screenLimits=(999, 999))
         if (os.get_terminal_size().columns/2 + mapOffset[0] - 8 <= location[0] <= os.get_terminal_size().columns/2 + mapOffset[0] + 8 - 1) and (os.get_terminal_size().lines/2 + mapOffset[1] - 4 <= location[1] <= os.get_terminal_size().lines/2 + mapOffset[1] + 4):
             pyterm.renderLiteralItem("AAA", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
         else:
@@ -331,9 +335,9 @@ while True:
                     # if math.dist(hierarchyLocations[i][i2]["Location"], (-mapOffset[0], -mapOffset[1])) <= (10 + math.hypot(os.get_terminal_size().columns/2, os.get_terminal_size().lines/2)):
                     if AnimateRoomEntry:
                         if not ((i + 1, i2 + 1) == AnimateRoomEntry["id"]):
-                            pyterm.renderItem(str((i + 1, i2 + 1)), xBias = mapOffset[0], yBias = mapOffset[1])
+                            pyterm.renderItem(str((i + 1, i2 + 1)), xBias = mapOffset[0], yBias = mapOffset[1], screenLimits=(999, 999))
                     else:
-                        pyterm.renderItem(str((i + 1, i2 + 1)), xBias = mapOffset[0], yBias = mapOffset[1])
+                        pyterm.renderItem(str((i + 1, i2 + 1)), xBias = mapOffset[0], yBias = mapOffset[1], screenLimits=(999, 999))
                     # pyterm.renderLiteralItem(str(hierarchyLocations[i + 1][i2]["Movements"]), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
                     # pyterm.renderLiteralItem(assets.get("FilledBlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
             if GetRoomLoc == True:
@@ -425,7 +429,7 @@ while True:
                 TargetLocation[0] = -FocusRoom["Location"][0]
                 TargetLocation[1] = -FocusRoom["Location"][1]
             if FocusRoom:
-                pyterm.renderItem("RoomSelect", xBias = FocusRoom["Location"][0] + mapOffset[0], yBias = FocusRoom["Location"][1] +  mapOffset[1], createItemIfNotExists = True, createItemArgs = {"animationFrames": [assets.get("RoomSelect")], "parentObject": "screen", "parentAnchor": "center", "childAnchor": "center", "currentFrame": 0})
+                pyterm.renderItem("RoomSelect", xBias = FocusRoom["Location"][0] + mapOffset[0], yBias = FocusRoom["Location"][1] +  mapOffset[1], screenLimits = (999, 999), createItemIfNotExists = True, createItemArgs = {"animationFrames": [assets.get("RoomSelect")], "parentObject": "screen", "parentAnchor": "center", "childAnchor": "center", "currentFrame": 0})
                 if (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose")):
                     itemObjects["RoomHierarchy"]["animation frames"][0] = "Hierarchy: " + str(FocusRoom["id"][0])
                     itemObjects["RoomNo."]["animation frames"][0] = "Room Number: " + str(FocusRoom["id"][1])
@@ -435,8 +439,8 @@ while True:
                     itemObjects["RoomNo."]["animation frames"][0] = "Room Number: ???"
                     pyterm.updateItemFrame("RoomSidebar", 3)
                 pyterm.renderItem("RoomSidebar", yBias = NonCenterOffset, screenLimits=(999, 999))
-                pyterm.renderItem("RoomHierarchy", xBias = -12, yBias = 4 + NonCenterOffset)
-                pyterm.renderItem("RoomNo.", xBias = -12, yBias = 5 + NonCenterOffset)
+                pyterm.renderItem("RoomHierarchy", xBias = -12, yBias = 4 + NonCenterOffset, screenLimits=(999, 999))
+                pyterm.renderItem("RoomNo.", xBias = -12, yBias = 5 + NonCenterOffset, screenLimits=(999, 999))
                 #pyterm.renderItem("RoomNo.", xBias = -12, yBias = 13)
         
         if AnimateRoomEntry:
@@ -447,7 +451,7 @@ while True:
                 FocusRoom = False
                 # PhaseChange("Battle")
             else:
-                pyterm.renderItem("RoomEntryAnimation", xBias = AnimateRoomEntry["Location"][0] + mapOffset[0], yBias = AnimateRoomEntry["Location"][1] + mapOffset[1])
+                pyterm.renderItem("RoomEntryAnimation", xBias = AnimateRoomEntry["Location"][0] + mapOffset[0], yBias = AnimateRoomEntry["Location"][1] + mapOffset[1], screenLimits= (999, 999))
                 pyterm.updateItemFrame("RoomEntryAnimation", itemObjects["RoomEntryAnimation"]["current frame"] + 1)
 
         # pyterm.renderLiteralItem("X", FocusRoom["Location"][0] + mapOffset[0], FocusRoom["Location"][1] + mapOffset[1], "center", "center")
@@ -483,6 +487,30 @@ while True:
             else:
                 mapOffset[0] += round((TargetLocation[0] - mapOffset[0])/3 + 1 * (TargetLocation[0] - mapOffset[0])/max(abs(TargetLocation[0] - mapOffset[0]), 0.1))
                 mapOffset[1] += round((TargetLocation[1] - mapOffset[1])/3 + 1 * (TargetLocation[1] - mapOffset[1])/max(abs(TargetLocation[1] - mapOffset[1]), 0.1))
+    
+    
+
+
+
+
+    elif phase.lower() == "room":
+
+
+        pyterm.renderItem("PlayerMove", xBias = round(player_x), yBias = round(player_y))
+
+        if keyboard.is_pressed("w"):
+            player_y -= 0.15
+            TargetLocation[2] = 0
+        if keyboard.is_pressed("s"):
+            player_y += 0.15
+            TargetLocation[2] = 0
+        if keyboard.is_pressed("a"):
+            player_x -= 0.3
+            TargetLocation[2] = 0
+        if keyboard.is_pressed("d"):
+            player_x += 0.3
+            TargetLocation[2] = 0
+    
     # fmt: on
     elif phase.lower() == "battle":
         pass
@@ -490,7 +518,7 @@ while True:
 
 
     # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
-    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick), 0, 0, "bottom left", "bottom left")
+    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(character_size), 0, 0, "bottom left", "bottom left")
 
 
     pyterm.renderScreen()

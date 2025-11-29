@@ -5,9 +5,9 @@ import Testing.MouseDetect as MouseDetect
 import Testing.AttackTest as AttackTest
 import Assets.YiPyterminal as pyterm
 from Assets.YiPyterminal import itemObjects
+import Assets.YiPyterminal as YiPyterminal
 
 # fmt: off
-
 def colourText(rgb: list, text: str, transparency = 1, background = False):
     returntext = ""
     if not background:
@@ -25,8 +25,6 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
         if splittext.index(line) != (len(splittext) - 1):
             returntext += "\n"
     return returntext
-
-
 # def addItems(Item: str, Coords = (0, 0)):
 #     global screen
 #     lines = Item.splitlines()
@@ -38,6 +36,7 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
 #                 continue
 
 
+# fmt: on
 def PhaseChange(Phase: str):
     global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry, player_x, player_y
     phase = Phase
@@ -52,22 +51,138 @@ def PhaseChange(Phase: str):
         locationMapDiff = [0, 0]
         mapOffsetCopy = [0, 0]
         TargetLocation = [0, 0, 0]
-        FocusRoom = {"Location": (0, 0), "id": (0, 1), "Connections": [], "Movements": []}
+        FocusRoom = {
+            "Location": (0, 0),
+            "id": (0, 1),
+            "Connections": [],
+            "Movements": [],
+        }
         FocusRoom = False
         AnimateRoomEntry = False
     elif phase.lower() == "room":
         player_x, player_y = 0, 0
 
     elif phase.lower() == "battle":
-        ""
+        global enemiesStatus, playersStatus, buttons
+        enemiesStatus = {}
+        playersStatus = {}
+        buttons = ["fight", "inventory", "info", "mercy"]
+        buttonBarrier = "".join(
+            [
+                "┬\n",
+                "".join(
+                    ["|\n" for _ in range(math.floor(YiPyterminal.screenHeight / 4))]
+                ),
+            ]
+        )
+        YiPyterminal.createItem(
+            "center button barrier",
+            [buttonBarrier],
+            parentObject="screen",
+            parentAnchor="bottom center",
+            childAnchor="bottom center",
+            isUpdateItemLocation=False,
+        )
+        YiPyterminal.createItem(
+            "left button barrier",
+            [buttonBarrier],
+            parentObject=buttons[1] + " button",
+            parentAnchor="left center",
+            childAnchor="right center",
+            isUpdateItemLocation=False,
+            xBias=-1,
+        )
+        YiPyterminal.createItem(
+            "right button barrier",
+            [buttonBarrier],
+            parentObject=buttons[2] + " button",
+            parentAnchor="right center",
+            childAnchor="left center",
+            isUpdateItemLocation=False,
+            xBias=1,
+        )
+        for buttonNum in range(len(buttons)):
+            YiPyterminal.createItem(
+                buttons[buttonNum] + " button",
+                [
+                    YiPyterminal.addBorder(
+                        buttons[buttonNum]
+                        .upper()
+                        .center(
+                            math.floor(
+                                (YiPyterminal.screenWidth - len("".join(buttons))) / 4
+                            ),
+                            " ",
+                        ),
+                        bottom=False,
+                        left=True if buttonNum == 0 else False,
+                        right=True if buttonNum == 3 else False,
+                        padding={
+                            "top": math.floor(YiPyterminal.screenHeight / 8),
+                            "bottom": math.floor(YiPyterminal.screenHeight / 8),
+                            "left": 0,
+                            "right": 0,
+                        },
+                        paddingCharacter=" ",
+                    ),
+                    YiPyterminal.addBorder(
+                        (">>> " + buttons[buttonNum] + " <<<")
+                        .upper()
+                        .center(
+                            math.floor(
+                                (YiPyterminal.screenWidth - len("".join(buttons))) / 4
+                            ),
+                            " ",
+                        ),
+                        bottom=False,
+                        left=True if buttonNum == 0 else False,
+                        right=True if buttonNum == 3 else False,
+                        padding={
+                            "top": math.floor(YiPyterminal.screenHeight / 8),
+                            "bottom": math.floor(YiPyterminal.screenHeight / 8),
+                            "left": 0,
+                            "right": 0,
+                        },
+                        paddingCharacter=" ",
+                    ),
+                ],
+                parentObject=(
+                    "center button barrier"
+                    if buttonNum == 1 or buttonNum == 2
+                    else (
+                        "left button barrier"
+                        if buttonNum == 0
+                        else "right button barrier"
+                    )
+                ),
+                parentAnchor=(
+                    "left center"
+                    if buttonNum == 1 or buttonNum == 0
+                    else "right center"
+                ),
+                childAnchor=(
+                    "right center"
+                    if buttonNum == 1 or buttonNum == 0
+                    else "left center"
+                ),
+                xBias=-1 if buttonNum == 0 or buttonNum == 1 else 1,
+                isUpdateItemLocation=False,
+            )
+        for item in [
+            "center button barrier",
+            buttons[1] + " button",
+            buttons[2] + " button",
+            "left button barrier",
+            buttons[0] + " button",
+            "right button barrier",
+            buttons[3] + " button",
+        ]:
+            YiPyterminal.updateItemLocation(item)
     elif phase.lower() == "puzzle":
-        ""
+        pass
 
 
-
-
-
-
+# fmt: off
 
 #Oddly Specific Functions
 def SetRoomPhase(id: tuple):
@@ -92,18 +207,12 @@ def SetRoomPhase(id: tuple):
             itemObjects[str(id)]["animation frames"][1] = "".join(random.choice('*&^%$#@!') if a=='#' else a for a in assets.get("FilledBlackHoleFar"))
     return None
 
-
-
-
-
-
 timed = 99
 AimTarget = []
 # character_size = (19, 37) #NORMAL
 character_size = (9, 19) #PCS
 # character_size = Cursor.initialize(2)
 score = 0
-
 MainClock = 1000
 FalseTime = time.time()
 transparency = 1
@@ -121,10 +230,6 @@ pyterm.createItem("SettingsRoomsNormal", [assets.get("SettingsRoomsNormal"), ass
 pyterm.createItem("SettingsRoomsObfuscated", [assets.get("SettingsRoomsObfuscated"), assets.get("SettingsRoomsObfuscatedOn")], "screen", "center", "center", 0)
 pyterm.createItem("SettingsRoomsAnimated", [assets.get("SettingsRoomsAnimated"), assets.get("SettingsRoomsAnimatedOn")], "screen", "center", "center", 0)
 SettingsRooms = 1
-
-
-
-
 
 Hierarchy = 7
 RandomAdd = []
@@ -166,33 +271,30 @@ pyterm.createItem("PlayerMove", ["O"], "screen", "center", "center", 0)
 #Setting Variables
 RoomShadows = "Normal"#, "Obfuscated", "Animated"
 
+PhaseChange("battle")
 
-
-
+YiPyterminal.initializeTerminal(repetitions=1)
+YiPyterminal.startAsynchronousMouseListener()
 while True:
     startTime = time.perf_counter()
+    YiPyterminal.updateScreenSize()
     pyterm.clearLettersToRender()
     pyterm.updateKeyboardBindStatus()
+    YiPyterminal.copyMouseStatus(resetMouseStatusAfterCopy=True)
     MainClock += 1
-
-    #Code Start
-
     ctypes.windll.user32.OpenClipboard()
     ctypes.windll.user32.EmptyClipboard()
     # ctypes.windll.user32.CloseClipboard()
-
     if Cursor.is_full_screen() == "maximized":
         NonCenterOffset = 1
     elif Cursor.is_full_screen():
         NonCenterOffset = 3
     else:
         NonCenterOffset = 0
-
     # keyboard.block_key("ctrl")
     location = Cursor.get_mouse_coords(character_size, True)
     LeftClick = MouseDetect.ClickDetect("Left", "On")
     RightClick = MouseDetect.ClickDetect("Right", "On")
-
 
     if phase.lower() == "title":
         pyterm.renderLiteralItem(assets["background"], 0, 0, "center", "center")
@@ -302,11 +404,6 @@ while True:
             riseTitle += 2
         elif (not rise) and (riseTitle != 0):
             riseTitle -= 2
-            
-
-
-
-
 
     elif phase.lower() == "map":
         
@@ -513,9 +610,18 @@ while True:
     
     # fmt: on
     elif phase.lower() == "battle":
-        pass
+        for button in buttons:
+            button=button+" button"
+            if YiPyterminal.checkItemIsHovered(button):
+                YiPyterminal.updateItemFrame(button,1)
+            else:
+                if YiPyterminal.itemObjects[button]["current frame"]==1:
+                    YiPyterminal.updateItemFrame(button,0)
+            YiPyterminal.renderItem(button,screenLimits=None)
+        for item in ["center button barrier","left button barrier","right button barrier"]:
+            YiPyterminal.renderItem(item,screenLimits=None)
+        
     # fmt: off
-
 
     # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
     pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(character_size), 0, 0, "bottom left", "bottom left")

@@ -263,7 +263,13 @@ def createItem(
     xBias: int = 0,
     yBias: int = 0,
     isEmptyCharacterPartOfHitbox: bool = False,
+    isOverwriteExistingItem: bool = True,
+    isUpdateItemSize: bool = True,
+    isUpdateItemLocation: bool = True,
 ) -> None:
+    if isOverwriteExistingItem == False:
+        if name in itemObjects:
+            return None
     itemObjects[name] = {
         "animation frames": animationFrames,
         "x": None,
@@ -278,8 +284,10 @@ def createItem(
         "child anchor": childAnchor,
         "is empty character part of hitbox": isEmptyCharacterPartOfHitbox,
     }
-    updateItemSize(name)
-    updateItemLocation(name)
+    if isUpdateItemSize == True:
+        updateItemSize(name)
+    if isUpdateItemLocation == True:
+        updateItemLocation(name)
 
 
 def renderItem(
@@ -335,7 +343,6 @@ def updateItemLocation(item: str) -> None:
 def checkItemIsClicked(
     item: str, button: str = "left", mouseCoords: tuple | None = None
 ) -> bool:
-    global mouseStatusCopy
     if mouseCoords is None:
         mouseCoords = mouseStatusCopy["position"]
     itemTopLeftX, itemTopLeftY = getTopLeft(item)
@@ -367,6 +374,31 @@ def checkItemIsClicked(
             return mouseStatusCopy["right button"]
 
 
+def checkItemIsHovered(
+    item: str, button: str = "left", mouseCoords: tuple | None = None
+) -> bool:
+    if mouseCoords is None:
+        mouseCoords = mouseStatusCopy["position"]
+    itemTopLeftX, itemTopLeftY = getTopLeft(item)
+    itemBottomRightX, itemBottomRightY = getBottomRight(item)
+    if (
+        itemTopLeftX <= mouseCoords[0] <= itemBottomRightX
+        and itemTopLeftY <= mouseCoords[1] <= itemBottomRightY
+    ):
+        if itemObjects[item]["is empty character part of hitbox"] == False:
+            itemFrame = itemObjects[item]["animation frames"][
+                itemObjects[item]["current frame"]
+            ].splitlines()
+            relativeX = mouseCoords[0] - itemTopLeftX
+            relativeY = mouseCoords[1] - itemTopLeftY
+            if itemFrame[relativeY][relativeX] != "š":
+                return True
+            else:
+                return False
+        return True
+    return False
+
+
 def getAnchorPosition(
     childAnchor: str,
     childObject: str,
@@ -382,13 +414,23 @@ def getAnchorPosition(
         if parentAnchor == "top left":
             anchorX, anchorY = 0, 0
         elif parentAnchor == "top right":
-            anchorX, anchorY = screenWidth, 0
+            anchorX, anchorY = screenWidth - 1, 0
         elif parentAnchor == "bottom left":
-            anchorX, anchorY = 0, screenHeight
+            anchorX, anchorY = 0, screenHeight - 1
         elif parentAnchor == "bottom right":
-            anchorX, anchorY = screenWidth, screenHeight
+            anchorX, anchorY = screenWidth - 1, screenHeight - 1
         elif parentAnchor == "center" or parentAnchor == "centre":
-            anchorX, anchorY = math.ceil(screenWidth / 2), math.ceil(screenHeight / 2)
+            anchorX, anchorY = math.ceil((screenWidth - 1) / 2), math.ceil(
+                (screenHeight - 1) / 2
+            )
+        elif parentAnchor == "top center" or parentAnchor == "top centre":
+            anchorX, anchorY = math.ceil((screenWidth - 1) / 2), 0
+        elif parentAnchor == "bottom center" or parentAnchor == "bottom centre":
+            anchorX, anchorY = math.ceil((screenWidth - 1) / 2), screenHeight - 1
+        elif parentAnchor == "left center" or parentAnchor == "left centre":
+            anchorX, anchorY = 0, math.ceil((screenHeight - 1) / 2)
+        elif parentAnchor == "right center" or parentAnchor == "right centre":
+            anchorX, anchorY = screenWidth - 1, math.ceil((screenHeight - 1) / 2)
         else:
             pass
             addDebugMessage(
@@ -405,8 +447,15 @@ def getAnchorPosition(
             anchorX, anchorY = getBottomRight(parentObject)
         elif parentAnchor == "center" or parentAnchor == "centre":
             anchorX, anchorY = getCenter(parentObject)
+        elif parentAnchor == "top center" or parentAnchor == "top centre":
+            anchorX, anchorY = getTopCenter(parentObject)
+        elif parentAnchor == "bottom center" or parentAnchor == "bottom centre":
+            anchorX, anchorY = getBottomCenter(parentObject)
+        elif parentAnchor == "left center" or parentAnchor == "left centre":
+            anchorX, anchorY = getLeftCenter(parentObject)
+        elif parentAnchor == "right center" or parentAnchor == "right centre":
+            anchorX, anchorY = getRightCenter(parentObject)
         else:
-
             addDebugMessage(
                 "".join(["Invalid input for parentAnchor in addItem():", parentAnchor])
             )
@@ -426,17 +475,29 @@ def getAnchorPosition(
         anchorY -= 0
         anchorX -= 0
     elif childAnchor == "top right":
-        anchorX -= width
+        anchorX -= width - 1
         anchorY -= 0
     elif childAnchor == "bottom left":
         anchorX -= 0
-        anchorY -= height
+        anchorY -= height - 1
     elif childAnchor == "bottom right":
-        anchorX -= width
-        anchorY -= height
+        anchorX -= width - 1
+        anchorY -= height - 1
     elif childAnchor == "center" or childAnchor == "centre":
-        anchorX -= math.ceil(width / 2)
-        anchorY -= math.ceil(height / 2)
+        anchorX -= math.ceil((width - 1) / 2)
+        anchorY -= math.ceil((height - 1) / 2)
+    elif childAnchor == "top center" or childAnchor == "top centre":
+        anchorX -= math.ceil((width - 1) / 2)
+        anchorY -= 0
+    elif childAnchor == "bottom center" or childAnchor == "bottom centre":
+        anchorX -= math.ceil((width - 1) / 2)
+        anchorY -= height - 1
+    elif childAnchor == "left center" or childAnchor == "left centre":
+        anchorX -= 0
+        anchorY -= math.ceil((height - 1) / 2)
+    elif childAnchor == "right center" or childAnchor == "right centre":
+        anchorX -= width - 1
+        anchorY -= math.ceil((height - 1) / 2)
     else:
         addDebugMessage(
             "".join(["Invalid input for childAnchor in addItem():", childAnchor])
@@ -490,6 +551,14 @@ def getAnchor(item: str, anchor: str) -> tuple:
         return getBottomRight(item)
     elif anchor == "center" or anchor == "centre":
         return getCenter(item)
+    elif anchor == "top center" or anchor == "top centre":
+        return getTopCenter(item)
+    elif anchor == "bottom center" or anchor == "bottom centre":
+        return getBottomCenter(item)
+    elif anchor == "left center" or anchor == "left centre":
+        return getLeftCenter(item)
+    elif anchor == "right center" or anchor == "right centre":
+        return getRightCenter(item)
     else:
         addDebugMessage("".join(["Invalid input for anchor in getAnchor():", anchor]))
 
@@ -527,6 +596,38 @@ def getCenter(item: str) -> tuple:
     if item in itemObjects:
         return (
             itemObjects[item]["x"] + math.ceil((itemObjects[item]["width"] - 1) / 2),
+            itemObjects[item]["y"] + math.ceil((itemObjects[item]["height"] - 1) / 2),
+        )
+
+
+def getTopCenter(item: str) -> tuple:
+    if item in itemObjects:
+        return (
+            itemObjects[item]["x"] + math.ceil((itemObjects[item]["width"] - 1) / 2),
+            itemObjects[item]["y"],
+        )
+
+
+def getBottomCenter(item: str) -> tuple:
+    if item in itemObjects:
+        return (
+            itemObjects[item]["x"] + math.ceil((itemObjects[item]["width"] - 1) / 2),
+            itemObjects[item]["y"] + itemObjects[item]["height"] - 1,
+        )
+
+
+def getLeftCenter(item: str) -> tuple:
+    if item in itemObjects:
+        return (
+            itemObjects[item]["x"],
+            itemObjects[item]["y"] + math.ceil((itemObjects[item]["height"] - 1) / 2),
+        )
+
+
+def getRightCenter(item: str) -> tuple:
+    if item in itemObjects:
+        return (
+            itemObjects[item]["x"] + itemObjects[item]["width"] - 1,
             itemObjects[item]["y"] + math.ceil((itemObjects[item]["height"] - 1) / 2),
         )
 

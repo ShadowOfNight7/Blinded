@@ -1,0 +1,1 @@
+powershell -NoExit -Command "py '%~dp0YiPyterminalTesting.py'"

@@ -662,13 +662,14 @@ while True:
     # fmt: off
 
     #Ui
-    if (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 68 <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 86) and (NonCenterOffset <= location[1] <= NonCenterOffset + 5):
-        pyterm.updateItemFrame("Ui", 1)
-    elif (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 88 <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 106) and (NonCenterOffset <= location[1] <= NonCenterOffset + 5):
-        pyterm.updateItemFrame("Ui", 2)
-    else:
-        pyterm.updateItemFrame("Ui", 0)
-    pyterm.renderItem("Ui", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2), yBias = NonCenterOffset, screenLimits=(999, 999))
+    if Ui:
+        if (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 68 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 86 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]):
+            pyterm.updateItemFrame("Ui", 1)
+        elif (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 88 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 106 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]):
+            pyterm.updateItemFrame("Ui", 2)
+        else:
+            pyterm.updateItemFrame("Ui", 0)
+        pyterm.renderItem("Ui", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + UiOffset[0], yBias = NonCenterOffset + UiOffset[1], screenLimits=(999, 999))
 
     itemObjects["UiLevel"]["animation frames"][0] = str(level)
     if experience < 10**3:

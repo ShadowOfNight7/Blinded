@@ -36,7 +36,7 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
 #                 continue
 
 
-# fmt: on
+# fmt: off
 def PhaseChange(Phase: str):
     global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry, player_x, player_y
     phase = Phase
@@ -51,17 +51,15 @@ def PhaseChange(Phase: str):
         locationMapDiff = [0, 0]
         mapOffsetCopy = [0, 0]
         TargetLocation = [0, 0, 0]
-        FocusRoom = {
-            "Location": (0, 0),
-            "id": (0, 1),
-            "Connections": [],
-            "Movements": [],
-        }
+        FocusRoom = {"Location": (0, 0),"id": (0, 1),"Connections": [],"Movements": [],}
         FocusRoom = False
         AnimateRoomEntry = False
     elif phase.lower() == "room":
         player_x, player_y = 0, 0
-
+    elif phase.lower() == "puzzlemove":
+        pass
+    elif phase.lower() == "puzzletext":
+        pass
     elif phase.lower() == "battle":
         global enemiesStatus, playersStatus, buttons
         enemiesStatus = {}
@@ -178,8 +176,6 @@ def PhaseChange(Phase: str):
             buttons[3] + " button",
         ]:
             YiPyterminal.updateItemLocation(item)
-    elif phase.lower() == "puzzle":
-        pass
 
 
 # fmt: off
@@ -254,7 +250,7 @@ pyterm.createItem("RoomSidebar", [assets.get("RoomSidebar"), assets.get("RoomSid
 RoomEntryList = []
 # RoomEntryList = [assets.get("RoomAnimation1"), assets.get("RoomAnimation2"), assets.get("RoomAnimation3"), assets.get("RoomAnimation3"), assets.get("RoomAnimation3")]
 for i in range(20):
-    RoomEntryList.append(pyterm.addBorder("".join("".join(" " for i2 in range(round(4 * i ** 1.75 + 14))) + "\n" for i3 in range(round(2 * i ** 1.75 + 6)))))
+    RoomEntryList.append(pyterm.addBorder("".join("".join(" " for i2 in range(round(4 * i ** 1.75 + 14))) + "\n" for i3 in range(round(2 * i ** 1.75 + 6))), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0}))
 pyterm.createItem("RoomEntryAnimation", RoomEntryList, "screen", "center", "center", 0, 0, 0)
 AnimateRoomEntry = False
 pyterm.createItem("RoomHierarchy", ["Hierarchy: 0"], "screen", "top right", "center", 0)
@@ -266,12 +262,29 @@ pyterm.createItem("RoomRewards", ["Rewards:", "- Light", "- Gold", "- Exp"], "sc
 player_x, player_y = 0, 0
 player_hitbox = [1, 1]
 pyterm.createItem("PlayerMove", ["O"], "screen", "center", "center", 0)
-
+room_size = [round(120), round(25)]
+# pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(round((room_size[0] - 1)/2 + 1))) + "\n" for i3 in range(round((room_size[1] - 1)/2 + 1))), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
+pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(room_size[0])) + "\n" for i3 in range(room_size[1])), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
+room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#"]
 
 #Setting Variables
 RoomShadows = "Normal"#, "Obfuscated", "Animated"
 
-PhaseChange("battle")
+#UI AND OTHER STUFF
+pyterm.createItem("Ui", [assets.get("UI"), assets.get("UIInventory"), assets.get("UISettings")], "screen", "top left", "top left", 0)
+
+
+
+
+#ITS THE STATS!
+light = 0
+research = 0
+level = 1
+experience = 0
+max_experience = (level)
+
+
+# PhaseChange("battle")
 
 YiPyterminal.initializeTerminal(repetitions=1)
 YiPyterminal.startAsynchronousMouseListener()
@@ -295,6 +308,8 @@ while True:
     location = Cursor.get_mouse_coords(character_size, True)
     LeftClick = MouseDetect.ClickDetect("Left", "On")
     RightClick = MouseDetect.ClickDetect("Right", "On")
+
+
 
     if phase.lower() == "title":
         pyterm.renderLiteralItem(assets["background"], 0, 0, "center", "center")
@@ -506,11 +521,12 @@ while True:
                         FocusRoom = room
 
         if FocusRoom:
-            if (os.get_terminal_size().columns - 24 <= location[0] <= os.get_terminal_size().columns) and (os.get_terminal_size().lines - 5 <= location[1] <= os.get_terminal_size().lines):
+            pyterm.updateItemFrame("RoomSidebar", 0)
+            if (os.get_terminal_size().columns - 24 <= location[0] <= os.get_terminal_size().columns) and (NonCenterOffset + 39 + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2) <= location[1] <= NonCenterOffset + 43 + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2)):
                 pyterm.updateItemFrame("RoomSidebar", 1)
                 if LeftClick and not (TargetLocation[2] is 1):
                     FocusRoom = False
-            elif (os.get_terminal_size().columns - 24 <= location[0] <= os.get_terminal_size().columns) and (7 <= location[1] <= 11):
+            elif (os.get_terminal_size().columns - 24 <= location[0] <= os.get_terminal_size().columns) and (10 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2) <= location[1] <= 14 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2)):
                 if ((itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose"))):
                     pyterm.updateItemFrame("RoomSidebar", 2)
                     if (LeftClick) and not (TargetLocation[2] is 1):
@@ -530,14 +546,14 @@ while True:
                 if (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose")):
                     itemObjects["RoomHierarchy"]["animation frames"][0] = "Hierarchy: " + str(FocusRoom["id"][0])
                     itemObjects["RoomNo."]["animation frames"][0] = "Room Number: " + str(FocusRoom["id"][1])
-                    pyterm.updateItemFrame("RoomSidebar", 0)
                 else:
                     itemObjects["RoomHierarchy"]["animation frames"][0] = "Hierarchy: ???"
                     itemObjects["RoomNo."]["animation frames"][0] = "Room Number: ???"
                     pyterm.updateItemFrame("RoomSidebar", 3)
-                pyterm.renderItem("RoomSidebar", yBias = NonCenterOffset, screenLimits=(999, 999))
-                pyterm.renderItem("RoomHierarchy", xBias = -12, yBias = 4 + NonCenterOffset, screenLimits=(999, 999))
-                pyterm.renderItem("RoomNo.", xBias = -12, yBias = 5 + NonCenterOffset, screenLimits=(999, 999))
+                pyterm.renderItem("RoomSidebar", yBias = NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
+                pyterm.renderItem("RoomHierarchy", xBias = -11, yBias = 6 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
+                pyterm.renderItem("RoomNo.", xBias = -11, yBias = 7 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
+                pyterm.renderItem("RoomType", xBias = -11, yBias = 18 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 #pyterm.renderItem("RoomNo.", xBias = -12, yBias = 13)
         
         if AnimateRoomEntry:
@@ -592,22 +608,27 @@ while True:
 
     elif phase.lower() == "room":
 
+        # itemObjects["RoomSize"]["animation frames"][0] = pyterm.addBorder("".join("".join(" " for i2 in range(round((room_size[0] - 1)/2 + 1))) + "\n" for i3 in range(round((room_size[1] - 1)/2 + 1))), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})
+        itemObjects["RoomSize"]["animation frames"][0] = pyterm.addBorder("".join("".join(" " for i2 in range(room_size[0])) + "\n" for i3 in range(room_size[1])), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})
+
+        pyterm.renderItem("RoomSize", screenLimits= (999, 999))
 
         pyterm.renderItem("PlayerMove", xBias = round(player_x), yBias = round(player_y))
 
         if keyboard.is_pressed("w"):
-            player_y -= 0.15
-            TargetLocation[2] = 0
+            if pyterm.getLetter((round(player_x + os.get_terminal_size().columns/2), round(player_y - 1 + os.get_terminal_size().lines/2))) not in room_walls:
+                player_y -= 0.15 / ((math.sqrt(2) - 1) * (keyboard.is_pressed("a") or keyboard.is_pressed("d")) + 1)
         if keyboard.is_pressed("s"):
-            player_y += 0.15
-            TargetLocation[2] = 0
+            if pyterm.getLetter((round(player_x + os.get_terminal_size().columns/2), round(player_y + 1 + os.get_terminal_size().lines/2))) not in room_walls:
+                player_y += 0.15 / ((math.sqrt(2) - 1) * (keyboard.is_pressed("a") or keyboard.is_pressed("d")) + 1)
         if keyboard.is_pressed("a"):
-            player_x -= 0.3
-            TargetLocation[2] = 0
+            if pyterm.getLetter((round(player_x - 1 + os.get_terminal_size().columns/2), round(player_y + os.get_terminal_size().lines/2))) not in room_walls:
+                player_x -= 0.3 / ((math.sqrt(2) - 1) * (keyboard.is_pressed("w") or keyboard.is_pressed("s")) + 1)
         if keyboard.is_pressed("d"):
-            player_x += 0.3
-            TargetLocation[2] = 0
-    
+            if pyterm.getLetter((round(player_x + 1 + os.get_terminal_size().columns/2), round(player_y + os.get_terminal_size().lines/2))) not in room_walls:
+                player_x += 0.3 / ((math.sqrt(2) - 1) * (keyboard.is_pressed("w") or keyboard.is_pressed("s")) + 1)
+
+
     # fmt: on
     elif phase.lower() == "battle":
         for button in buttons:
@@ -623,9 +644,20 @@ while True:
         
     # fmt: off
 
+    #Ui
+    if (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 68 <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 86) and (NonCenterOffset <= location[1] <= NonCenterOffset + 5):
+        pyterm.updateItemFrame("Ui", 1)
+    elif (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 88 <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 106) and (NonCenterOffset <= location[1] <= NonCenterOffset + 5):
+        pyterm.updateItemFrame("Ui", 2)
+    else:
+        pyterm.updateItemFrame("Ui", 0)
+    pyterm.renderItem("Ui", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2), yBias = NonCenterOffset, screenLimits=(999, 999))
+
+
     # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
     pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(character_size), 0, 0, "bottom left", "bottom left")
-
+    pyterm.renderLiteralItem("1", 78, 21, "center", "center")
+    pyterm.renderLiteralItem("2", -78, -20, "center", "center")
 
     pyterm.renderScreen()
     elapsedTime = time.perf_counter() - startTime

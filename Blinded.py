@@ -279,6 +279,9 @@ pyterm.createItem("UiExpBar", ["."], "screen", "top left", "top left", 0)
 pyterm.createItem("Light", ["0"], "screen", "top left", "top left", 0)
 pyterm.createItem("Research", ["0"], "screen", "top left", "top left", 0)
 
+InventoryUi = False
+SettingsUi = False
+InventoryUiState = 1
 
 
 #ITS THE STATS!
@@ -763,11 +766,7 @@ while True:
     pyterm.renderItem("Light", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57, yBias = NonCenterOffset + 2, screenLimits=(999, 999))
     pyterm.renderItem("Research", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57, yBias = NonCenterOffset + 3, screenLimits=(999, 999))
 
-    if keyboard.is_pressed("x"):
-        light += 1
-        research += 1
-        light *= 2
-        research *= 2
+    
 
 
 

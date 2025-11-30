@@ -205,8 +205,8 @@ def SetRoomPhase(id: tuple):
 
 timed = 99
 AimTarget = []
-# character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PCS
+character_size = (19, 37) #NORMAL
+# character_size = (9, 19) #PCS
 # character_size = Cursor.initialize(2)
 score = 0
 MainClock = 1000
@@ -267,6 +267,8 @@ room_size = [round(120), round(25)]
 pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(room_size[0])) + "\n" for i3 in range(room_size[1])), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
 room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#"]
 
+UiOffset = [0, 0]
+
 #Setting Variables
 RoomShadows = "Normal"#, "Obfuscated", "Animated"
 
@@ -316,6 +318,9 @@ while True:
     location = Cursor.get_mouse_coords(character_size, True)
     LeftClick = MouseDetect.ClickDetect("Left", "On")
     RightClick = MouseDetect.ClickDetect("Right", "On")
+
+    UiOffset = [0, 0]
+    Ui = True
 
     #Updating stats
     while experience >= max_experience:
@@ -551,6 +556,7 @@ while True:
                         TargetLocation[2] = 1
                         TargetLocation[0] = -FocusRoom["Location"][0]
                         TargetLocation[1] = -FocusRoom["Location"][1]
+                        FocusRoom = False
             elif keyboard.is_pressed("x"):
                 FocusRoom = False
             elif keyboard.is_pressed("e") and ((itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose"))):
@@ -558,6 +564,7 @@ while True:
                 TargetLocation[2] = 1
                 TargetLocation[0] = -FocusRoom["Location"][0]
                 TargetLocation[1] = -FocusRoom["Location"][1]
+                FocusRoom = False
             if FocusRoom:
                 pyterm.renderItem("RoomSelect", xBias = FocusRoom["Location"][0] + mapOffset[0], yBias = FocusRoom["Location"][1] +  mapOffset[1], screenLimits = (999, 999), createItemIfNotExists = True, createItemArgs = {"animationFrames": [assets.get("RoomSelect")], "parentObject": "screen", "parentAnchor": "center", "childAnchor": "center", "currentFrame": 0})
                 if (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose")):
@@ -571,6 +578,7 @@ while True:
                 pyterm.renderItem("RoomHierarchy", xBias = -11, yBias = 6 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomNo.", xBias = -11, yBias = 7 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomType", xBias = -11, yBias = 18 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
+                UiOffset[0] = -10
                 #pyterm.renderItem("RoomNo.", xBias = -12, yBias = 13)
         
         if AnimateRoomEntry:
@@ -671,103 +679,101 @@ while True:
             pyterm.updateItemFrame("Ui", 0)
         pyterm.renderItem("Ui", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + UiOffset[0], yBias = NonCenterOffset + UiOffset[1], screenLimits=(999, 999))
 
-    itemObjects["UiLevel"]["animation frames"][0] = str(level)
-    if experience < 10**3:
-        experience_copy = str(experience)
-    elif 10**3 <= experience < 10**4:
-        experience_copy = str(round(experience/10**2)/10) + "k"
-    elif 10**3 <= experience < 10**6:
-        experience_copy = str(round(experience/10**3)) + "k"
-    elif 10**6 <= experience < 10**7:
-        experience_copy = str(round(experience/10**5)/10) + "m"
-    elif 10**6 <= experience < 10**9:
-        experience_copy = str(round(experience/10**6)) + "m"
-    elif 10**9 <= experience < 10**10:
-        experience_copy = str(round(experience/10**8)/10) + "b"
-    elif 10**9 <= experience < 10**12:
-        experience_copy = str(round(experience/10**9)) + "b"
-    elif 10**12 <= experience < 10**13:
-        experience_copy = str(round(experience/10**11)/10) + "t"
-    elif 10**12 <= experience < 10**15:
-        experience_copy = str(round(experience/10**12)) + "t"
-    else:
-        experience_copy = "NaneInf"
-    if max_experience < 10**3:
-        max_experience_copy = str(max_experience)
-    elif 10**3 <= max_experience < 10**4:
-        max_experience_copy = str(round(max_experience/10**2)/10) + "k"
-    elif 10**3 <= max_experience < 10**6:
-        max_experience_copy = str(round(max_experience/10**3)) + "k"
-    elif 10**6 <= max_experience < 10**7:
-        max_experience_copy = str(round(max_experience/10**5)/10) + "m"
-    elif 10**6 <= max_experience < 10**9:
-        max_experience_copy = str(round(max_experience/10**6)) + "m"
-    elif 10**9 <= max_experience < 10**10:
-        max_experience_copy = str(round(max_experience/10**8)/10) + "b"
-    elif 10**9 <= max_experience < 10**12:
-        max_experience_copy = str(round(max_experience/10**9)) + "b"
-    elif 10**12 <= max_experience < 10**13:
-        max_experience_copy = str(round(max_experience/10**11)/10) + "t"
-    elif 10**12 <= max_experience < 10**15:
-        max_experience_copy = str(round(max_experience/10**12)) + "t"
-    else:
-        max_experience_copy = "NaneInf"
-    
-    if light < 10**3:
-        light_copy = str(light)
-    elif 10**3 <= light < 10**4:
-        light_copy = str(round(light/10**2)/10) + "k"
-    elif 10**3 <= light < 10**6:
-        light_copy = str(round(light/10**3)) + "k"
-    elif 10**6 <= light < 10**7:
-        light_copy = str(round(light/10**5)/10) + "m"
-    elif 10**6 <= light < 10**9:
-        light_copy = str(round(light/10**6)) + "m"
-    elif 10**9 <= light < 10**10:
-        light_copy = str(round(light/10**8)/10) + "b"
-    elif 10**9 <= light < 10**12:
-        light_copy = str(round(light/10**9)) + "b"
-    elif 10**12 <= light < 10**13:
-        light_copy = str(round(light/10**11)/10) + "t"
-    elif 10**12 <= light < 10**15:
-        light_copy = str(round(light/10**12)) + "t"
-    else:
-        light_copy = "NaneInf"
-    if research < 10**3:
-        research_copy = str(research)
-    elif 10**3 <= research < 10**4:
-        research_copy = str(round(research/10**2)/10) + "k"
-    elif 10**3 <= research < 10**6:
-        research_copy = str(round(research/10**3)) + "k"
-    elif 10**6 <= research < 10**7:
-        research_copy = str(round(research/10**5)/10) + "m"
-    elif 10**6 <= research < 10**9:
-        research_copy = str(round(research/10**6)) + "m"
-    elif 10**9 <= research < 10**10:
-        research_copy = str(round(research/10**8)/10) + "b"
-    elif 10**9 <= research < 10**12:
-        research_copy = str(round(research/10**9)) + "b"
-    elif 10**12 <= research < 10**13:
-        research_copy = str(round(research/10**11)/10) + "t"
-    elif 10**12 <= research < 10**15:
-        research_copy = str(round(research/10**12)) + "t"
-    else:
-        research_copy = "NaneInf"
-    
-    itemObjects["UiLevelBar"]["animation frames"][0] = min(round(level / 2), 15) * "*"
-    itemObjects["UiExpBar"]["animation frames"][0] = round(15 * experience / max_experience) * "*"
+        itemObjects["UiLevel"]["animation frames"][0] = str(level)
+        if experience < 10**3:
+            experience_copy = str(experience)
+        elif 10**3 <= experience < 10**4:
+            experience_copy = str(round(experience/10**2)/10) + "k"
+        elif 10**3 <= experience < 10**6:
+            experience_copy = str(round(experience/10**3)) + "k"
+        elif 10**6 <= experience < 10**7:
+            experience_copy = str(round(experience/10**5)/10) + "m"
+        elif 10**6 <= experience < 10**9:
+            experience_copy = str(round(experience/10**6)) + "m"
+        elif 10**9 <= experience < 10**10:
+            experience_copy = str(round(experience/10**8)/10) + "b"
+        elif 10**9 <= experience < 10**12:
+            experience_copy = str(round(experience/10**9)) + "b"
+        elif 10**12 <= experience < 10**13:
+            experience_copy = str(round(experience/10**11)/10) + "t"
+        elif 10**12 <= experience < 10**15:
+            experience_copy = str(round(experience/10**12)) + "t"
+        else:
+            experience_copy = "NaneInf"
+        if max_experience < 10**3:
+            max_experience_copy = str(max_experience)
+        elif 10**3 <= max_experience < 10**4:
+            max_experience_copy = str(round(max_experience/10**2)/10) + "k"
+        elif 10**3 <= max_experience < 10**6:
+            max_experience_copy = str(round(max_experience/10**3)) + "k"
+        elif 10**6 <= max_experience < 10**7:
+            max_experience_copy = str(round(max_experience/10**5)/10) + "m"
+        elif 10**6 <= max_experience < 10**9:
+            max_experience_copy = str(round(max_experience/10**6)) + "m"
+        elif 10**9 <= max_experience < 10**10:
+            max_experience_copy = str(round(max_experience/10**8)/10) + "b"
+        elif 10**9 <= max_experience < 10**12:
+            max_experience_copy = str(round(max_experience/10**9)) + "b"
+        elif 10**12 <= max_experience < 10**13:
+            max_experience_copy = str(round(max_experience/10**11)/10) + "t"
+        elif 10**12 <= max_experience < 10**15:
+            max_experience_copy = str(round(max_experience/10**12)) + "t"
+        else:
+            max_experience_copy = "NaneInf"
+        
+        if light < 10**3:
+            light_copy = str(light)
+        elif 10**3 <= light < 10**4:
+            light_copy = str(round(light/10**2)/10) + "k"
+        elif 10**3 <= light < 10**6:
+            light_copy = str(round(light/10**3)) + "k"
+        elif 10**6 <= light < 10**7:
+            light_copy = str(round(light/10**5)/10) + "m"
+        elif 10**6 <= light < 10**9:
+            light_copy = str(round(light/10**6)) + "m"
+        elif 10**9 <= light < 10**10:
+            light_copy = str(round(light/10**8)/10) + "b"
+        elif 10**9 <= light < 10**12:
+            light_copy = str(round(light/10**9)) + "b"
+        elif 10**12 <= light < 10**13:
+            light_copy = str(round(light/10**11)/10) + "t"
+        elif 10**12 <= light < 10**15:
+            light_copy = str(round(light/10**12)) + "t"
+        else:
+            light_copy = "NaneInf"
+        if research < 10**3:
+            research_copy = str(research)
+        elif 10**3 <= research < 10**4:
+            research_copy = str(round(research/10**2)/10) + "k"
+        elif 10**3 <= research < 10**6:
+            research_copy = str(round(research/10**3)) + "k"
+        elif 10**6 <= research < 10**7:
+            research_copy = str(round(research/10**5)/10) + "m"
+        elif 10**6 <= research < 10**9:
+            research_copy = str(round(research/10**6)) + "m"
+        elif 10**9 <= research < 10**10:
+            research_copy = str(round(research/10**8)/10) + "b"
+        elif 10**9 <= research < 10**12:
+            research_copy = str(round(research/10**9)) + "b"
+        elif 10**12 <= research < 10**13:
+            research_copy = str(round(research/10**11)/10) + "t"
+        elif 10**12 <= research < 10**15:
+            research_copy = str(round(research/10**12)) + "t"
+        else:
+            research_copy = "NaneInf"
+        
+        itemObjects["UiLevelBar"]["animation frames"][0] = min(round(level / 2), 15) * "*"
+        itemObjects["UiExpBar"]["animation frames"][0] = round(15 * experience / max_experience) * "*"
 
-    itemObjects["UiExp"]["animation frames"][0] = "(" + str(experience_copy) + "/" + str(max_experience_copy) + ")"
-    itemObjects["Light"]["animation frames"][0] = str(light_copy)
-    itemObjects["Research"]["animation frames"][0] = str(research_copy)
-    pyterm.renderItem("UiLevel", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 34, yBias = NonCenterOffset + 2, screenLimits=(999, 999))
-    pyterm.renderItem("UiExp", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 34, yBias = NonCenterOffset + 3, screenLimits=(999, 999))
-    pyterm.renderItem("UiLevelBar", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 17, yBias = NonCenterOffset + 2, screenLimits=(999, 999))
-    pyterm.renderItem("UiExpBar", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 17, yBias = NonCenterOffset + 3, screenLimits=(999, 999))
-    pyterm.renderItem("Light", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57, yBias = NonCenterOffset + 2, screenLimits=(999, 999))
-    pyterm.renderItem("Research", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57, yBias = NonCenterOffset + 3, screenLimits=(999, 999))
-
-    
+        itemObjects["UiExp"]["animation frames"][0] = "(" + str(experience_copy) + "/" + str(max_experience_copy) + ")"
+        itemObjects["Light"]["animation frames"][0] = str(light_copy)
+        itemObjects["Research"]["animation frames"][0] = str(research_copy)
+        pyterm.renderItem("UiLevel", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 34 + UiOffset[0], yBias = NonCenterOffset + 2 + UiOffset[1], screenLimits=(999, 999))
+        pyterm.renderItem("UiExp", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 34 + UiOffset[0], yBias = NonCenterOffset + 3 + UiOffset[1], screenLimits=(999, 999))
+        pyterm.renderItem("UiLevelBar", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 17 + UiOffset[0], yBias = NonCenterOffset + 2 + UiOffset[1], screenLimits=(999, 999))
+        pyterm.renderItem("UiExpBar", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 17 + UiOffset[0], yBias = NonCenterOffset + 3 + UiOffset[1], screenLimits=(999, 999))
+        pyterm.renderItem("Light", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57 + UiOffset[0], yBias = NonCenterOffset + 2 + UiOffset[1], screenLimits=(999, 999))
+        pyterm.renderItem("Research", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57 + UiOffset[0], yBias = NonCenterOffset + 3 + UiOffset[1], screenLimits=(999, 999))
 
 
 

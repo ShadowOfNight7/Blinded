@@ -213,7 +213,7 @@ MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "room"
+phase = "map"
 
 NonCenterOffset = 0
 
@@ -272,7 +272,12 @@ RoomShadows = "Normal"#, "Obfuscated", "Animated"
 
 #UI AND OTHER STUFF
 pyterm.createItem("Ui", [assets.get("UI"), assets.get("UIInventory"), assets.get("UISettings")], "screen", "top left", "top left", 0)
-
+pyterm.createItem("UiLevel", ["1"], "screen", "top left", "top left", 0)
+pyterm.createItem("UiExp", ["(0/100)"], "screen", "top left", "top left", 0)
+pyterm.createItem("UiLevelBar", ["."], "screen", "top left", "top left", 0)
+pyterm.createItem("UiExpBar", ["."], "screen", "top left", "top left", 0)
+pyterm.createItem("Light", ["0"], "screen", "top left", "top left", 0)
+pyterm.createItem("Research", ["0"], "screen", "top left", "top left", 0)
 
 
 
@@ -281,8 +286,8 @@ light = 0
 research = 0
 level = 1
 experience = 0
-max_experience = (level)
-
+max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(level ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/level ** 3)) + 0.798935) * 100)
+#1 -> 999, 1.1 -> 10k, 10k -> 999k, 1.1mil -> ...
 
 # PhaseChange("battle")
 
@@ -308,6 +313,15 @@ while True:
     location = Cursor.get_mouse_coords(character_size, True)
     LeftClick = MouseDetect.ClickDetect("Left", "On")
     RightClick = MouseDetect.ClickDetect("Right", "On")
+
+    #Updating stats
+    while experience >= max_experience:
+        experience -= max_experience
+        level = min(level + 1, math.inf)
+        try:
+            max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(level ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/level)) + 0.798935) * 100)
+        except OverflowError:
+            max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(45 ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/((level - 35) ** 1.75 + 1.1 ** (level - 40)))) + 0.798935) * 100)
 
 
 
@@ -653,12 +667,116 @@ while True:
         pyterm.updateItemFrame("Ui", 0)
     pyterm.renderItem("Ui", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2), yBias = NonCenterOffset, screenLimits=(999, 999))
 
+    itemObjects["UiLevel"]["animation frames"][0] = str(level)
+    if experience < 10**3:
+        experience_copy = str(experience)
+    elif 10**3 <= experience < 10**4:
+        experience_copy = str(round(experience/10**2)/10) + "k"
+    elif 10**3 <= experience < 10**6:
+        experience_copy = str(round(experience/10**3)) + "k"
+    elif 10**6 <= experience < 10**7:
+        experience_copy = str(round(experience/10**5)/10) + "m"
+    elif 10**6 <= experience < 10**9:
+        experience_copy = str(round(experience/10**6)) + "m"
+    elif 10**9 <= experience < 10**10:
+        experience_copy = str(round(experience/10**8)/10) + "b"
+    elif 10**9 <= experience < 10**12:
+        experience_copy = str(round(experience/10**9)) + "b"
+    elif 10**12 <= experience < 10**13:
+        experience_copy = str(round(experience/10**11)/10) + "t"
+    elif 10**12 <= experience < 10**15:
+        experience_copy = str(round(experience/10**12)) + "t"
+    else:
+        experience_copy = "NaneInf"
+    if max_experience < 10**3:
+        max_experience_copy = str(max_experience)
+    elif 10**3 <= max_experience < 10**4:
+        max_experience_copy = str(round(max_experience/10**2)/10) + "k"
+    elif 10**3 <= max_experience < 10**6:
+        max_experience_copy = str(round(max_experience/10**3)) + "k"
+    elif 10**6 <= max_experience < 10**7:
+        max_experience_copy = str(round(max_experience/10**5)/10) + "m"
+    elif 10**6 <= max_experience < 10**9:
+        max_experience_copy = str(round(max_experience/10**6)) + "m"
+    elif 10**9 <= max_experience < 10**10:
+        max_experience_copy = str(round(max_experience/10**8)/10) + "b"
+    elif 10**9 <= max_experience < 10**12:
+        max_experience_copy = str(round(max_experience/10**9)) + "b"
+    elif 10**12 <= max_experience < 10**13:
+        max_experience_copy = str(round(max_experience/10**11)/10) + "t"
+    elif 10**12 <= max_experience < 10**15:
+        max_experience_copy = str(round(max_experience/10**12)) + "t"
+    else:
+        max_experience_copy = "NaneInf"
+    
+    if light < 10**3:
+        light_copy = str(light)
+    elif 10**3 <= light < 10**4:
+        light_copy = str(round(light/10**2)/10) + "k"
+    elif 10**3 <= light < 10**6:
+        light_copy = str(round(light/10**3)) + "k"
+    elif 10**6 <= light < 10**7:
+        light_copy = str(round(light/10**5)/10) + "m"
+    elif 10**6 <= light < 10**9:
+        light_copy = str(round(light/10**6)) + "m"
+    elif 10**9 <= light < 10**10:
+        light_copy = str(round(light/10**8)/10) + "b"
+    elif 10**9 <= light < 10**12:
+        light_copy = str(round(light/10**9)) + "b"
+    elif 10**12 <= light < 10**13:
+        light_copy = str(round(light/10**11)/10) + "t"
+    elif 10**12 <= light < 10**15:
+        light_copy = str(round(light/10**12)) + "t"
+    else:
+        light_copy = "NaneInf"
+    if research < 10**3:
+        research_copy = str(research)
+    elif 10**3 <= research < 10**4:
+        research_copy = str(round(research/10**2)/10) + "k"
+    elif 10**3 <= research < 10**6:
+        research_copy = str(round(research/10**3)) + "k"
+    elif 10**6 <= research < 10**7:
+        research_copy = str(round(research/10**5)/10) + "m"
+    elif 10**6 <= research < 10**9:
+        research_copy = str(round(research/10**6)) + "m"
+    elif 10**9 <= research < 10**10:
+        research_copy = str(round(research/10**8)/10) + "b"
+    elif 10**9 <= research < 10**12:
+        research_copy = str(round(research/10**9)) + "b"
+    elif 10**12 <= research < 10**13:
+        research_copy = str(round(research/10**11)/10) + "t"
+    elif 10**12 <= research < 10**15:
+        research_copy = str(round(research/10**12)) + "t"
+    else:
+        research_copy = "NaneInf"
+    
+    itemObjects["UiLevelBar"]["animation frames"][0] = min(round(level / 2), 15) * "*"
+    itemObjects["UiExpBar"]["animation frames"][0] = round(15 * experience / max_experience) * "*"
+
+    itemObjects["UiExp"]["animation frames"][0] = "(" + str(experience_copy) + "/" + str(max_experience_copy) + ")"
+    itemObjects["Light"]["animation frames"][0] = str(light_copy)
+    itemObjects["Research"]["animation frames"][0] = str(research_copy)
+    pyterm.renderItem("UiLevel", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 34, yBias = NonCenterOffset + 2, screenLimits=(999, 999))
+    pyterm.renderItem("UiExp", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 34, yBias = NonCenterOffset + 3, screenLimits=(999, 999))
+    pyterm.renderItem("UiLevelBar", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 17, yBias = NonCenterOffset + 2, screenLimits=(999, 999))
+    pyterm.renderItem("UiExpBar", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 17, yBias = NonCenterOffset + 3, screenLimits=(999, 999))
+    pyterm.renderItem("Light", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57, yBias = NonCenterOffset + 2, screenLimits=(999, 999))
+    pyterm.renderItem("Research", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57, yBias = NonCenterOffset + 3, screenLimits=(999, 999))
+
+    if keyboard.is_pressed("x"):
+        light += 1
+        research += 1
+        light *= 2
+        research *= 2
+
+
+
 
     # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
-    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(character_size), 0, 0, "bottom left", "bottom left")
+    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(character_size) + str(max_experience) + " " + str(level), 0, 0, "bottom left", "bottom left")
     pyterm.renderLiteralItem("1", 78, 21, "center", "center")
     pyterm.renderLiteralItem("2", -78, -20, "center", "center")
-
+#34, 3
     pyterm.renderScreen()
     elapsedTime = time.perf_counter() - startTime
     if elapsedTime < (1 / pyterm.FPS):

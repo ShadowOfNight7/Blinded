@@ -342,7 +342,7 @@ Inventory = {"Armor":
 #sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star."}
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
 FocusInv = False
-pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "top left", 0, -19, -28)
+pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "bottom right", )
 pyterm.createItem("ItemDesc", [" "], "Inventory", "bottom right", "top left", 0, -18, -12)
 
 #ITS THE STATS!
@@ -880,6 +880,7 @@ while True:
             if FocusInv:
                 itemObjects["ItemImg"]["animation frames"][0] = str(FocusInv["Asset"])
                 itemObjects["ItemDesc"]["animation frames"][0] = str(FocusInv["Name"])
+                pyterm.updateItemSize("ItemImg")
                 pyterm.updateItemLocation("ItemImg")
                 pyterm.renderItem("ItemImg")
                 pyterm.renderItem("ItemDesc")

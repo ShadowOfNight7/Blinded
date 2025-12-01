@@ -38,13 +38,14 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
 
 # fmt: off
 def PhaseChange(Phase: str):
-    global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry, player_x, player_y
+    global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry, player_x, player_y, Ui
     phase = Phase
     if phase.lower() == "title":
         riseTitle = 0
         rise = False
         Settings = False
         SevenSins = False
+        Ui = False
     elif phase.lower() == "map":
         mapOffset = [0, 0]
         InitialHold = (0, 0)
@@ -54,8 +55,10 @@ def PhaseChange(Phase: str):
         FocusRoom = {"Location": (0, 0),"id": (0, 1),"Connections": [],"Movements": [],}
         FocusRoom = False
         AnimateRoomEntry = False
+        Ui = True
     elif phase.lower() == "room":
         player_x, player_y = 0, 0
+        Ui = True
     elif phase.lower() == "puzzlemove":
         pass
     elif phase.lower() == "puzzletext":
@@ -206,7 +209,7 @@ def SetRoomPhase(id: tuple):
 timed = 99
 AimTarget = []
 character_size = (19, 37) #NORMAL
-# character_size = (9, 19) #PCS
+character_size = (9, 19) #PCS
 # character_size = Cursor.initialize(2)
 score = 0
 MainClock = 1000
@@ -283,8 +286,26 @@ pyterm.createItem("Research", ["0"], "screen", "top left", "top left", 0)
 
 InventoryUi = False
 SettingsUi = False
+RiseMenu = 0
+RiseUi = False
 InventoryUiState = 1
-
+pyterm.createItem("Inventory", [assets.get("Inventory1"), assets.get("Inventory2"), assets.get("Inventory3"), assets.get("Inventory4"), assets.get("Inventory5")], "screen", "center", "center", yBias = -11) #-pyterm.getStrWidthAndHeight(assets.get("Inventory1"))[1]/2
+DisableOther = False
+Inventory = {"Armor": 
+             [{"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star."}], 
+             "Weapon": 
+             [], 
+             "Offhand": 
+             [{"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star."}, {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star."}], 
+             "Accessory": 
+             [], 
+             "Misc": 
+             []}
+#sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star."}
+pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
+FocusInv = False
+pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "top left", 0, -19, -28)
+pyterm.createItem("ItemDesc", [" "], "Inventory", "bottom right", "top left", 0, -18, -12)
 
 #ITS THE STATS!
 light = 0
@@ -318,6 +339,11 @@ while True:
     location = Cursor.get_mouse_coords(character_size, True)
     LeftClick = MouseDetect.ClickDetect("Left", "On")
     RightClick = MouseDetect.ClickDetect("Right", "On")
+    LeftClickCopy = LeftClick
+    RightClickCopy = RightClick
+    if DisableOther:
+        LeftClick = False
+        RightClick = False
 
     UiOffset = [0, 0]
     Ui = True
@@ -578,7 +604,8 @@ while True:
                 pyterm.renderItem("RoomHierarchy", xBias = -11, yBias = 6 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomNo.", xBias = -11, yBias = 7 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomType", xBias = -11, yBias = 18 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
-                UiOffset[0] = -10
+                if os.get_terminal_size().columns < 180:
+                    UiOffset[0] = -10
                 #pyterm.renderItem("RoomNo.", xBias = -12, yBias = 13)
         
         if AnimateRoomEntry:
@@ -594,28 +621,30 @@ while True:
 
         # pyterm.renderLiteralItem("X", FocusRoom["Location"][0] + mapOffset[0], FocusRoom["Location"][1] + mapOffset[1], "center", "center")
 
-        if not MouseDetect.ClickDetect("Right", "Held"):
-            InitialHold = location
-            mapOffsetCopy = mapOffset.copy()
-        else:
-            locationMapDiff = [location[0] - InitialHold[0], location[1] - InitialHold[1]]
-            mapOffset = [mapOffsetCopy[0] + locationMapDiff[0], mapOffsetCopy[1] + locationMapDiff[1]]
+        if not DisableOther:
+            if not MouseDetect.ClickDetect("Right", "Held"):
+                InitialHold = location
+                mapOffsetCopy = mapOffset.copy()
+            else:
+                locationMapDiff = [location[0] - InitialHold[0], location[1] - InitialHold[1]]
+                mapOffset = [mapOffsetCopy[0] + locationMapDiff[0], mapOffsetCopy[1] + locationMapDiff[1]]
             TargetLocation[2] = 0
 
-        if keyboard.is_pressed("w"):
-            mapOffset[1] += 2
-            TargetLocation[2] = 0
-        if keyboard.is_pressed("s"):
-            mapOffset[1] -= 2
-            TargetLocation[2] = 0
-        if keyboard.is_pressed("a"):
-            mapOffset[0] += 4
-            TargetLocation[2] = 0
-        if keyboard.is_pressed("d"):
-            mapOffset[0] -= 4
-            TargetLocation[2] = 0
-        if keyboard.is_pressed("q"):
-            TargetLocation = [0, 0, 1]
+        if not DisableOther:
+            if keyboard.is_pressed("w"):
+                mapOffset[1] += 2
+                TargetLocation[2] = 0
+            if keyboard.is_pressed("s"):
+                mapOffset[1] -= 2
+                TargetLocation[2] = 0
+            if keyboard.is_pressed("a"):
+                mapOffset[0] += 4
+                TargetLocation[2] = 0
+            if keyboard.is_pressed("d"):
+                mapOffset[0] -= 4
+                TargetLocation[2] = 0
+            if keyboard.is_pressed("q"):
+                TargetLocation = [0, 0, 1]
         
         if TargetLocation[2] == 1:
             if (abs(TargetLocation[0] - mapOffset[0]) <= 2) and (abs(TargetLocation[1] - mapOffset[1]) <= 2):
@@ -671,10 +700,20 @@ while True:
 
     #Ui
     if Ui:
+        LeftClick = LeftClickCopy
+        RightClick = RightClickCopy
         if (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 68 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 86 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]):
             pyterm.updateItemFrame("Ui", 1)
+            if LeftClick and (not SettingsUi):
+                InventoryUi = True
+                RiseUi = True
+                DisableOther = True
         elif (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 88 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 106 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]):
             pyterm.updateItemFrame("Ui", 2)
+            if LeftClick and (not InventoryUi):
+                SettingsUi = True
+                RiseUi = True
+                DisableOther = True
         else:
             pyterm.updateItemFrame("Ui", 0)
         pyterm.renderItem("Ui", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + UiOffset[0], yBias = NonCenterOffset + UiOffset[1], screenLimits=(999, 999))
@@ -775,9 +814,52 @@ while True:
         pyterm.renderItem("Light", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57 + UiOffset[0], yBias = NonCenterOffset + 2 + UiOffset[1], screenLimits=(999, 999))
         pyterm.renderItem("Research", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57 + UiOffset[0], yBias = NonCenterOffset + 3 + UiOffset[1], screenLimits=(999, 999))
 
+        if InventoryUi:
+            pyterm.updateItemFrame("Inventory", InventoryUiState - 1)
+            pyterm.renderItem("Inventory", screenLimits=(999,999), yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4))
+            pyterm.renderLiteralItem(assets["TitleReturn"], 10, -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
+
+            if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 + 2) and LeftClick:
+                InventoryUiState = 1
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 + 2) and LeftClick:
+                InventoryUiState = 2
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 + 2) and LeftClick:
+                InventoryUiState = 3
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 + 2) and LeftClick:
+                InventoryUiState = 4
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 + 2) and LeftClick:
+                InventoryUiState = 5
+
+            for itemNo in range(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])):
+                itemInv = Inventory[list(Inventory.keys())[InventoryUiState - 1]][itemNo]
+                itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
+                pyterm.renderItem("ItemList", yBias = itemNo + RiseMenu - round(os.get_terminal_size().lines * 3/4))
+                if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 26 + itemNo == round(location[1])):
+                    FocusInv = itemInv
+
+            if FocusInv:
+                itemObjects["ItemImg"]["animation frames"][0] = str(FocusInv["Asset"])
+                itemObjects["ItemDesc"]["animation frames"][0] = str(FocusInv["Name"])
+                pyterm.updateItemLocation("ItemImg")
+                pyterm.renderItem("ItemImg")
+                pyterm.renderItem("ItemDesc")
+
+            if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 30 <= location[1] <= -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[0]):
+                pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
+                if LeftClick:
+                    DisableOther = False
+                    RiseUi = False
+            if (not RiseUi) and (RiseMenu == 0):
+                InventoryUi = False
+                FocusInv = False
+
+        if RiseUi:
+            RiseMenu = min(RiseMenu + round(os.get_terminal_size().lines / 20), round(os.get_terminal_size().lines * 3/4))
+        else:
+            RiseMenu = max(RiseMenu - round(os.get_terminal_size().lines / 20), 0)
 
 
-
+   
     # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
     pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(character_size) + str(max_experience) + " " + str(level), 0, 0, "bottom left", "bottom left")
     pyterm.renderLiteralItem("1", 78, 21, "center", "center")

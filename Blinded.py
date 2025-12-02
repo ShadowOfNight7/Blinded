@@ -193,7 +193,7 @@ def SetRoomPhase(id: tuple):
     for ids in ClearedRooms:
         for connections in hierarchyLocations[ids[0]][ids[1] - 1]["Movements"]:
             if (id == connections["id"]):
-                if not (assets.get("FilledBlackHoleClose") in itemObjects[str(id)]):
+                if (assets.get("FilledBlackHoleClose") != itemObjects[str(id)]["animation frames"][1]):
                     itemObjects[str(id)]["animation frames"][0] = assets.get("FilledBlackHoleClose")
                 return None
     else:
@@ -206,17 +206,78 @@ def SetRoomPhase(id: tuple):
             itemObjects[str(id)]["animation frames"][1] = "".join(random.choice('*&^%$#@!') if a=='#' else a for a in assets.get("FilledBlackHoleFar"))
     return None
 
+def UseInvItem(Item):
+    global Inventory, Equipment
+    if Item["Type"] == "Armor":
+        UnequipInvItem(Equipment["Armor"])
+        Equipment["Armor"] = Item
+        RemoveInvItem(Item)
+    elif Item["Type"] == "Weapon":
+        UnequipInvItem(Equipment["Weapon"])
+        Equipment["Weapon"] = Item
+        RemoveInvItem(Item)
+    elif Item["Type"] == "Offhand":
+        UnequipInvItem(Equipment["Offhand"])
+        Equipment["Offhand"] = Item
+        RemoveInvItem(Item)
+    elif Item["Type"] == "Accessory":
+        UnequipInvItem(Equipment["Extra"])
+        Equipment["Extra"] = Item
+        RemoveInvItem(Item)
+    elif Item["Type"] == "Consumable":
+        ""#DoConsumption
+        RemoveInvItem(Item)
+    else:
+        return False
+
+def AddInvItem(Item):
+    global Inventory, MainClock
+    if Item["Id"] == None:
+        Item["Id"] = MainClock
+        MainClock += 1
+    if Item["Type"] == "Armor":
+        Inventory["Armor"].append(Item)
+    elif Item["Type"] == "Weapon":
+        Inventory["Weapon"].append(Item)
+    elif Item["Type"] == "Offhand":
+        Inventory["Offhand"].append(Item)
+    elif Item["Type"] == "Accessory":
+        Inventory["Accessory"].append(Item)
+    else:
+        Inventory["Misc"].append(Item)
+
+def RemoveInvItem(Item):
+    global Inventory
+    for types in Inventory.keys():
+        if Item in Inventory[types]:
+            Inventory[types].remove(Item)
+            return True
+    return False
+
+def UnequipInvItem(Item):
+    global Inventory, Equipment
+    if Item == None:
+        return True
+    for types in Equipment.keys():
+        if Item is Equipment[types]:
+            Equipment[types] = None
+            AddInvItem(Item)
+            return True
+    return False
+
+
+
 timed = 99
 AimTarget = []
 character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PCS
+# character_size = (9, 19) #PCS
 # character_size = Cursor.initialize(2)
 score = 0
 MainClock = 1000
 FalseTime = time.time()
 transparency = 1
 
-phase = "map"
+phase = "title"
 
 NonCenterOffset = 0
 
@@ -292,20 +353,24 @@ InventoryUiState = 1
 pyterm.createItem("Inventory", [assets.get("Inventory1"), assets.get("Inventory2"), assets.get("Inventory3"), assets.get("Inventory4"), assets.get("Inventory5")], "screen", "center", "center", yBias = -11) #-pyterm.getStrWidthAndHeight(assets.get("Inventory1"))[1]/2
 DisableOther = False
 Inventory = {"Armor": 
-             [{"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star."}], 
+             [{"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 1}], 
              "Weapon": 
              [], 
              "Offhand": 
-             [{"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star."}, {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star."}], 
+             [{"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 3}, {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 2}], 
              "Accessory": 
              [], 
              "Misc": 
              []}
-#sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star."}
+#sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
+#apple = {"Name": "Apple", "Type": Consumable", "Asset": "", "Effects": [{"Type": Strength, "Time": 3, "Potency": 1, "Apply": "Player"},{"Type": "Damage", "Potency": 999, "Apply": "AllEnemy"}], "Description": "Could be used to make pie", "Id": None}
+Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
 FocusInv = False
 pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "top left", 0, -19, -28)
 pyterm.createItem("ItemDesc", [" "], "Inventory", "bottom right", "top left", 0, -18, -12)
+pyterm.createItem("ItemButton", ["[Exit]       [Use]"], "Inventory", "bottom right", "top left", 0, -19, -2)
+pyterm.createItem("Equipment", ["|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!"], "Inventory", "top left", "center", 0, 11, 26)
 
 #ITS THE STATS!
 light = 0
@@ -628,7 +693,7 @@ while True:
             else:
                 locationMapDiff = [location[0] - InitialHold[0], location[1] - InitialHold[1]]
                 mapOffset = [mapOffsetCopy[0] + locationMapDiff[0], mapOffsetCopy[1] + locationMapDiff[1]]
-            TargetLocation[2] = 0
+                TargetLocation[2] = 0
 
         if not DisableOther:
             if keyboard.is_pressed("w"):
@@ -710,7 +775,7 @@ while True:
                 DisableOther = True
         elif (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 88 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 106 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]):
             pyterm.updateItemFrame("Ui", 2)
-            if LeftClick and (not InventoryUi):
+            if LeftClick and (not InventoryUi) and False:
                 SettingsUi = True
                 RiseUi = True
                 DisableOther = True
@@ -814,6 +879,7 @@ while True:
         pyterm.renderItem("Light", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57 + UiOffset[0], yBias = NonCenterOffset + 2 + UiOffset[1], screenLimits=(999, 999))
         pyterm.renderItem("Research", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 57 + UiOffset[0], yBias = NonCenterOffset + 3 + UiOffset[1], screenLimits=(999, 999))
 
+        #Inv
         if InventoryUi:
             pyterm.updateItemFrame("Inventory", InventoryUiState - 1)
             pyterm.renderItem("Inventory", screenLimits=(999,999), yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4))
@@ -834,15 +900,31 @@ while True:
                 itemInv = Inventory[list(Inventory.keys())[InventoryUiState - 1]][itemNo]
                 itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
                 pyterm.renderItem("ItemList", yBias = itemNo + RiseMenu - round(os.get_terminal_size().lines * 3/4))
-                if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 26 + itemNo == round(location[1])):
+                if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 26 + itemNo == round(location[1])) and LeftClick:
                     FocusInv = itemInv
+            if (location[0]) and (location[1]):
+                ""
 
             if FocusInv:
                 itemObjects["ItemImg"]["animation frames"][0] = str(FocusInv["Asset"])
                 itemObjects["ItemDesc"]["animation frames"][0] = str(FocusInv["Name"])
-                pyterm.updateItemLocation("ItemImg")
                 pyterm.renderItem("ItemImg")
                 pyterm.renderItem("ItemDesc")
+                pyterm.renderItem("ItemButton")
+                if (pyterm.getTopLeft("ItemButton")[0] <= location[0] <= pyterm.getTopLeft("ItemButton")[0] + 5) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
+                    FocusInv = False
+                elif (pyterm.getBottomRight("ItemButton")[0] - 4 <= location[0] <= pyterm.getBottomRight("ItemButton")[0]) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
+                    if not UseInvItem(FocusInv):
+                        ""
+                    else:
+                        FocusInv = False
+            
+            for equipments in Equipment.values():
+                if equipments != None:
+                    itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
+                    pyterm.updateItemFrame("Equipment", list(Equipment.values()).index(equipments))
+                    pyterm.updateItemSize("Equipment")
+                    pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments))
 
             if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 30 <= location[1] <= -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[0]):
                 pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4), "top left", "top left")

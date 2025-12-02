@@ -1,1 +1,1 @@
-powershell -NoExit -Command "python3 '%~dp0Blinded.py'"
+powershell -NoExit -Command "py '%~dp0Blinded.py'"

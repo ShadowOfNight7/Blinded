@@ -69,3 +69,24 @@ colorCodes = {
     "Cyan": 36,
     "White": 37,
 }
+mobInfo = {
+    "slime": {
+        "animation frames": [
+            """
+ššš__________ššš
+šš/          \\šš
+š/     (O)    \\š
+/______________\\
+
+"""
+        ],
+        "health": 100,
+        "attacks": {
+            "spit": {"damage": 5},
+            "crush": {
+                "damage": 10,
+            },
+        },
+        "defence": 2,
+    }
+}

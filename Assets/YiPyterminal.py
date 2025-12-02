@@ -33,6 +33,7 @@ threadingLock = threading.Lock()
 endEscapeCode = CodingAssets.endEscapeCode
 styleCodes = CodingAssets.styleCodes
 colorCodes = CodingAssets.colorCodes
+mobInfo = CodingAssets.mobInfo
 
 
 # Functions: Terminal Initialization

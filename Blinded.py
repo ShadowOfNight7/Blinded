@@ -36,7 +36,7 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
 #                 continue
 
 
-# fmt: off
+# fmt: on
 def PhaseChange(Phase: str):
     global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry, player_x, player_y, Ui
     phase = Phase
@@ -52,7 +52,12 @@ def PhaseChange(Phase: str):
         locationMapDiff = [0, 0]
         mapOffsetCopy = [0, 0]
         TargetLocation = [0, 0, 0]
-        FocusRoom = {"Location": (0, 0),"id": (0, 1),"Connections": [],"Movements": [],}
+        FocusRoom = {
+            "Location": (0, 0),
+            "id": (0, 1),
+            "Connections": [],
+            "Movements": [],
+        }
         FocusRoom = False
         AnimateRoomEntry = False
         Ui = True
@@ -64,9 +69,26 @@ def PhaseChange(Phase: str):
     elif phase.lower() == "puzzletext":
         pass
     elif phase.lower() == "battle":
-        global enemiesStatus, playersStatus, buttons
-        enemiesStatus = {}
-        playersStatus = {}
+        global mobsStatus, currentMobNum, playersStatus, buttons
+        listOfMobs = ["slime", "slime"]
+        mobsStatus = []
+        for mobNum in range(len(listOfMobs)):
+            mobsStatus.append(YiPyterminal.mobInfo[listOfMobs[mobNum]].copy())
+            mobsStatus[mobNum]["name"] = listOfMobs[mobNum]
+            del mobsStatus[mobNum]["animation frames"]
+        currentMobNum = 0
+        playersStatus = {
+            "health": 100,
+            "energy": 100,
+            "mana": 100,
+            "energy regneration": 5,
+            "mana regneration": 5,
+            "defence": 1,
+            "attacks": {
+                "strike": {"damage": 5, "energy cost": 10},
+                "fireball": {"damage": 10, "mana cost": 25},
+            },
+        }
         buttons = ["fight", "inventory", "info", "mercy"]
         buttonBarrier = "".join(
             [
@@ -76,6 +98,13 @@ def PhaseChange(Phase: str):
                 ),
             ]
         )
+        for mobNum in range(len(mobsStatus)):
+            YiPyterminal.createItem(
+                mobsStatus[mobNum]["name"],
+                YiPyterminal.mobInfo[mobsStatus[mobNum]["name"]]["animation frames"],
+                parentAnchor="center",
+                childAnchor="center",
+            )
         YiPyterminal.createItem(
             "center button barrier",
             [buttonBarrier],
@@ -179,6 +208,15 @@ def PhaseChange(Phase: str):
             buttons[3] + " button",
         ]:
             YiPyterminal.updateItemLocation(item)
+        length = 3
+        for button in buttons:
+            length += YiPyterminal.itemObjects[button + " button"]["width"]
+        YiPyterminal.createItem(
+            "fight box",
+            ["-" * length],
+            parentAnchor="center",
+            childAnchor="center",
+        )
 
 
 # fmt: off
@@ -270,8 +308,8 @@ def UnequipInvItem(Item):
 timed = 99
 AimTarget = []
 character_size = (19, 37) #NORMAL
-# character_size = (9, 19) #PCS
-# character_size = Cursor.initialize(2)
+character_size = (9, 19) #PCS
+character_size = Cursor.initialize(1)
 score = 0
 MainClock = 1000
 FalseTime = time.time()
@@ -367,7 +405,7 @@ Inventory = {"Armor":
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
 FocusInv = False
-pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "top left", 0, -19, -28)
+pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "bottom right", )
 pyterm.createItem("ItemDesc", [" "], "Inventory", "bottom right", "top left", 0, -18, -12)
 pyterm.createItem("ItemButton", ["[Exit]       [Use]"], "Inventory", "bottom right", "top left", 0, -19, -2)
 pyterm.createItem("Equipment", ["|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!"], "Inventory", "top left", "center", 0, 11, 26)
@@ -380,7 +418,7 @@ experience = 0
 max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(level ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/level ** 3)) + 0.798935) * 100)
 #1 -> 999, 1.1 -> 10k, 10k -> 999k, 1.1mil -> ...
 
-# PhaseChange("battle")
+PhaseChange("battle")
 
 YiPyterminal.initializeTerminal(repetitions=1)
 YiPyterminal.startAsynchronousMouseListener()
@@ -750,13 +788,15 @@ while True:
 
     # fmt: on
     elif phase.lower() == "battle":
+        YiPyterminal.renderItem(mobsStatus[currentMobNum]["name"])
         for button in buttons:
-            button=button+" button"
+            button = button + " button"
             if YiPyterminal.checkItemIsHovered(button):
                 YiPyterminal.updateItemFrame(button,1)
             else:
                 if YiPyterminal.itemObjects[button]["current frame"]==1:
                     YiPyterminal.updateItemFrame(button,0)
+                    YiPyterminal.renderItem("fight box",screenLimits=None)
             YiPyterminal.renderItem(button,screenLimits=None)
         for item in ["center button barrier","left button barrier","right button barrier"]:
             YiPyterminal.renderItem(item,screenLimits=None)
@@ -908,6 +948,8 @@ while True:
             if FocusInv:
                 itemObjects["ItemImg"]["animation frames"][0] = str(FocusInv["Asset"])
                 itemObjects["ItemDesc"]["animation frames"][0] = str(FocusInv["Name"])
+                pyterm.updateItemSize("ItemImg")
+                pyterm.updateItemLocation("ItemImg")
                 pyterm.renderItem("ItemImg")
                 pyterm.renderItem("ItemDesc")
                 pyterm.renderItem("ItemButton")

@@ -28,7 +28,6 @@ mouseStatus = CodingAssets.mouseStatus
 screenWidth = os.get_terminal_size().columns
 screenHeight = os.get_terminal_size().lines
 debugMode = True
-constantlyCheckScreenSize = True
 threadingLock = threading.Lock()
 endEscapeCode = CodingAssets.endEscapeCode
 styleCodes = CodingAssets.styleCodes
@@ -190,9 +189,13 @@ def renderLiteralItem(
 
 def renderScreen(
     backgroundCharacter: str = " ",
+    constantlyCheckScreenSize: bool = False,
+    displayDebugMessages: bool = True,
 ) -> None:
     if constantlyCheckScreenSize == True:
         updateScreenSize()
+    if displayDebugMessages == True:
+        renderDebugMessages()
     global screenRender
     screenRender = [
         [backgroundCharacter for _ in range(screenWidth)] for _ in range(screenHeight)
@@ -209,20 +212,17 @@ def renderScreen(
 def displayScreen(
     clearScreenData: dict = {"clear lettersToRender": True, "clear screenRender": True},
     # resetMouseStatusAfterPrinting: bool = True,
-    displayDebugMessages: bool = True,
     advanceMode: bool = True,
     clearScreenBeforePrinting: bool = False,
 ) -> None:
     if clearScreenBeforePrinting:
         os.system("cls")
-
     if advanceMode == True:
         sys.stdout.write("\033[H")
         for rowNum in range(len(screenRender)):
             sys.stdout.write(f"\033[{rowNum+1};1f{''.join(screenRender[rowNum])}")
             sys.stdout.write(f"\033[{screenHeight};{screenWidth}H")
             sys.stdout.flush()
-
     else:
         print(screenRender, end="")
     if clearScreenData["clear lettersToRender"] == True:
@@ -231,8 +231,6 @@ def displayScreen(
         clearScreenRender()
     # if resetMouseStatusAfterPrinting == True:
     #     resetMouseStatus()
-    if displayDebugMessages == True:
-        renderDebugMessages()
 
 
 def clearLettersToRender() -> None:
@@ -299,6 +297,7 @@ def renderItem(
     createItemIfNotExists: bool = False,
     createItemArgs: dict | None = None,
     screenLimits: None | tuple = (screenWidthLimit, screenHeightLimit),
+    screenLimitsBias: tuple = (0, 0),
 ) -> None:
     if item not in itemObjects and createItemIfNotExists == True:
         if createItemArgs == None:
@@ -317,13 +316,17 @@ def renderItem(
             if splitItem[rowNum][columnNum] != emptySpaceLetter:
                 if screenLimits != None:
                     if (
-                        not math.ceil((screenWidth - 1) / 2) - screenLimits[0] // 2
+                        not (math.ceil((screenWidth - 1) / 2) - screenLimits[0] // 2)
+                        + screenLimitsBias[0]
                         <= coords[0]
-                        <= math.ceil((screenWidth - 1) / 2) + screenLimits[0] // 2
+                        <= (math.ceil((screenWidth - 1) / 2) + screenLimits[0] // 2)
+                        + screenLimitsBias[1]
                     ) or (
-                        not math.ceil((screenHeight - 1) / 2) - screenLimits[1] // 2
+                        not (math.ceil((screenHeight - 1) / 2) - screenLimits[1] // 2)
+                        + screenLimitsBias[1]
                         <= coords[1]
-                        <= math.ceil((screenHeight - 1) / 2) + screenLimits[1] // 2
+                        <= (math.ceil((screenHeight - 1) / 2) + screenLimits[1] // 2)
+                        + screenLimitsBias[1]
                     ):
                         continue
                 addLetter(
@@ -342,7 +345,10 @@ def updateItemLocation(item: str) -> None:
 
 
 def checkItemIsClicked(
-    item: str, button: str = "left", mouseCoords: tuple | None = None
+    item: str,
+    button: str = "left",
+    onlyCheckRelease: bool = False,
+    mouseCoords: tuple | None = None,
 ) -> bool:
     if mouseCoords is None:
         mouseCoords = mouseStatusCopy["position"]
@@ -360,24 +366,52 @@ def checkItemIsClicked(
             relativeY = mouseCoords[1] - itemTopLeftY
             if itemFrame[relativeY][relativeX] != "š":
                 if button == "left":
-                    return mouseStatusCopy["left button"]
+                    return mouseStatusCopy[
+                        (
+                            "left button"
+                            if onlyCheckRelease == False
+                            else "left button release"
+                        )
+                    ]
                 elif button == "right":
-                    return mouseStatusCopy["right button"]
+                    return mouseStatusCopy[
+                        (
+                            "right button"
+                            if onlyCheckRelease == False
+                            else "right button release"
+                        )
+                    ]
                 elif button == "middle":
-                    return mouseStatusCopy["middle button"]
+                    return mouseStatusCopy[
+                        (
+                            "middle button"
+                            if onlyCheckRelease == False
+                            else "middle button release"
+                        )
+                    ]
                 else:
                     addDebugMessage("Invalid button input in checkItemIsClicked()")
             else:
                 return False
-        if button:
-            return mouseStatusCopy["left button"]
-        else:
-            return mouseStatusCopy["right button"]
+        if button == "left":
+            return mouseStatusCopy[
+                "left button" if onlyCheckRelease == False else "left button release"
+            ]
+        elif button == "right":
+            return mouseStatusCopy[
+                "right button" if onlyCheckRelease == False else "right button release"
+            ]
+        elif button == "middle":
+            return mouseStatusCopy[
+                (
+                    "middle button"
+                    if onlyCheckRelease == False
+                    else "middle button release"
+                )
+            ]
 
 
-def checkItemIsHovered(
-    item: str, button: str = "left", mouseCoords: tuple | None = None
-) -> bool:
+def checkItemIsHovered(item: str, mouseCoords: tuple | None = None) -> bool:
     if mouseCoords is None:
         mouseCoords = mouseStatusCopy["position"]
     itemTopLeftX, itemTopLeftY = getTopLeft(item)
@@ -541,6 +575,12 @@ def updateItemFrame(item: str, newFrame: int) -> None:
     updateItemLocation(item)
 
 
+def moveItem(item: str, x: int = 0, y: int = 0) -> None:
+    itemObjects[item]["x bias"] += x
+    itemObjects[item]["y bias"] += y
+    updateItemLocation(item)
+
+
 def getAnchor(item: str, anchor: str) -> tuple:
     if anchor == "top left":
         return getTopLeft(item)
@@ -677,10 +717,19 @@ def onClick(x: int, y: int, button: object, pressed: bool):
     with threadingLock:
         mouseStatus["absolute position"] = (x, y)
         if str(button) == "Button.left":
+            if pressed == False:
+                if mouseStatus["left button"] == True:
+                    mouseStatus["left button release"] = True
             mouseStatus["left button"] = pressed
         if str(button) == "Button.right":
+            if pressed == False:
+                if mouseStatus["right button"] == True:
+                    mouseStatus["right button release"] = True
             mouseStatus["right button"] = pressed
         if str(button) == "Button.middle":
+            if pressed == False:
+                if mouseStatus["middle button"] == True:
+                    mouseStatus["middle button release"] = True
             mouseStatus["middle button"] = pressed
 
 
@@ -708,6 +757,9 @@ def copyMouseStatus(resetMouseStatusAfterCopy: bool = False) -> dict:
             # mouseStatus["middle button"] = False
             mouseStatus["scroll x"] = 0
             mouseStatus["scroll y"] = 0
+            mouseStatus["left button release"] = False
+            mouseStatus["right button release"] = False
+            mouseStatus["middle button release"] = False
     mouseStatusCopy["position"] = getRelativeMouseCoords(
         mouseStatusCopy["absolute position"]
     )

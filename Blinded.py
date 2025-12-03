@@ -69,7 +69,8 @@ def PhaseChange(Phase: str):
     elif phase.lower() == "puzzletext":
         pass
     elif phase.lower() == "battle":
-        global mobsStatus, currentMobNum, playersStatus, buttons
+        global mobsStatus, currentMobNum, playersStatus, buttons, selectedBox
+        selectedBox = None
         listOfMobs = ["slime", "slime"]
         mobsStatus = []
         for mobNum in range(len(listOfMobs)):
@@ -208,15 +209,27 @@ def PhaseChange(Phase: str):
             buttons[3] + " button",
         ]:
             YiPyterminal.updateItemLocation(item)
-        length = 3
         for button in buttons:
-            length += YiPyterminal.itemObjects[button + " button"]["width"]
-        YiPyterminal.createItem(
-            "fight box",
-            ["-" * length],
-            parentAnchor="center",
-            childAnchor="center",
-        )
+            length = len(buttons) - 1
+            for _button in buttons:
+                length += YiPyterminal.itemObjects[_button + " button"]["width"]
+            YiPyterminal.createItem(
+                button + " box",
+                [
+                    "┌"
+                    + "-" * (length - 2)
+                    + "┐"
+                    + "".join(
+                        "\n|" + " " * (length - 2) + "|"
+                        for _ in range(math.ceil((YiPyterminal.screenHeight - 1) / 2))
+                    )
+                    + "┌"
+                    + "-" * (length - 2)
+                    + "┐"
+                ],
+                parentAnchor="center",
+                childAnchor="top center",
+            )
 
 
 # fmt: off
@@ -784,25 +797,45 @@ while True:
         if keyboard.is_pressed("d"):
             if pyterm.getLetter((round(player_x + 1 + os.get_terminal_size().columns/2), round(player_y + os.get_terminal_size().lines/2))) not in room_walls:
                 player_x += 0.3 / ((math.sqrt(2) - 1) * (keyboard.is_pressed("w") or keyboard.is_pressed("s")) + 1)
-
-
-    # fmt: on
     elif phase.lower() == "battle":
         YiPyterminal.renderItem(mobsStatus[currentMobNum]["name"])
         for button in buttons:
-            button = button + " button"
-            if YiPyterminal.checkItemIsHovered(button):
-                YiPyterminal.updateItemFrame(button,1)
+            if YiPyterminal.checkItemIsClicked(button + " button", onlyCheckRelease=True):
+                if selectedBox != button + " box":
+                    selectedBox = button + " box"
+                else:
+                    selectedBox = None
+            if selectedBox != button + " box":
+                if (
+                    YiPyterminal.getTopCenter(button + " box")[1]
+                    < YiPyterminal.getTopCenter("center button barrier")[1]
+                ):
+                    YiPyterminal.moveItem(button + " box", y=1)
             else:
-                if YiPyterminal.itemObjects[button]["current frame"]==1:
-                    YiPyterminal.updateItemFrame(button,0)
-                    YiPyterminal.renderItem("fight box",screenLimits=None)
-            YiPyterminal.renderItem(button,screenLimits=None)
-        for item in ["center button barrier","left button barrier","right button barrier"]:
-            YiPyterminal.renderItem(item,screenLimits=None)
-        
-    # fmt: off
-
+                if YiPyterminal.getTopCenter(button + " box")[1] > math.ceil(
+                    (YiPyterminal.screenHeight - 1) / 2
+                ):
+                    YiPyterminal.moveItem(button + " box", y=-1)
+            YiPyterminal.renderItem(button + " box", screenLimits=None)
+        for button in buttons:
+            if YiPyterminal.checkItemIsHovered(button + " button"):
+                YiPyterminal.updateItemFrame(button + " button", 1)
+            else:
+                if YiPyterminal.itemObjects[button + " button"]["current frame"] == 1:
+                    YiPyterminal.updateItemFrame(button + " button", 0)
+            YiPyterminal.renderItem(button + " button", screenLimits=None)
+        YiPyterminal.addDebugMessage(" ".join([str(YiPyterminal.itemObjects["fight box"]["y"]),str(YiPyterminal.itemObjects["inventory box"]["y"]),str(YiPyterminal.itemObjects["info box"]["y"]),str(YiPyterminal.itemObjects["mercy box"]["y"])]))
+        for item in [
+            "center button barrier",
+            "left button barrier",
+            "right button barrier",
+        ]:
+            YiPyterminal.renderItem(item, screenLimits=None)
+        # for item in YiPyterminal.itemObjects:
+        #     del YiPyterminal.itemObjects[item]["animation frames"]
+        #     print(item+str(YiPyterminal.itemObjects[item]))
+        #     print()
+        # exit()
     #Ui
     if Ui:
         LeftClick = LeftClickCopy

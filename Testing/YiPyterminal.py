@@ -1305,7 +1305,7 @@ assets = {
 ššššššššššššššššššššššššššššššššššššššššššššššššššššš|š|ššššššššššššššššššššššššššššššššššššššššššššššššššššš
 ššššššššššššššššššššššššššššššššššššššššššššššššššššš\_/ššššššššššššššššššššššššššššššššššššššššššššššššššššš
 ┌-----------------------------------------------------------------------------------------------------------┐
-|                                                  [Cast!]                                                  |
+|[Help]                                            [Cast!]                                                  |
 |                ┌-------------------------------------------------------------------------┐        /\      |
 |   /\           |                                                                         |        \/      |
 |   \/           |                                                                         |                |
@@ -1341,10 +1341,18 @@ assets = {
 š\   /š
 šš\_/šš""",
 "EnchantCircle": """š/¯¯¯¯¯¯¯\š
-|         |
-|         |
-|         |
-š\_______/š"""
+|ššššššššš|
+|ššššššššš|
+|ššššššššš|
+š\_______/š""",
+"EnchantHelp": """┌-----------------------------------------------------------------------------------------------------------┐
+|[X]                                           [Helpful Info!]                                              |
+| To enchant, select your scroll and item by clicking on the respective boxes, then follow the scroll’s     |
+| pattern by clicking in the center box in the correct order, starting at the diamond. All attempts require |
+| materials (unless you choose to reset the spell), but getting the spell almost perfect will reward a      |
+| stronger enchantment.                                                                                     |
+| Note: Scrolls are technically not needed to enchant, but highly recommended!                              |
+└-----------------------------------------------------------------------------------------------------------┘"""
 }
 
 #156 x 41

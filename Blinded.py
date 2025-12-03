@@ -25,15 +25,7 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
         if splittext.index(line) != (len(splittext) - 1):
             returntext += "\n"
     return returntext
-# def addItems(Item: str, Coords = (0, 0)):
-#     global screen
-#     lines = Item.splitlines()
-#     for i in range(len(lines)):
-#         for i2 in range(len(lines[i])):
-#             try:
-#                 screen[i + Coords[0]][i2 + Coords[1]] = lines[i][i2]
-#             except IndexError:
-#                 continue
+
 
 
 # fmt: on
@@ -240,12 +232,14 @@ def SetRoomPhase(id: tuple):
     if (id in ClearedRooms):
         if not (assets.get("FilledBlackHole") in itemObjects[str(id)]["animation frames"]):
             itemObjects[str(id)]["animation frames"][0] = assets.get("FilledBlackHole")
+            itemObjects[str(id)]["animation frames"][1] = assets.get("FilledBlackHole")
         return None
     for ids in ClearedRooms:
         for connections in hierarchyLocations[ids[0]][ids[1] - 1]["Movements"]:
             if (id == connections["id"]):
-                if (assets.get("FilledBlackHoleClose") != itemObjects[str(id)]["animation frames"][1]):
+                if not (assets.get("FilledBlackHoleClose") in itemObjects[str(id)]["animation frames"]):
                     itemObjects[str(id)]["animation frames"][0] = assets.get("FilledBlackHoleClose")
+                    itemObjects[str(id)]["animation frames"][1] = assets.get("FilledBlackHoleClose")
                 return None
     else:
         if (SettingsRooms == 1):
@@ -316,13 +310,25 @@ def UnequipInvItem(Item):
             return True
     return False
 
+def ApplyInvItemBuffs(Item):
+    global player
+    if Item != None:
+        for stat in Item["Stats"].keys():
+            player["Effects"].append({"Stat": stat, "Potency": Item["Stats"][stat], "Time": -2})
+    #{"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
+
+def NegateInvItemBuffs(Item):
+    global player
+    if Item != None:
+        for stat in Item["Stats"].keys():
+            player["Effects"].remove({"Stat": stat, "Potency": Item["Stats"][stat], "Time": -2})
 
 
-timed = 99
+timed = 9
 AimTarget = []
 character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PCS
-character_size = Cursor.initialize(1)
+# character_size = (9, 19) #PCS
+# character_size = Cursor.initialize(1)
 score = 0
 MainClock = 1000
 FalseTime = time.time()
@@ -404,11 +410,11 @@ InventoryUiState = 1
 pyterm.createItem("Inventory", [assets.get("Inventory1"), assets.get("Inventory2"), assets.get("Inventory3"), assets.get("Inventory4"), assets.get("Inventory5")], "screen", "center", "center", yBias = -11) #-pyterm.getStrWidthAndHeight(assets.get("Inventory1"))[1]/2
 DisableOther = False
 Inventory = {"Armor": 
-             [{"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 1}], 
+             [{"Name": "Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 1}], 
              "Weapon": 
              [], 
              "Offhand": 
-             [{"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 3}, {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 2}], 
+             [{"Name": "Deather Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 2, "Strength": 2, "Accuracy":21}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 3}, {"Name": "Deathest Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 999, "Strength": 999, "Accuracy": 3}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 2}], 
              "Accessory": 
              [], 
              "Misc": 
@@ -418,7 +424,7 @@ Inventory = {"Armor":
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
 FocusInv = False
-pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "bottom right", )
+pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "bottom right", 0, -2, -15)
 pyterm.createItem("ItemDesc", [" "], "Inventory", "bottom right", "top left", 0, -18, -12)
 pyterm.createItem("ItemButton", ["[Exit]       [Use]"], "Inventory", "bottom right", "top left", 0, -19, -2)
 pyterm.createItem("Equipment", ["|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!"], "Inventory", "top left", "center", 0, 11, 26)
@@ -430,8 +436,25 @@ level = 1
 experience = 0
 max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(level ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/level ** 3)) + 0.798935) * 100)
 #1 -> 999, 1.1 -> 10k, 10k -> 999k, 1.1mil -> ...
+player = {"Health": 100, "CurrentHp": 100, "Regen": 5,
+          "Defense": 0, "MagicDefense": 0, 
+          "Strength": 0, "MagicPower": 0, 
+          "Dexterity": 100, "CastingSpeed": 100, 
+          "Skill": 0, "Intelligence": 0, 
+          "CritChance": 5, "CritPower": 100, 
+          "Mana": 100, "Energy": 100, 
+          "ManaRegen": 10, "EnergyRegen": 10, 
+          "CurrentMana": 100, "CurrentEnergy": 100, 
+          "TrueAttack": 0, "TrueDefense": 0, 
+          "Effects": []} #{"Stat": "Strength", "Potency": 10, "Time": 10} or {"Stat": "Strength", "Potency": 10, "Time": -2} or {"Stat": "Health", "Potency": -2, "Time": 5, "Special": "Poison"}
 
-PhaseChange("battle")
+pyterm.createItem("LevelUpStats", [assets.get("LevelUpStats")], "screen", "center", "center", 0, 0, 5)
+pyterm.createItem("LevelUpTransition", ["".join(((72 - i * 3) * " " + "|" + (i * 6) * "š" + "|" + (72 - i * 3) * " " + "\n") for i2 in range(12)) for i in range(24)], "screen", "center", "center", 0, 0, 5)
+pyterm.createItem("LevelUpText", [assets.get("LevelUpText")], "screen", "center", "center", 0, 0, -10)
+pyterm.createItem("LevelUpHover", [assets.get("LevelUpHover" + str(i + 1)) for i in range(6)], "screen", "top left", "top left", 0, 0, 0)
+LevelUp = False
+
+# PhaseChange("battle")
 
 YiPyterminal.initializeTerminal(repetitions=1)
 YiPyterminal.startAsynchronousMouseListener()
@@ -465,14 +488,14 @@ while True:
     Ui = True
 
     #Updating stats
-    while experience >= max_experience:
+    if (experience >= max_experience) and (not LevelUp):
         experience -= max_experience
         level = min(level + 1, math.inf)
         try:
             max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(level ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/level)) + 0.798935) * 100)
         except OverflowError:
             max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(45 ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/((level - 35) ** 1.75 + 1.1 ** (level - 40)))) + 0.798935) * 100)
-
+        LevelUp = True
 
 
     if phase.lower() == "title":
@@ -583,6 +606,7 @@ while True:
             riseTitle += 2
         elif (not rise) and (riseTitle != 0):
             riseTitle -= 2
+        pyterm.renderItem("EmptyBackground", createItemIfNotExists=True, createItemArgs = {"animationFrames": [assets.get("EmptyBackground")], "parentObject": "screen", "parentAnchor": "center", "childAnchor": "center"}, screenLimits = (os.get_terminal_size().columns, os.get_terminal_size().lines))
 
     elif phase.lower() == "map":
         
@@ -690,7 +714,7 @@ while True:
                 pyterm.updateItemFrame("RoomSidebar", 1)
                 if LeftClick and not (TargetLocation[2] is 1):
                     FocusRoom = False
-            elif (os.get_terminal_size().columns - 24 <= location[0] <= os.get_terminal_size().columns) and (10 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2) <= location[1] <= 14 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2)):
+            if (os.get_terminal_size().columns - 24 <= location[0] <= os.get_terminal_size().columns) and (10 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2) <= location[1] <= 14 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2)):
                 if ((itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose"))):
                     pyterm.updateItemFrame("RoomSidebar", 2)
                     if (LeftClick) and not (TargetLocation[2] is 1):
@@ -699,9 +723,9 @@ while True:
                         TargetLocation[0] = -FocusRoom["Location"][0]
                         TargetLocation[1] = -FocusRoom["Location"][1]
                         FocusRoom = False
-            elif keyboard.is_pressed("x"):
+            if keyboard.is_pressed("x"):
                 FocusRoom = False
-            elif keyboard.is_pressed("e") and ((itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose"))):
+            if keyboard.is_pressed("e") and ((itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose"))):
                 AnimateRoomEntry = FocusRoom
                 TargetLocation[2] = 1
                 TargetLocation[0] = -FocusRoom["Location"][0]
@@ -771,10 +795,6 @@ while True:
                 mapOffset[0] += round((TargetLocation[0] - mapOffset[0])/3 + 1 * (TargetLocation[0] - mapOffset[0])/max(abs(TargetLocation[0] - mapOffset[0]), 0.1))
                 mapOffset[1] += round((TargetLocation[1] - mapOffset[1])/3 + 1 * (TargetLocation[1] - mapOffset[1])/max(abs(TargetLocation[1] - mapOffset[1]), 0.1))
     
-    
-
-
-
 
     elif phase.lower() == "room":
 
@@ -975,8 +995,18 @@ while True:
                 pyterm.renderItem("ItemList", yBias = itemNo + RiseMenu - round(os.get_terminal_size().lines * 3/4))
                 if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 26 + itemNo == round(location[1])) and LeftClick:
                     FocusInv = itemInv
-            if (location[0]) and (location[1]):
-                ""
+            if (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 7 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 1) and LeftClick:
+                if Equipment["Extra"] != None:
+                    FocusInv = Equipment["Extra"]
+            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 14 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 8) and LeftClick:
+                if Equipment["Offhand"] != None:
+                    FocusInv = Equipment["Offhand"]
+            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 21 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 15) and LeftClick:
+                if Equipment["Weapon"] != None:
+                    FocusInv = Equipment["Weapon"]
+            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 28 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 22) and LeftClick:
+                if Equipment["Armor"] != None:
+                    FocusInv = Equipment["Armor"]
 
             if FocusInv:
                 itemObjects["ItemImg"]["animation frames"][0] = str(FocusInv["Asset"])
@@ -989,10 +1019,13 @@ while True:
                 if (pyterm.getTopLeft("ItemButton")[0] <= location[0] <= pyterm.getTopLeft("ItemButton")[0] + 5) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
                     FocusInv = False
                 elif (pyterm.getBottomRight("ItemButton")[0] - 4 <= location[0] <= pyterm.getBottomRight("ItemButton")[0]) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
-                    if not UseInvItem(FocusInv):
-                        ""
+                    if FocusInv["Type"] in ["Weapon", "Armor", "Extra", "Offhand"]:
+                        NegateInvItemBuffs(Equipment[FocusInv["Type"]])
+                        UseInvItem(FocusInv)
+                        ApplyInvItemBuffs(FocusInv)
                     else:
-                        FocusInv = False
+                        ""
+                    FocusInv = False
             
             for equipments in Equipment.values():
                 if equipments != None:
@@ -1016,9 +1049,90 @@ while True:
             RiseMenu = max(RiseMenu - round(os.get_terminal_size().lines / 20), 0)
 
 
-   
-    # pyterm.renderLiteralItem(assets["EmptyBackground"], 0, 0, "center", "center")
-    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(character_size) + str(max_experience) + " " + str(level), 0, 0, "bottom left", "bottom left")
+    if LevelUp:
+        DisableOther = True
+        pyterm.renderItem("LevelUpStats", screenLimits=(itemObjects["LevelUpTransition"]["current frame"] * 6 ,999))
+        pyterm.renderItem("LevelUpText", screenLimits=(itemObjects["LevelUpTransition"]["current frame"] * 6 ,999))
+        if itemObjects["LevelUpTransition"]["current frame"] <= len(itemObjects["LevelUpTransition"]["animation frames"]) - 1:
+            # pyterm.renderItem("LevelUpTransition")
+            itemObjects["LevelUpTransition"]["current frame"] += 1
+        else:
+            if (pyterm.getTopLeft("LevelUpStats")[0] <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 23) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 0)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["Defense"] += 10
+                    player["MagicDefense"] += 10
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            elif (pyterm.getTopLeft("LevelUpStats")[0] + 24 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 47) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 1)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["Strength"] += 15
+                    player["MagicPower"] += 15
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            elif (pyterm.getTopLeft("LevelUpStats")[0] + 48 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 71) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 2)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["Dexterity"] += 20
+                    player["CastingSpeed"] += 20
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            elif (pyterm.getTopLeft("LevelUpStats")[0] + 72 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 95) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 3)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["Skill"] += 15
+                    player["Intelligence"] += 15
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            elif (pyterm.getTopLeft("LevelUpStats")[0] + 96 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 119) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 4)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["CritChance"] += 5
+                    player["CritPower"] += 12.5
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            elif (pyterm.getTopLeft("LevelUpStats")[0] + 120 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 143) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 5)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["Mana"] += 18
+                    player["Energy"] += 18
+                    player["CurrentMana"] = player["Mana"]
+                    player["CurrentEnergy"] = player["Energy"]
+                    player["ManaRegen"] += 1.5
+                    player["EnergyRegen"] += 1.5
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            
+    
+    if keyboard.is_pressed('t'):
+        experience += 1000
+
+    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(player["Effects"]), 0, 0, "bottom left", "bottom left")
     pyterm.renderLiteralItem("1", 78, 21, "center", "center")
     pyterm.renderLiteralItem("2", -78, -20, "center", "center")
 #34, 3

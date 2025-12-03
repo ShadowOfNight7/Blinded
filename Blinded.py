@@ -297,12 +297,24 @@ def UnequipInvItem(Item):
             return True
     return False
 
+def ApplyInvItemBuffs(Item):
+    global player
+    if Item != None:
+        for stat in Item["Stats"].keys():
+            player["Effects"].append({"Stat": stat, "Potency": Item["Stats"][stat], "Time": -2})
+    #{"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
+
+def NegateInvItemBuffs(Item):
+    global player
+    if Item != None:
+        for stat in Item["Stats"].keys():
+            player["Effects"].remove({"Stat": stat, "Potency": Item["Stats"][stat], "Time": -2})
 
 
 timed = 9
 AimTarget = []
 character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PCS
+# character_size = (9, 19) #PCS
 # character_size = Cursor.initialize(1)
 score = 0
 MainClock = 1000
@@ -389,7 +401,7 @@ Inventory = {"Armor":
              "Weapon": 
              [], 
              "Offhand": 
-             [{"Name": "Deather Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 3}, {"Name": "Deathest Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 2}], 
+             [{"Name": "Deather Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 2, "Strength": 2, "Accuracy":21}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 3}, {"Name": "Deathest Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 999, "Strength": 999, "Accuracy": 3}, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 2}], 
              "Accessory": 
              [], 
              "Misc": 
@@ -411,7 +423,8 @@ level = 1
 experience = 0
 max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(level ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/level ** 3)) + 0.798935) * 100)
 #1 -> 999, 1.1 -> 10k, 10k -> 999k, 1.1mil -> ...
-player = {"Health": 100, "CurrentHp": 100, "Defense": 0, "MagicDefense": 0, 
+player = {"Health": 100, "CurrentHp": 100, "Regen": 5,
+          "Defense": 0, "MagicDefense": 0, 
           "Strength": 0, "MagicPower": 0, 
           "Dexterity": 100, "CastingSpeed": 100, 
           "Skill": 0, "Intelligence": 0, 
@@ -420,10 +433,12 @@ player = {"Health": 100, "CurrentHp": 100, "Defense": 0, "MagicDefense": 0,
           "ManaRegen": 10, "EnergyRegen": 10, 
           "CurrentMana": 100, "CurrentEnergy": 100, 
           "TrueAttack": 0, "TrueDefense": 0, 
-          "Effects": []} #{"Stat": "Strength", "Potency": 10, "Time": 10, "Temporary": True} or {"Stat": "Strength", "Potency": 10, "Time": -1, "Temporary": False}
+          "Effects": []} #{"Stat": "Strength", "Potency": 10, "Time": 10} or {"Stat": "Strength", "Potency": 10, "Time": -2} or {"Stat": "Health", "Potency": -2, "Time": 5, "Special": "Poison"}
 
 pyterm.createItem("LevelUpStats", [assets.get("LevelUpStats")], "screen", "center", "center", 0, 0, 5)
 pyterm.createItem("LevelUpTransition", ["".join(((72 - i * 3) * " " + "|" + (i * 6) * "š" + "|" + (72 - i * 3) * " " + "\n") for i2 in range(12)) for i in range(24)], "screen", "center", "center", 0, 0, 5)
+pyterm.createItem("LevelUpText", [assets.get("LevelUpText")], "screen", "center", "center", 0, 0, -10)
+pyterm.createItem("LevelUpHover", [assets.get("LevelUpHover" + str(i + 1)) for i in range(6)], "screen", "top left", "top left", 0, 0, 0)
 LevelUp = False
 
 # PhaseChange("battle")
@@ -971,7 +986,11 @@ while True:
                 if (pyterm.getTopLeft("ItemButton")[0] <= location[0] <= pyterm.getTopLeft("ItemButton")[0] + 5) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
                     FocusInv = False
                 elif (pyterm.getBottomRight("ItemButton")[0] - 4 <= location[0] <= pyterm.getBottomRight("ItemButton")[0]) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
-                    if not UseInvItem(FocusInv):
+                    if FocusInv["Type"] in ["Weapon", "Armor", "Extra", "Offhand"]:
+                        NegateInvItemBuffs(Equipment[FocusInv["Type"]])
+                        UseInvItem(FocusInv)
+                        ApplyInvItemBuffs(FocusInv)
+                    else:
                         ""
                     FocusInv = False
             
@@ -1000,68 +1019,87 @@ while True:
     if LevelUp:
         DisableOther = True
         pyterm.renderItem("LevelUpStats", screenLimits=(itemObjects["LevelUpTransition"]["current frame"] * 6 ,999))
+        pyterm.renderItem("LevelUpText", screenLimits=(itemObjects["LevelUpTransition"]["current frame"] * 6 ,999))
         if itemObjects["LevelUpTransition"]["current frame"] <= len(itemObjects["LevelUpTransition"]["animation frames"]) - 1:
             # pyterm.renderItem("LevelUpTransition")
             itemObjects["LevelUpTransition"]["current frame"] += 1
         else:
-            if (pyterm.getTopLeft("LevelUpStats")[0] <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 23) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11) and LeftClick:
-                player["Health"] += 5
-                player["CurrentHealth"] = player["Health"]
-                player["Defense"] += 10
-                player["MagicDefense"] += 10
-                DisableOther = False
-                LevelUp = False
-                itemObjects["LevelUpTransition"]["current frame"] = 0
-            elif (pyterm.getTopLeft("LevelUpStats")[0] + 24 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 47) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11) and LeftClick:
-                player["Health"] += 5
-                player["CurrentHealth"] = player["Health"]
-                player["Strength"] += 15
-                player["MagicPower"] += 15
-                DisableOther = False
-                LevelUp = False
-                itemObjects["LevelUpTransition"]["current frame"] = 0
-            elif (pyterm.getTopLeft("LevelUpStats")[0] + 48 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 71) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11) and LeftClick:
-                player["Health"] += 5
-                player["CurrentHealth"] = player["Health"]
-                player["Dexterity"] += 20
-                player["CastingSpeed"] += 20
-                DisableOther = False
-                LevelUp = False
-                itemObjects["LevelUpTransition"]["current frame"] = 0
-            elif (pyterm.getTopLeft("LevelUpStats")[0] + 72 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 95) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11) and LeftClick:
-                player["Health"] += 5
-                player["CurrentHealth"] = player["Health"]
-                player["Skill"] += 15
-                player["Intelligence"] += 15
-                DisableOther = False
-                LevelUp = False
-                itemObjects["LevelUpTransition"]["current frame"] = 0
-            elif (pyterm.getTopLeft("LevelUpStats")[0] + 96 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 119) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11) and LeftClick:
-                player["Health"] += 5
-                player["CurrentHealth"] = player["Health"]
-                player["CritChance"] += 5
-                player["CritPower"] += 12.5
-                DisableOther = False
-                LevelUp = False
-                itemObjects["LevelUpTransition"]["current frame"] = 0
-            elif (pyterm.getTopLeft("LevelUpStats")[0] + 120 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 143) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11) and LeftClick:
-                player["Health"] += 5
-                player["CurrentHealth"] = player["Health"]
-                player["Mana"] += 18
-                player["Energy"] += 18
-                player["CurrentMana"] = player["Mana"]
-                player["CurrentEnergy"] = player["Energy"]
-                player["ManaRegen"] += 1.5
-                player["EnergyRegen"] += 1.5
-                DisableOther = False
-                LevelUp = False
-                itemObjects["LevelUpTransition"]["current frame"] = 0
+            if (pyterm.getTopLeft("LevelUpStats")[0] <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 23) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 0)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["Defense"] += 10
+                    player["MagicDefense"] += 10
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            elif (pyterm.getTopLeft("LevelUpStats")[0] + 24 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 47) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 1)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["Strength"] += 15
+                    player["MagicPower"] += 15
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            elif (pyterm.getTopLeft("LevelUpStats")[0] + 48 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 71) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 2)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["Dexterity"] += 20
+                    player["CastingSpeed"] += 20
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            elif (pyterm.getTopLeft("LevelUpStats")[0] + 72 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 95) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 3)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["Skill"] += 15
+                    player["Intelligence"] += 15
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            elif (pyterm.getTopLeft("LevelUpStats")[0] + 96 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 119) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 4)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["CritChance"] += 5
+                    player["CritPower"] += 12.5
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
+            elif (pyterm.getTopLeft("LevelUpStats")[0] + 120 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 143) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
+                pyterm.updateItemFrame("LevelUpHover", 5)
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    player["Health"] += 5
+                    player["CurrentHealth"] = player["Health"]
+                    player["Mana"] += 18
+                    player["Energy"] += 18
+                    player["CurrentMana"] = player["Mana"]
+                    player["CurrentEnergy"] = player["Energy"]
+                    player["ManaRegen"] += 1.5
+                    player["EnergyRegen"] += 1.5
+                    DisableOther = False
+                    LevelUp = False
+                    itemObjects["LevelUpTransition"]["current frame"] = 0
             
     
     if keyboard.is_pressed('t'):
         experience += 1000
 
-    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(player), 0, 0, "bottom left", "bottom left")
+    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(player["Effects"]), 0, 0, "bottom left", "bottom left")
     pyterm.renderLiteralItem("1", 78, 21, "center", "center")
     pyterm.renderLiteralItem("2", -78, -20, "center", "center")
 #34, 3

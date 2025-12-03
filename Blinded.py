@@ -314,7 +314,7 @@ def NegateInvItemBuffs(Item):
 timed = 9
 AimTarget = []
 character_size = (19, 37) #NORMAL
-# character_size = (9, 19) #PCS
+character_size = (9, 19) #PCS
 # character_size = Cursor.initialize(1)
 score = 0
 MainClock = 1000
@@ -415,6 +415,7 @@ pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "bottom right",
 pyterm.createItem("ItemDesc", [" "], "Inventory", "bottom right", "top left", 0, -18, -12)
 pyterm.createItem("ItemButton", ["[Exit]       [Use]"], "Inventory", "bottom right", "top left", 0, -19, -2)
 pyterm.createItem("Equipment", ["|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!"], "Inventory", "top left", "center", 0, 11, 26)
+pyterm.createItem("Settings", [assets.get("TitleSettings")], "screen", "center", "center", 0, 0, -15)
 
 #ITS THE STATS!
 light = 0
@@ -442,6 +443,14 @@ pyterm.createItem("LevelUpHover", [assets.get("LevelUpHover" + str(i + 1)) for i
 LevelUp = False
 
 # PhaseChange("battle")
+#Enchanting
+Enchants = False
+pyterm.createItem("Enchant", [assets.get("Enchanting")], "screen", "center", "center", 0, 0, -11)
+pyterm.createItem("EnchantCircle", [assets.get("EnchantCircle")], "screen", "top left", "center", 0, 0, 0)#73, 25
+pyterm.createItem("EnchantStar", [assets.get("EnchantStar")], "screen", "top left", "center", 0, 0, 0)
+RiseEnchantBool = False
+RiseEnchant = 0
+SpellCast = [False]
 
 YiPyterminal.initializeTerminal(repetitions=1)
 YiPyterminal.startAsynchronousMouseListener()
@@ -782,7 +791,6 @@ while True:
                 mapOffset[0] += round((TargetLocation[0] - mapOffset[0])/3 + 1 * (TargetLocation[0] - mapOffset[0])/max(abs(TargetLocation[0] - mapOffset[0]), 0.1))
                 mapOffset[1] += round((TargetLocation[1] - mapOffset[1])/3 + 1 * (TargetLocation[1] - mapOffset[1])/max(abs(TargetLocation[1] - mapOffset[1]), 0.1))
     
-
     elif phase.lower() == "room":
 
         # itemObjects["RoomSize"]["animation frames"][0] = pyterm.addBorder("".join("".join(" " for i2 in range(round((room_size[0] - 1)/2 + 1))) + "\n" for i3 in range(round((room_size[1] - 1)/2 + 1))), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})
@@ -823,19 +831,73 @@ while True:
         
     # fmt: off
 
+    
+    if keyboard.is_pressed("v"):
+        RiseEnchantBool = True
+        Enchants = True
+        DisableOther = True
+
+
+    
+    #Enchants
+    if Enchants:
+        LeftClick = LeftClickCopy
+        RightClick = RightClickCopy
+        pyterm.renderItem("Enchant", screenLimits=(999,999), yBias = RiseEnchant - round(os.get_terminal_size().lines * 3/4))
+        pyterm.renderLiteralItem(assets["TitleReturn"], 10, -29 + RiseEnchant - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
+    
+        if (pyterm.getBottomRight("Enchant")[0] - 14 <= location[0] <= pyterm.getBottomRight("Enchant")[0] - 2) and (pyterm.getBottomRight("Enchant")[1] - 18 <= location[1] <= pyterm.getBottomRight("Enchant")[1] - 12):
+            ""
+        elif (pyterm.getBottomLeft("Enchant")[0] + 2 <= location[0] <= pyterm.getBottomLeft("Enchant")[0] + 14) and (pyterm.getBottomLeft("Enchant")[1] - 18 <= location[1] <= pyterm.getBottomLeft("Enchant")[1] - 12):
+            ""
+        
+        if (pyterm.getBottomRight("Enchant")[0] - 90 <= location[0] <= pyterm.getBottomRight("Enchant")[0] - 18) and (pyterm.getBottomRight("Enchant")[1] - 27 <= location[1] <= pyterm.getBottomRight("Enchant")[1] - 3) and LeftClick:
+            if not SpellCast[0]:
+                SpellCast =[{"Type": "Star", "Location": location}] 
+            else:
+                for spell in SpellCast:
+                    if location == spell["Location"]:
+                        break
+                else:
+                    SpellCast.append({"Type": "Circle", "Location": location})
+
+        if SpellCast[0]:
+            for spell in SpellCast:
+                if spell["Type"] != "Star":
+                    # pyterm.renderItem(str(pyterm.generateLine(spell["Location"], SpellCast[SpellCast.index(spell) - 1]["Location"])) + str(MainClock), xBias = (spell["Location"][0] + SpellCast[SpellCast.index(spell) - 1]["Location"][0])/2, yBias = (spell["Location"][1] + SpellCast[SpellCast.index(spell) - 1]["Location"][1])/2, createItemArgs = True, screenLimits=(73,25), createItemIfNotExists = {"animationFrames": [pyterm.generateLine(spell["Location"], SpellCast[SpellCast.index(spell) - 1]["Location"])], "parentObject": "screen", "parentAnchor": "center", "childAnchor": "center"})
+                    # MainClock += 1
+                    pyterm.renderLiteralItem(pyterm.generateLine(spell["Location"], SpellCast[SpellCast.index(spell) - 1]["Location"]), round((spell["Location"][0] + SpellCast[SpellCast.index(spell) - 1]["Location"][0])/2), round((spell["Location"][1] + SpellCast[SpellCast.index(spell) - 1]["Location"][1])/2), "top left", "center")
+                pyterm.renderItem("Enchant" + spell["Type"], xBias = spell["Location"][0], yBias = spell["Location"][1], screenLimits=(73,25))
+                
+        if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 + RiseEnchant - round(os.get_terminal_size().lines * 3/4) + 30 <= location[1] <= -29 + RiseEnchant - round(os.get_terminal_size().lines * 3/4) + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[1]):
+            pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -29 + RiseEnchant - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
+            if LeftClick:
+                DisableOther = False
+                RiseEnchantBool = False
+        if (not RiseEnchantBool) and (RiseEnchant is 0):
+            Enchants = False
+
+        if RiseEnchantBool:
+            RiseEnchant = min(RiseEnchant + round(os.get_terminal_size().lines / 20), round(os.get_terminal_size().lines * 3/4))
+        else:
+            RiseEnchant = max(RiseEnchant - round(os.get_terminal_size().lines / 20), 0)
+
+    
+    
+    
     #Ui
     if Ui:
         LeftClick = LeftClickCopy
         RightClick = RightClickCopy
-        if (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 68 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 86 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]):
+        if (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 68 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 86 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]) and (not DisableOther):
             pyterm.updateItemFrame("Ui", 1)
             if LeftClick and (not SettingsUi):
                 InventoryUi = True
                 RiseUi = True
                 DisableOther = True
-        elif (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 88 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 106 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]):
+        elif (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 88 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 106 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]) and (not DisableOther):
             pyterm.updateItemFrame("Ui", 2)
-            if LeftClick and (not InventoryUi) and False:
+            if LeftClick and (not InventoryUi):
                 SettingsUi = True
                 RiseUi = True
                 DisableOther = True
@@ -959,7 +1021,7 @@ while True:
             for itemNo in range(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])):
                 itemInv = Inventory[list(Inventory.keys())[InventoryUiState - 1]][itemNo]
                 itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
-                pyterm.renderItem("ItemList", yBias = itemNo + RiseMenu - round(os.get_terminal_size().lines * 3/4))
+                pyterm.renderItem("ItemList", yBias = itemNo + RiseMenu - round(os.get_terminal_size().lines * 3/4), screenLimits=(999,999))
                 if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 26 + itemNo == round(location[1])) and LeftClick:
                     FocusInv = itemInv
             if (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 7 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 1) and LeftClick:
@@ -978,11 +1040,11 @@ while True:
             if FocusInv:
                 itemObjects["ItemImg"]["animation frames"][0] = str(FocusInv["Asset"])
                 itemObjects["ItemDesc"]["animation frames"][0] = str(FocusInv["Name"])
-                pyterm.updateItemSize("ItemImg")
+                pyterm.updateItemSize("ItemImg", screenLimits=(999,999))
                 pyterm.updateItemLocation("ItemImg")
-                pyterm.renderItem("ItemImg")
-                pyterm.renderItem("ItemDesc")
-                pyterm.renderItem("ItemButton")
+                pyterm.renderItem("ItemImg", screenLimits=(999,999))
+                pyterm.renderItem("ItemDesc", screenLimits=(999,999))
+                pyterm.renderItem("ItemButton", screenLimits=(999,999))
                 if (pyterm.getTopLeft("ItemButton")[0] <= location[0] <= pyterm.getTopLeft("ItemButton")[0] + 5) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
                     FocusInv = False
                 elif (pyterm.getBottomRight("ItemButton")[0] - 4 <= location[0] <= pyterm.getBottomRight("ItemButton")[0]) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
@@ -999,7 +1061,45 @@ while True:
                     itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
                     pyterm.updateItemFrame("Equipment", list(Equipment.values()).index(equipments))
                     pyterm.updateItemSize("Equipment")
-                    pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments))
+                    pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments), screenLimits=(999,999))
+
+            if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 30 <= location[1] <= -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[1]):
+                pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
+                if LeftClick:
+                    DisableOther = False
+                    RiseUi = False
+            if (not RiseUi) and (RiseMenu == 0):
+                InventoryUi = False
+                FocusInv = False
+        
+        if SettingsUi:
+            pyterm.renderItem("Settings", screenLimits=(999,999), yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4))
+            pyterm.renderLiteralItem(assets["TitleReturn"], 10, -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
+
+            if LeftClick and ((round(os.get_terminal_size().columns/2) - 14 - 7) <= location[0] <= (round(os.get_terminal_size().columns/2) - 14 + 7)) and ((round(os.get_terminal_size().lines/2) - 10 - 2.5) <= location[1] <= (round(os.get_terminal_size().lines/2) - 10 + .5)):
+                SettingsRooms = 1
+            elif LeftClick and ((round(os.get_terminal_size().columns/2) - 0 - 7) <= location[0] <= (round(os.get_terminal_size().columns/2) - 0 + 7)) and ((round(os.get_terminal_size().lines/2) - 10 - 2.5) <= location[1] <= (round(os.get_terminal_size().lines/2) - 10 + .5)):
+                SettingsRooms = 2
+            elif LeftClick and ((round(os.get_terminal_size().columns/2) + 14 - 7) <= location[0] <= (round(os.get_terminal_size().columns/2) + 14 + 7)) and ((round(os.get_terminal_size().lines/2) - 10 - 2.5) <= location[1] <= (round(os.get_terminal_size().lines/2) - 10 + .5)):
+                SettingsRooms = 3
+
+
+            if SettingsRooms == 1:
+                pyterm.updateItemFrame("SettingsRoomsNormal", 1)
+                pyterm.updateItemFrame("SettingsRoomsObfuscated", 0)
+                pyterm.updateItemFrame("SettingsRoomsAnimated", 0)
+            elif SettingsRooms == 2:
+                pyterm.updateItemFrame("SettingsRoomsNormal", 0)
+                pyterm.updateItemFrame("SettingsRoomsObfuscated", 1)
+                pyterm.updateItemFrame("SettingsRoomsAnimated", 0)
+            elif SettingsRooms == 3:
+                pyterm.updateItemFrame("SettingsRoomsNormal", 0)
+                pyterm.updateItemFrame("SettingsRoomsObfuscated", 0)
+                pyterm.updateItemFrame("SettingsRoomsAnimated", 1)
+            pyterm.renderItem("SettingsRoomsNormal", xBias=-14, yBias= -10 + RiseMenu - round(os.get_terminal_size().lines * 3/4), screenLimits=(999,999))
+            pyterm.renderItem("SettingsRoomsObfuscated", xBias=0, yBias= -10 + RiseMenu - round(os.get_terminal_size().lines * 3/4), screenLimits=(999,999))
+            pyterm.renderItem("SettingsRoomsAnimated", xBias=14, yBias= -10 + RiseMenu - round(os.get_terminal_size().lines * 3/4), screenLimits=(999,999))
+
 
             if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 30 <= location[1] <= -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[0]):
                 pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
@@ -1007,7 +1107,7 @@ while True:
                     DisableOther = False
                     RiseUi = False
             if (not RiseUi) and (RiseMenu == 0):
-                InventoryUi = False
+                SettingsUi = False
                 FocusInv = False
 
         if RiseUi:

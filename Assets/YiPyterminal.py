@@ -320,7 +320,7 @@ def renderItem(
                         + screenLimitsBias[0]
                         <= coords[0]
                         <= (math.ceil((screenWidth - 1) / 2) + screenLimits[0] // 2)
-                        + screenLimitsBias[1]
+                        + screenLimitsBias[0]
                     ) or (
                         not (math.ceil((screenHeight - 1) / 2) - screenLimits[1] // 2)
                         + screenLimitsBias[1]

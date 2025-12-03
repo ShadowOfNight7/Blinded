@@ -41,6 +41,9 @@ mouseStatus = {
     "left button": False,
     "right button": False,
     "middle button": False,
+    "left button release": False,
+    "right button release": False,
+    "middle button release": False,
     "scroll x": 0,
     "scroll y": 0,
 }

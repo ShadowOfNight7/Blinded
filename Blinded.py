@@ -940,229 +940,8 @@ while True:
 
     if keyboard.is_pressed("x"):
         print(SpellCast)
-        time.sleep(999)
-
-    
-    #Enchants
-    if Enchants:
-        LeftClick = LeftClickCopy
-        RightClick = RightClickCopy
-        pyterm.renderItem("Enchant", screenLimits=(999,999), yBias = RiseEnchant - round(os.get_terminal_size().lines * 3/4))
-        pyterm.renderLiteralItem(assets["TitleReturn"], 10, -29 + RiseEnchant - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
-    
-        if (pyterm.getBottomLeft("Enchant")[0] + 2 <= location[0] <= pyterm.getBottomLeft("Enchant")[0] + 14) and (pyterm.getBottomLeft("Enchant")[1] - 18 <= location[1] <= pyterm.getBottomLeft("Enchant")[1] - 12) and (not FakeInv) and (not FakeInv2) and (not EnchantHelp) and LeftClick: #Scroll
-            FakeInv2 = True
-            OpenedFakeInv = True
-        elif (pyterm.getBottomRight("Enchant")[0] - 14 <= location[0] <= pyterm.getBottomRight("Enchant")[0] - 2) and (pyterm.getBottomRight("Enchant")[1] - 18 <= location[1] <= pyterm.getBottomRight("Enchant")[1] - 12) and (not FakeInv) and (not FakeInv2) and (not EnchantHelp) and LeftClick: #EnchantedItem
-            FakeInv = True
-            OpenedFakeInv = True
-        elif (pyterm.getBottomLeft("Enchant")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Enchant")[0] + 6) and (pyterm.getBottomLeft("Enchant")[1] - 29 is round(location[1])) and (not FakeInv) and (not FakeInv2) and (not EnchantHelp) and LeftClick:
-            EnchantHelp = True
-        elif (pyterm.getBottomRight("Enchant")[0] - 60 <= location[0] <= pyterm.getBottomRight("Enchant")[0] - 48) and (pyterm.getBottomRight("Enchant")[1] - 1 is round(location[1])) and (not FakeInv) and (not FakeInv2) and (not EnchantHelp) and LeftClick:
-            SpellCast = [False]
-        elif (pyterm.getBottomRight("Enchant")[0] - 57 <= location[0] <= pyterm.getBottomRight("Enchant")[0] - 51) and (pyterm.getBottomRight("Enchant")[1] - 29 is round(location[1])) and (not FakeInv) and (not FakeInv2) and (not EnchantHelp) and (FocusEnchant != None) and (FocusEnchant != False) and LeftClick:
-            BestSpellPower = math.inf
-            BestSpell = False
-            for Cast in CastedSpells.keys():
-                SpellPower = 0
-                if len(SpellCast) != len(CastedSpells[Cast]):
-                    continue
-                for spell in SpellCast:
-                    SpellPower += math.sqrt((CastedSpells[Cast][SpellCast.index(spell)][0] - spell["Location"][0]) ** 2 + (CastedSpells[Cast][SpellCast.index(spell)][1] - spell["Location"][1]) ** 2)
-                if SpellPower < BestSpellPower:
-                    BestSpellPower = SpellPower
-                    BestSpell = Cast
-
-            if BestSpellPower <= 8:
-                for types in Inventory.keys():
-                    if FocusEnchant in Inventory[types]:
-                        Inventory[types][Inventory[types].index(FocusEnchant)]["Enchant"] = BestSpell + "+"
-                        break
-                else:
-                    Equipment[FocusEnchant["Type"]]["Enchant"] = BestSpell + "+"
-                FocusEnchant = False
-                SpellCast = [False]
-            elif BestSpellPower <= 20:
-                for types in Inventory.keys():
-                    if FocusEnchant in Inventory[types]:
-                        Inventory[types][Inventory[types].index(FocusEnchant)]["Enchant"] = BestSpell
-                        break
-                else:
-                    Equipment[FocusEnchant["Type"]]["Enchant"] = BestSpell
-                FocusEnchant = False
-                SpellCast = [False]
-            else:
-                FocusEnchant = False
-                SpellCast = [False]
-
-        if FocusEnchant:
-            FocusName = FocusEnchant["Name"][:11]
-            itemObjects["EnchantItem"]["animation frames"][0] = math.floor(5.5 - len(FocusName)/2) * " " + FocusName + math.ceil(5.5 - len(FocusName)/2) * " "
-            pyterm.updateItemSize("EnchantItem")
-            pyterm.renderItem("EnchantItem")
-
-
-    #Spells
-        
-        if (pyterm.getBottomRight("Enchant")[0] - 90 <= location[0] <= pyterm.getBottomRight("Enchant")[0] - 18) and (pyterm.getBottomRight("Enchant")[1] - 27 <= location[1] <= pyterm.getBottomRight("Enchant")[1] - 3) and (not FakeInv) and (not FakeInv2) and LeftClick:
-            if not SpellCast[0]:
-                SpellCast =[{"Type": "Star", "Location": (location[0] - pyterm.getTopLeft("Enchant")[0], location[1] - pyterm.getTopLeft("Enchant")[1])}] 
-            else:
-                for spell in SpellCast:
-                    if location == spell["Location"]:
-                        break
-                else:
-                    SpellCast.append({"Type": "Circle", "Location": (location[0] - pyterm.getTopLeft("Enchant")[0], location[1] - pyterm.getTopLeft("Enchant")[1])})
-
-        if (not FakeInv) and (FocusScroll):
-            FocusName = FocusScroll["Name"][:11]
-            itemObjects["EnchantScroll"]["animation frames"][0] = math.floor(5.5 - len(FocusName)/2) * " " + FocusName + math.ceil(5.5 - len(FocusName)/2) * " "
-            pyterm.updateItemSize("EnchantScroll")
-            pyterm.renderItem("EnchantScroll")
-            if (not SpellCast[0]) and (RiseEnchant is round(os.get_terminal_size().lines * 3/4)):
-                RenderSpell(CastedSpells[FocusScroll["Enchant"]])
-
-        if SpellCast[0] and (RiseEnchant is round(os.get_terminal_size().lines * 3/4)):
-            for spell in SpellCast:
-                if spell["Type"] != "Star":
-                    itemObjects["EnchantLine"]["animation frames"][0] = pyterm.generateLine(spell["Location"], SpellCast[SpellCast.index(spell) - 1]["Location"])
-                    pyterm.updateItemSize("EnchantLine")
-                    pyterm.renderItem("EnchantLine", xBias = round((spell["Location"][0] + SpellCast[SpellCast.index(spell) - 1]["Location"][0])/2), yBias = round((spell["Location"][1] + SpellCast[SpellCast.index(spell) - 1]["Location"][1])/2), screenLimits=(73,25), screenLimitsBias=(0, -1))
-                pyterm.renderItem("Enchant" + spell["Type"], xBias = spell["Location"][0], yBias = spell["Location"][1], screenLimits=(73,25), screenLimitsBias=(0, -1))
-        
-        if FakeInv:
-            #Inv1start
-            InventoryCopy = copy.deepcopy(Inventory)
-            RemoveItems = []
-            for types in InventoryCopy.keys():
-                for items in InventoryCopy[types]:
-                    if items["Type"] not in ["Weapon", "Armor"]:
-                        RemoveItems.append((items, types))
-            for removed in RemoveItems:
-                InventoryCopy[removed[1]].remove(removed[0])
-
-            pyterm.updateItemFrame("Inventory", InventoryUiState - 1)
-            pyterm.renderItem("Inventory", screenLimits=(999,999)) #yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4)
-
-            if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
-                InventoryUiState = 1
-            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
-                InventoryUiState = 2
-            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
-                InventoryUiState = 3
-            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
-                InventoryUiState = 4
-            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
-                InventoryUiState = 5
-
-            for itemNo in range(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])):
-                itemInv = InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]][itemNo]
-                if "Enchant" in itemInv.keys():
-                    if itemInv["Enchant"]:
-                        itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"]) + " (" + str(itemInv["Enchant"]) + ")"
-                    else:
-                        itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
-                else:
-                    itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
-                pyterm.renderItem("ItemList", yBias = itemNo, screenLimits=(999,999))
-                if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + 26 + itemNo == round(location[1])) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
-                    FocusEnchant = itemInv
-                    FakeInv = False
-            if (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 7 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 1) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
-                if Equipment["Extra"] != None:
-                    FocusEnchant = Equipment["Extra"]
-                    FakeInv = False
-            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 14 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 8) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
-                if Equipment["Offhand"] != None:
-                    FocusEnchant = Equipment["Offhand"]
-                    FakeInv = False
-            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 21 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 15) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
-                if Equipment["Weapon"] != None:
-                    FocusEnchant = Equipment["Weapon"]
-                    FakeInv = False
-            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 28 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 22) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
-                if Equipment["Armor"] != None:
-                    FocusEnchant = Equipment["Armor"]
-                    FakeInv = False
-            
-            for equipments in Equipment.values():
-                if equipments != None:
-                    itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
-                    pyterm.updateItemFrame("Equipment", list(Equipment.values()).index(equipments))
-                    pyterm.updateItemSize("Equipment")
-                    pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments), screenLimits=(999,999))
-
-            OpenedFakeInv = False
-            #Inv1end
-
-        if FakeInv2:
-            #Inv2start
-            InventoryCopy = copy.deepcopy(Inventory)
-            RemoveItems = []
-            for types in InventoryCopy.keys():
-                for items in InventoryCopy[types]:
-                    if items["Type"] not in ["Scroll"]:
-                        RemoveItems.append((items, types))
-            for removed in RemoveItems:
-                InventoryCopy[removed[1]].remove(removed[0])
-
-            pyterm.updateItemFrame("Inventory", InventoryUiState - 1)
-            pyterm.renderItem("Inventory", screenLimits=(999,999)) #yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4)
-
-            if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
-                InventoryUiState = 1
-            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
-                InventoryUiState = 2
-            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
-                InventoryUiState = 3
-            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
-                InventoryUiState = 4
-            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
-                InventoryUiState = 5
-
-            for itemNo in range(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])):
-                itemInv = InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]][itemNo]
-                itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
-                pyterm.renderItem("ItemList", yBias = itemNo, screenLimits=(999,999))
-                if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + 26 + itemNo == round(location[1])) and LeftClick and (not OpenedFakeInv):
-                    FocusScroll = itemInv
-                    FakeInv2 = False
-            
-            for equipments in Equipment.values():
-                if equipments != None:
-                    itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
-                    pyterm.updateItemFrame("Equipment", list(Equipment.values()).index(equipments))
-                    pyterm.updateItemSize("Equipment")
-                    pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments), screenLimits=(999,999))
-            OpenedFakeInv = False
-            #Inv2end
-
-        if EnchantHelp:
-            pyterm.renderItem("EnchantHelp")
-            if (pyterm.getTopLeft("EnchantHelp")[0] + 1 <= location[0] <= pyterm.getTopLeft("EnchantHelp")[0] + 4) and (pyterm.getTopLeft("EnchantHelp")[1] + 1 is round(location[1])) and LeftClick:
-                EnchantHelp = False
-
-        #End
-        if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 + RiseEnchant - round(os.get_terminal_size().lines * 3/4) + 30 <= location[1] <= -29 + RiseEnchant - round(os.get_terminal_size().lines * 3/4) + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[1]):
-            pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -29 + RiseEnchant - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
-            if LeftClick:
-                DisableOther = False
-                RiseEnchantBool = False
-                FakeInv = False
-                FakeInv2 = False
-                FocusEnchant = False
-                FocusScroll = False
-        if (not RiseEnchantBool) and (RiseEnchant is 0):
-            Enchants = False
-
-        if RiseEnchantBool:
-            RiseEnchant = min(RiseEnchant + round(os.get_terminal_size().lines / 20), round(os.get_terminal_size().lines * 3/4))
-        else:
-            RiseEnchant = max(RiseEnchant - round(os.get_terminal_size().lines / 20), 0)
-
-    
-    
-    
+        time.sleep(999)    
+     
     #Ui
     if Ui:
         LeftClick = LeftClickCopy
@@ -1399,7 +1178,224 @@ while True:
         else:
             RiseMenu = max(RiseMenu - round(os.get_terminal_size().lines / 20), 0)
 
+    #Enchants
+    if Enchants:
+        LeftClick = LeftClickCopy
+        RightClick = RightClickCopy
+        pyterm.renderItem("Enchant", screenLimits=(999,999), yBias = RiseEnchant - round(os.get_terminal_size().lines * 3/4))
+        pyterm.renderLiteralItem(assets["TitleReturn"], 10, -30 + RiseEnchant - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
+    
+        if (pyterm.getBottomLeft("Enchant")[0] + 2 <= location[0] <= pyterm.getBottomLeft("Enchant")[0] + 14) and (pyterm.getBottomLeft("Enchant")[1] - 18 <= location[1] <= pyterm.getBottomLeft("Enchant")[1] - 12) and (not FakeInv) and (not FakeInv2) and (not EnchantHelp) and LeftClick: #Scroll
+            FakeInv2 = True
+            OpenedFakeInv = True
+        elif (pyterm.getBottomRight("Enchant")[0] - 14 <= location[0] <= pyterm.getBottomRight("Enchant")[0] - 2) and (pyterm.getBottomRight("Enchant")[1] - 18 <= location[1] <= pyterm.getBottomRight("Enchant")[1] - 12) and (not FakeInv) and (not FakeInv2) and (not EnchantHelp) and LeftClick: #EnchantedItem
+            FakeInv = True
+            OpenedFakeInv = True
+        elif (pyterm.getBottomLeft("Enchant")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Enchant")[0] + 6) and (pyterm.getBottomLeft("Enchant")[1] - 29 is round(location[1])) and (not FakeInv) and (not FakeInv2) and (not EnchantHelp) and LeftClick:
+            EnchantHelp = True
+        elif (pyterm.getBottomRight("Enchant")[0] - 60 <= location[0] <= pyterm.getBottomRight("Enchant")[0] - 48) and (pyterm.getBottomRight("Enchant")[1] - 1 is round(location[1])) and (not FakeInv) and (not FakeInv2) and (not EnchantHelp) and LeftClick:
+            SpellCast = [False]
+        elif (pyterm.getBottomRight("Enchant")[0] - 57 <= location[0] <= pyterm.getBottomRight("Enchant")[0] - 51) and (pyterm.getBottomRight("Enchant")[1] - 29 is round(location[1])) and (not FakeInv) and (not FakeInv2) and (not EnchantHelp) and (FocusEnchant != None) and (FocusEnchant != False) and LeftClick:
+            BestSpellPower = math.inf
+            BestSpell = False
+            for Cast in CastedSpells.keys():
+                SpellPower = 0
+                if len(SpellCast) != len(CastedSpells[Cast]):
+                    continue
+                for spell in SpellCast:
+                    SpellPower += math.sqrt((CastedSpells[Cast][SpellCast.index(spell)][0] - spell["Location"][0]) ** 2 + (CastedSpells[Cast][SpellCast.index(spell)][1] - spell["Location"][1]) ** 2)
+                if SpellPower < BestSpellPower:
+                    BestSpellPower = SpellPower
+                    BestSpell = Cast
 
+            if BestSpellPower <= 8 + max(len(SpellCast) - 5, 0)/1.5:
+                for types in Inventory.keys():
+                    if FocusEnchant in Inventory[types]:
+                        Inventory[types][Inventory[types].index(FocusEnchant)]["Enchant"] = BestSpell + "+"
+                        break
+                else:
+                    Equipment[FocusEnchant["Type"]]["Enchant"] = BestSpell + "+"
+                FocusEnchant = False
+                SpellCast = [False]
+            elif BestSpellPower <= 20 + max(len(SpellCast) - 5, 0):
+                for types in Inventory.keys():
+                    if FocusEnchant in Inventory[types]:
+                        Inventory[types][Inventory[types].index(FocusEnchant)]["Enchant"] = BestSpell
+                        break
+                else:
+                    Equipment[FocusEnchant["Type"]]["Enchant"] = BestSpell
+                FocusEnchant = False
+                SpellCast = [False]
+            else:
+                FocusEnchant = False
+                SpellCast = [False]
+
+        if FocusEnchant:
+            FocusName = FocusEnchant["Name"][:11]
+            itemObjects["EnchantItem"]["animation frames"][0] = math.floor(5.5 - len(FocusName)/2) * " " + FocusName + math.ceil(5.5 - len(FocusName)/2) * " "
+            pyterm.updateItemSize("EnchantItem")
+            pyterm.renderItem("EnchantItem")
+
+
+    #Spells
+        
+        if (pyterm.getBottomRight("Enchant")[0] - 90 <= location[0] <= pyterm.getBottomRight("Enchant")[0] - 18) and (pyterm.getBottomRight("Enchant")[1] - 27 <= location[1] <= pyterm.getBottomRight("Enchant")[1] - 3) and (not FakeInv) and (not FakeInv2) and LeftClick:
+            if not SpellCast[0]:
+                SpellCast =[{"Type": "Star", "Location": (location[0] - pyterm.getTopLeft("Enchant")[0], location[1] - pyterm.getTopLeft("Enchant")[1])}] 
+            else:
+                for spell in SpellCast:
+                    if location == spell["Location"]:
+                        break
+                else:
+                    SpellCast.append({"Type": "Circle", "Location": (location[0] - pyterm.getTopLeft("Enchant")[0], location[1] - pyterm.getTopLeft("Enchant")[1])})
+
+        if (not FakeInv) and (FocusScroll):
+            FocusName = FocusScroll["Name"][:11]
+            itemObjects["EnchantScroll"]["animation frames"][0] = math.floor(5.5 - len(FocusName)/2) * " " + FocusName + math.ceil(5.5 - len(FocusName)/2) * " "
+            pyterm.updateItemSize("EnchantScroll")
+            pyterm.renderItem("EnchantScroll")
+            if (not SpellCast[0]) and (RiseEnchant is round(os.get_terminal_size().lines * 3/4)):
+                RenderSpell(CastedSpells[FocusScroll["Enchant"]])
+
+        if SpellCast[0] and (RiseEnchant is round(os.get_terminal_size().lines * 3/4)):
+            for spell in SpellCast:
+                if spell["Type"] != "Star":
+                    itemObjects["EnchantLine"]["animation frames"][0] = pyterm.generateLine(spell["Location"], SpellCast[SpellCast.index(spell) - 1]["Location"])
+                    pyterm.updateItemSize("EnchantLine")
+                    pyterm.renderItem("EnchantLine", xBias = round((spell["Location"][0] + SpellCast[SpellCast.index(spell) - 1]["Location"][0])/2), yBias = round((spell["Location"][1] + SpellCast[SpellCast.index(spell) - 1]["Location"][1])/2), screenLimits=(73,25), screenLimitsBias=(0, -1))
+                pyterm.renderItem("Enchant" + spell["Type"], xBias = spell["Location"][0], yBias = spell["Location"][1], screenLimits=(73,25), screenLimitsBias=(0, -1))
+        
+        if FakeInv:
+            #Inv1start
+            InventoryCopy = copy.deepcopy(Inventory)
+            RemoveItems = []
+            for types in InventoryCopy.keys():
+                for items in InventoryCopy[types]:
+                    if items["Type"] not in ["Weapon", "Armor"]:
+                        RemoveItems.append((items, types))
+            for removed in RemoveItems:
+                InventoryCopy[removed[1]].remove(removed[0])
+
+            pyterm.updateItemFrame("Inventory", InventoryUiState - 1)
+            pyterm.renderItem("Inventory", screenLimits=(999,999)) #yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4)
+
+            if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
+                InventoryUiState = 1
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
+                InventoryUiState = 2
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
+                InventoryUiState = 3
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
+                InventoryUiState = 4
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
+                InventoryUiState = 5
+
+            for itemNo in range(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])):
+                itemInv = InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]][itemNo]
+                if "Enchant" in itemInv.keys():
+                    if itemInv["Enchant"]:
+                        itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"]) + " (" + str(itemInv["Enchant"]) + ")"
+                    else:
+                        itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
+                else:
+                    itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
+                pyterm.renderItem("ItemList", yBias = itemNo, screenLimits=(999,999))
+                if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + 26 + itemNo == round(location[1])) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
+                    FocusEnchant = itemInv
+                    FakeInv = False
+            if (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 7 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 1) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
+                if Equipment["Extra"] != None:
+                    FocusEnchant = Equipment["Extra"]
+                    FakeInv = False
+            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 14 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 8) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
+                if Equipment["Offhand"] != None:
+                    FocusEnchant = Equipment["Offhand"]
+                    FakeInv = False
+            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 21 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 15) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
+                if Equipment["Weapon"] != None:
+                    FocusEnchant = Equipment["Weapon"]
+                    FakeInv = False
+            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 28 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 22) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
+                if Equipment["Armor"] != None:
+                    FocusEnchant = Equipment["Armor"]
+                    FakeInv = False
+            
+            for equipments in Equipment.values():
+                if equipments != None:
+                    itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
+                    pyterm.updateItemFrame("Equipment", list(Equipment.values()).index(equipments))
+                    pyterm.updateItemSize("Equipment")
+                    pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments), screenLimits=(999,999))
+
+            OpenedFakeInv = False
+            #Inv1end
+
+        if FakeInv2:
+            #Inv2start
+            InventoryCopy = copy.deepcopy(Inventory)
+            RemoveItems = []
+            for types in InventoryCopy.keys():
+                for items in InventoryCopy[types]:
+                    if items["Type"] not in ["Scroll"]:
+                        RemoveItems.append((items, types))
+            for removed in RemoveItems:
+                InventoryCopy[removed[1]].remove(removed[0])
+
+            pyterm.updateItemFrame("Inventory", InventoryUiState - 1)
+            pyterm.renderItem("Inventory", screenLimits=(999,999)) #yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4)
+
+            if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
+                InventoryUiState = 1
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
+                InventoryUiState = 2
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
+                InventoryUiState = 3
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
+                InventoryUiState = 4
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
+                InventoryUiState = 5
+
+            for itemNo in range(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])):
+                itemInv = InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]][itemNo]
+                itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
+                pyterm.renderItem("ItemList", yBias = itemNo, screenLimits=(999,999))
+                if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + 26 + itemNo == round(location[1])) and LeftClick and (not OpenedFakeInv):
+                    FocusScroll = itemInv
+                    FakeInv2 = False
+            
+            for equipments in Equipment.values():
+                if equipments != None:
+                    itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
+                    pyterm.updateItemFrame("Equipment", list(Equipment.values()).index(equipments))
+                    pyterm.updateItemSize("Equipment")
+                    pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments), screenLimits=(999,999))
+            OpenedFakeInv = False
+            #Inv2end
+
+        if EnchantHelp:
+            pyterm.renderItem("EnchantHelp")
+            if (pyterm.getTopLeft("EnchantHelp")[0] + 1 <= location[0] <= pyterm.getTopLeft("EnchantHelp")[0] + 4) and (pyterm.getTopLeft("EnchantHelp")[1] + 1 is round(location[1])) and LeftClick:
+                EnchantHelp = False
+
+        #End
+        if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 - 1 + RiseEnchant - round(os.get_terminal_size().lines * 3/4) + 30 <= location[1] <= -29 - 1 + RiseEnchant - round(os.get_terminal_size().lines * 3/4) + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[1]):
+            pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -30 + RiseEnchant - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
+            if LeftClick:
+                DisableOther = False
+                RiseEnchantBool = False
+                FakeInv = False
+                FakeInv2 = False
+                FocusEnchant = False
+                FocusScroll = False
+        if (not RiseEnchantBool) and (RiseEnchant is 0):
+            Enchants = False
+
+        if RiseEnchantBool:
+            RiseEnchant = min(RiseEnchant + round(os.get_terminal_size().lines / 20), round(os.get_terminal_size().lines * 3/4))
+        else:
+            RiseEnchant = max(RiseEnchant - round(os.get_terminal_size().lines / 20), 0)
+
+    #Levels
     if LevelUp:
         DisableOther = True
         pyterm.renderItem("LevelUpStats", screenLimits=(itemObjects["LevelUpTransition"]["current frame"] * 6 ,999))

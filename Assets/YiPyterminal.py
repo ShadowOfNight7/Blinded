@@ -365,35 +365,47 @@ def checkItemIsClicked(
             ].splitlines()
             relativeX = mouseCoords[0] - itemTopLeftX
             relativeY = mouseCoords[1] - itemTopLeftY
-            if itemFrame[relativeY][relativeX] != "š":
-                if button == "left":
-                    return mouseStatusCopy[
-                        (
-                            "left button"
-                            if onlyCheckRelease == False
-                            else "left button release"
-                        )
-                    ]
-                elif button == "right":
-                    return mouseStatusCopy[
-                        (
-                            "right button"
-                            if onlyCheckRelease == False
-                            else "right button release"
-                        )
-                    ]
-                elif button == "middle":
-                    return mouseStatusCopy[
-                        (
-                            "middle button"
-                            if onlyCheckRelease == False
-                            else "middle button release"
-                        )
-                    ]
+            try:
+                if itemFrame[relativeY][relativeX] != "š":
+                    if button == "left":
+                        return mouseStatusCopy[
+                            (
+                                "left button"
+                                if onlyCheckRelease == False
+                                else "left button release"
+                            )
+                        ]
+                    elif button == "right":
+                        return mouseStatusCopy[
+                            (
+                                "right button"
+                                if onlyCheckRelease == False
+                                else "right button release"
+                            )
+                        ]
+                    elif button == "middle":
+                        return mouseStatusCopy[
+                            (
+                                "middle button"
+                                if onlyCheckRelease == False
+                                else "middle button release"
+                            )
+                        ]
+                    else:
+                        addDebugMessage("Invalid button input in checkItemIsClicked()")
                 else:
-                    addDebugMessage("Invalid button input in checkItemIsClicked()")
-            else:
-                return False
+                    return False
+            except Exception as e:
+                print(
+                    str(e)
+                    + " "
+                    + str(itemFrame)
+                    + " "
+                    + str(mouseCoords[0])
+                    + " "
+                    + str(itemTopLeftX)
+                )
+                exit()
         if button == "left":
             return mouseStatusCopy[
                 "left button" if onlyCheckRelease == False else "left button release"

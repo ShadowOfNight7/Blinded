@@ -60,8 +60,8 @@ def PhaseChange(Phase: str):
     elif phase.lower() == "puzzletext":
         pass
     elif phase.lower() == "battle":
-        global mobsStatus, currentMobNum, playersStatus, buttons, selectedBox
-        selectedBox = None
+        global mobsStatus, currentMobNum, playersStatus, selectedButton
+        selectedButton = None
         listOfMobs = ["slime", "slime"]
         mobsStatus = []
         for mobNum in range(len(listOfMobs)):
@@ -81,15 +81,6 @@ def PhaseChange(Phase: str):
                 "fireball": {"damage": 10, "mana cost": 25},
             },
         }
-        buttons = ["fight", "inventory", "info", "mercy"]
-        buttonBarrier = "".join(
-            [
-                "┬\n",
-                "".join(
-                    ["|\n" for _ in range(math.floor(YiPyterminal.screenHeight / 4))]
-                ),
-            ]
-        )
         for mobNum in range(len(mobsStatus)):
             YiPyterminal.createItem(
                 mobsStatus[mobNum]["name"],
@@ -98,130 +89,126 @@ def PhaseChange(Phase: str):
                 childAnchor="center",
             )
         YiPyterminal.createItem(
-            "center button barrier",
-            [buttonBarrier],
-            parentObject="screen",
+            "center barrier",
+            YiPyterminal.assets["center barrier"],
             parentAnchor="bottom center",
             childAnchor="bottom center",
-            isUpdateItemLocation=False,
         )
         YiPyterminal.createItem(
-            "left button barrier",
-            [buttonBarrier],
-            parentObject=buttons[1] + " button",
+            "items button",
+            YiPyterminal.assets["items button"],
+            parentObject="center barrier",
             parentAnchor="left center",
             childAnchor="right center",
-            isUpdateItemLocation=False,
             xBias=-1,
         )
         YiPyterminal.createItem(
-            "right button barrier",
-            [buttonBarrier],
-            parentObject=buttons[2] + " button",
+            "information button",
+            YiPyterminal.assets["information button"],
+            parentObject="center barrier",
             parentAnchor="right center",
             childAnchor="left center",
-            isUpdateItemLocation=False,
             xBias=1,
         )
-        for buttonNum in range(len(buttons)):
-            YiPyterminal.createItem(
-                buttons[buttonNum] + " button",
-                [
-                    YiPyterminal.addBorder(
-                        buttons[buttonNum]
-                        .upper()
-                        .center(
-                            math.floor(
-                                (YiPyterminal.screenWidth - len("".join(buttons))) / 4
-                            ),
-                            " ",
-                        ),
-                        bottom=False,
-                        left=True if buttonNum == 0 else False,
-                        right=True if buttonNum == 3 else False,
-                        padding={
-                            "top": math.floor(YiPyterminal.screenHeight / 8),
-                            "bottom": math.floor(YiPyterminal.screenHeight / 8),
-                            "left": 0,
-                            "right": 0,
-                        },
-                        paddingCharacter=" ",
-                    ),
-                    YiPyterminal.addBorder(
-                        (">>> " + buttons[buttonNum] + " <<<")
-                        .upper()
-                        .center(
-                            math.floor(
-                                (YiPyterminal.screenWidth - len("".join(buttons))) / 4
-                            ),
-                            " ",
-                        ),
-                        bottom=False,
-                        left=True if buttonNum == 0 else False,
-                        right=True if buttonNum == 3 else False,
-                        padding={
-                            "top": math.floor(YiPyterminal.screenHeight / 8),
-                            "bottom": math.floor(YiPyterminal.screenHeight / 8),
-                            "left": 0,
-                            "right": 0,
-                        },
-                        paddingCharacter=" ",
-                    ),
-                ],
-                parentObject=(
-                    "center button barrier"
-                    if buttonNum == 1 or buttonNum == 2
-                    else (
-                        "left button barrier"
-                        if buttonNum == 0
-                        else "right button barrier"
-                    )
-                ),
-                parentAnchor=(
-                    "left center"
-                    if buttonNum == 1 or buttonNum == 0
-                    else "right center"
-                ),
-                childAnchor=(
-                    "right center"
-                    if buttonNum == 1 or buttonNum == 0
-                    else "left center"
-                ),
-                xBias=-1 if buttonNum == 0 or buttonNum == 1 else 1,
-                isUpdateItemLocation=False,
-            )
-        for item in [
-            "center button barrier",
-            buttons[1] + " button",
-            buttons[2] + " button",
-            "left button barrier",
-            buttons[0] + " button",
-            "right button barrier",
-            buttons[3] + " button",
-        ]:
-            YiPyterminal.updateItemLocation(item)
-        for button in buttons:
-            length = len(buttons) - 1
-            for _button in buttons:
-                length += YiPyterminal.itemObjects[_button + " button"]["width"]
-            YiPyterminal.createItem(
-                button + " box",
-                [
-                    "┌"
-                    + "-" * (length - 2)
-                    + "┐"
-                    + "".join(
-                        "\n|" + " " * (length - 2) + "|"
-                        for _ in range(math.ceil((YiPyterminal.screenHeight - 1) / 2))
-                    )
-                    + "\n└"
-                    + "-" * (length - 2)
-                    + "┘"
-                ],
-                parentAnchor="center",
-                childAnchor="top center",
-                yBias=math.ceil(YiPyterminal.screenHeight - 1 / 2),
-            )
+        YiPyterminal.createItem(
+            "left center barrier",
+            YiPyterminal.assets["center barrier"],
+            parentObject="items button",
+            parentAnchor="left center",
+            childAnchor="right center",
+            xBias=-1,
+        )
+        YiPyterminal.createItem(
+            "right center barrier",
+            YiPyterminal.assets["center barrier"],
+            parentObject="information button",
+            parentAnchor="right center",
+            childAnchor="left center",
+            xBias=1,
+        )
+        YiPyterminal.createItem(
+            "fight button",
+            YiPyterminal.assets["fight button"],
+            parentObject="left center barrier",
+            parentAnchor="left center",
+            childAnchor="right center",
+            xBias=-1,
+        )
+        YiPyterminal.createItem(
+            "mercy button",
+            YiPyterminal.assets["mercy button"],
+            parentObject="right center barrier",
+            parentAnchor="right center",
+            childAnchor="left center",
+            xBias=1,
+        )
+        YiPyterminal.createItem(
+            "left barrier",
+            YiPyterminal.assets["left barrier"],
+            parentObject="fight button",
+            parentAnchor="left center",
+            childAnchor="right center",
+            xBias=-1,
+        )
+        YiPyterminal.createItem(
+            "right barrier",
+            YiPyterminal.assets["right barrier"],
+            parentObject="mercy button",
+            parentAnchor="right center",
+            childAnchor="left center",
+            xBias=1,
+        )
+        for box in ["fight box", "items box", "information box", "mercy box"]:
+            if box == "fight box":
+                YiPyterminal.createItem(
+                    box,
+                    [
+                        YiPyterminal.assets[box][0]
+                        .replace(
+                            "         PLACEHOLDER1         ",
+                            EquippedAttacks["Attack0"].center(30),
+                        )
+                        .replace(
+                            "         PLACEHOLDER2         ",
+                            EquippedAttacks["Attack1"].center(30),
+                        )
+                        .replace(
+                            "         PLACEHOLDER3         ",
+                            EquippedAttacks["Attack2"].center(30),
+                        )
+                        .replace(
+                            "         PLACEHOLDER4         ",
+                            EquippedAttacks["Attack3"].center(30),
+                        )
+                        .replace(
+                            "         PLACEHOLDER5         ",
+                            EquippedAttacks["Attack4"].center(30),
+                        )
+                        .replace(
+                            "         PLACEHOLDER6         ",
+                            EquippedAttacks["Attack5"].center(30),
+                        )
+                        .replace(
+                            "         PLACEHOLDER7         ",
+                            EquippedAttacks["Attack6"].center(30),
+                        )
+                        .replace(
+                            "         PLACEHOLDER8         ",
+                            EquippedAttacks["Attack7"].center(30),
+                        )
+                    ],
+                    parentObject="center barrier",
+                    parentAnchor="top center",
+                    childAnchor="top center",
+                )
+            else:
+                YiPyterminal.createItem(
+                    box,
+                    YiPyterminal.assets[box],
+                    parentObject="center barrier",
+                    parentAnchor="top center",
+                    childAnchor="top center",
+                )
 
 
 # fmt: off
@@ -346,7 +333,6 @@ FalseTime = time.time()
 transparency = 1
 
 phase = "title"
-PhaseChange("battle")
 NonCenterOffset = 0
 
 #Oddly Specific Variables
@@ -441,7 +427,7 @@ Inventory = {"Armor":
 #sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
 #apple = {"Name": "Apple", "Type": Consumable", "Asset": "", "Effects": [{"Type": Strength, "Time": 3, "Potency": 1, "Apply": "Player"},{"Type": "Damage", "Potency": 999, "Apply": "AllEnemy"}], "Description": "Could be used to make pie", "Id": None}
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
-EquippedAttacks = {"Attack0": None, "Attack1": None, "Attack2": None, "Attack3": None, "Attack4": None, "Attack5": None}
+EquippedAttacks = {"Attack0": "None", "Attack1": "None", "Attack2": "None", "Attack3": "None", "Attack4": "None", "Attack5": "None","Attack6": "None","Attack7": "None",}
 EquippedUltimate = None
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
 FocusInv = False
@@ -508,8 +494,7 @@ CastedSpells = {"Poisoning": [(27, 27), (80, 34), (27, 37), (69, 46), (53, 26)],
 #
 
 PhaseChange("battle")
-
-YiPyterminal.initializeTerminal(1, (19, 37)) 
+YiPyterminal.initializeTerminal(1,(9,19))
 YiPyterminal.startAsynchronousMouseListener()
 CopyPaste = False
 while True:
@@ -877,43 +862,75 @@ while True:
     elif phase.lower() == "battle":
         Ui = False
         YiPyterminal.renderItem(mobsStatus[currentMobNum]["name"])
-        for button in buttons:
-            if YiPyterminal.checkItemIsClicked(button + " button", onlyCheckRelease=True):
-                if selectedBox != button + " box":
-                    selectedBox = button + " box"
+        for button in [
+            "items button",
+            "information button",
+            "fight button",
+            "mercy button",
+        ]:
+            if (
+                YiPyterminal.checkItemIsClicked(
+                    button,
+                    onlyCheckRelease=True,
+                )
+                == True
+            ):
+                if selectedButton == button:
+                    selectedButton = None
                 else:
-                    selectedBox = None
-            if selectedBox != button + " box":
-                if (
-                    YiPyterminal.getTopCenter(button + " box")[1]
-                    < YiPyterminal.getTopCenter("center button barrier")[1]
-                ):
-                    YiPyterminal.moveItem(button + " box", y=1)
+                    selectedButton = button
+            if YiPyterminal.checkItemIsHovered(button) == True and selectedButton == button:
+                YiPyterminal.updateItemFrame(button, 3)
+                YiPyterminal.addDebugMessage(3)
+            elif selectedButton == button:
+                YiPyterminal.updateItemFrame(button, 2)
+                YiPyterminal.addDebugMessage(2)
+            elif YiPyterminal.checkItemIsHovered(button) == True:
+                YiPyterminal.updateItemFrame(button, 1)
+                YiPyterminal.addDebugMessage(1)
+            elif YiPyterminal.itemObjects[button]["current frame"] != 0:
+                YiPyterminal.updateItemFrame(button, 0)
+                YiPyterminal.addDebugMessage(0)
+            YiPyterminal.addDebugMessage(
+                str(selectedButton)
+                + str(YiPyterminal.getTopLeft("fight button"))
+                + str(YiPyterminal.getBottomRight("fight button"))
+            )
+        if selectedButton != None and (YiPyterminal.itemObjects["left barrier"]["current frame"]==0 or YiPyterminal.itemObjects["right barrier"]["current frame"]==0):
+            YiPyterminal.updateItemFrame("left barrier",1)
+            YiPyterminal.updateItemFrame("right barrier",1)
+        elif selectedButton == None and (YiPyterminal.itemObjects["left barrier"]["current frame"]==1 or YiPyterminal.itemObjects["right barrier"]["current frame"]==1):
+            YiPyterminal.updateItemFrame("left barrier",0)
+            YiPyterminal.updateItemFrame("right barrier",0)
+        boxesToButtons={
+            "fight box":"fight button",
+            "items box":"items button",
+            "information box":"information button",
+            "mercy box":"mercy button",
+        }
+        for box in boxesToButtons:
+            if boxesToButtons[box]==selectedButton:
+                if YiPyterminal.getBottomCenter(box)[1]>=YiPyterminal.getTopCenter("center barrier")[1]:
+                    YiPyterminal.moveItem(box, y=-1)
             else:
-                if YiPyterminal.getTopCenter(button + " box")[1] > math.ceil(
-                    (YiPyterminal.screenHeight - 1) / 2
-                ):
-                    YiPyterminal.moveItem(button + " box", y=-1)
-            YiPyterminal.renderItem(button + " box", screenLimits=None)
-        for button in buttons:
-            if YiPyterminal.checkItemIsHovered(button + " button"):
-                YiPyterminal.updateItemFrame(button + " button", 1)
-            else:
-                if YiPyterminal.itemObjects[button + " button"]["current frame"] == 1:
-                    YiPyterminal.updateItemFrame(button + " button", 0)
-            YiPyterminal.renderItem(button + " button", screenLimits=None)
-        # YiPyterminal.addDebugMessage(" ".join([str(YiPyterminal.itemObjects["fight box"]["y"]),str(YiPyterminal.itemObjects["inventory box"]["y"]),str(YiPyterminal.itemObjects["info box"]["y"]),str(YiPyterminal.itemObjects["mercy box"]["y"])]))
+                if YiPyterminal.itemObjects[box]["y bias"]<0:
+                    YiPyterminal.moveItem(box, y=1)
         for item in [
-            "center button barrier",
-            "left button barrier",
-            "right button barrier",
+            "fight box",
+            "items box",
+            "information box",
+            "mercy box",
+            "center barrier",
+            "items button",
+            "information button",
+            "left center barrier",
+            "right center barrier",
+            "fight button",
+            "mercy button",
+            "left barrier",
+            "right barrier",
         ]:
             YiPyterminal.renderItem(item, screenLimits=None)
-        # for item in YiPyterminal.itemObjects:
-        #     del YiPyterminal.itemObjects[item]["animation frames"]
-        #     print(item+str(YiPyterminal.itemObjects[item]))
-        #     print()
-        # exit()
     
     if keyboard.is_pressed("v"):
         RiseEnchantBool = True

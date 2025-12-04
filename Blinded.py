@@ -346,7 +346,7 @@ FalseTime = time.time()
 transparency = 1
 
 phase = "title"
-
+PhaseChange("battle")
 NonCenterOffset = 0
 
 #Oddly Specific Variables
@@ -441,6 +441,8 @@ Inventory = {"Armor":
 #sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
 #apple = {"Name": "Apple", "Type": Consumable", "Asset": "", "Effects": [{"Type": Strength, "Time": 3, "Potency": 1, "Apply": "Player"},{"Type": "Damage", "Potency": 999, "Apply": "AllEnemy"}], "Description": "Could be used to make pie", "Id": None}
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
+EquippedAttacks = {"Attack0": None, "Attack1": None, "Attack2": None, "Attack3": None, "Attack4": None, "Attack5": None}
+EquippedUltimate = None
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
 FocusInv = False
 pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "bottom right", 0, -2, -15)
@@ -467,6 +469,10 @@ player = {"Health": 100, "CurrentHp": 100, "Regen": 5,
           "CurrentMana": 100, "CurrentEnergy": 100, 
           "TrueAttack": 0, "TrueDefense": 0, 
           "Effects": []} #{"Stat": "Strength", "Potency": 10, "Time": 10} or {"Stat": "Strength", "Potency": 10, "Time": -2} or {"Stat": "Health", "Potency": -2, "Time": 5, "Special": "Poison"}
+
+enemies = {"Slime": {"Attacks": [{"AttackType": None, "Weight": 10}], "Stats": {}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Special": None}
+}
+
 
 pyterm.createItem("LevelUpStats", [assets.get("LevelUpStats")], "screen", "center", "center", 0, 0, 5)
 pyterm.createItem("LevelUpTransition", ["".join(((72 - i * 3) * " " + "|" + (i * 6) * "š" + "|" + (72 - i * 3) * " " + "\n") for i2 in range(12)) for i in range(24)], "screen", "center", "center", 0, 0, 5)
@@ -503,7 +509,7 @@ CastedSpells = {"Poisoning": [(27, 27), (80, 34), (27, 37), (69, 46), (53, 26)],
 
 
 
-YiPyterminal.initializeTerminal(repetitions=1) 
+YiPyterminal.initializeTerminal(1, (19, 37)) 
 YiPyterminal.startAsynchronousMouseListener()
 CopyPaste = False
 while True:
@@ -549,6 +555,7 @@ while True:
 
 
     if phase.lower() == "title":
+        Ui = False
         pyterm.renderLiteralItem(assets["background"], 0, 0, "center", "center")
         pyterm.renderLiteralItem(assets["TitleOptions"], 40, -8 - max(riseTitle - 3, 0), "center", "center")
         pyterm.renderLiteralItem(assets["TitlePlay"], -40, -3 - max(riseTitle, 0), "center", "center")
@@ -868,6 +875,7 @@ while True:
                 player_x += 0.3 / ((math.sqrt(2) - 1) * (keyboard.is_pressed("w") or keyboard.is_pressed("s")) + 1)
     
     elif phase.lower() == "battle":
+        Ui = False
         YiPyterminal.renderItem(mobsStatus[currentMobNum]["name"])
         for button in buttons:
             if YiPyterminal.checkItemIsClicked(button + " button", onlyCheckRelease=True):

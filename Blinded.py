@@ -338,7 +338,7 @@ def RenderSpell(Spell):
 timed = 9
 AimTarget = []
 character_size = (19, 37) #NORMAL
-# character_size = (9, 19) #PCS
+character_size = (9, 19) #PCS
 # character_size = Cursor.initialize(1)
 score = 0
 MainClock = 1000

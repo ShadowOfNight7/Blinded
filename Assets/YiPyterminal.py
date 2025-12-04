@@ -33,6 +33,7 @@ endEscapeCode = CodingAssets.endEscapeCode
 styleCodes = CodingAssets.styleCodes
 colorCodes = CodingAssets.colorCodes
 mobInfo = CodingAssets.mobInfo
+assets = CodingAssets.assets
 
 
 # Functions: Terminal Initialization
@@ -63,8 +64,8 @@ def initializeTerminal(
     repetitions: int = 2,
     overrideValue: tuple | None = None,
 ) -> tuple:
-    prepareTerminalInitialization()
     global characterSize
+    prepareTerminalInitialization()
     if overrideValue != None:
         characterSize = overrideValue
         return characterSize

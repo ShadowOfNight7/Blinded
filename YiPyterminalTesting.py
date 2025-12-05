@@ -28,13 +28,13 @@ while True:
     YiPyterminal.addDebugMessage(YiPyterminal.itemObjects["line1"])
     # print(YiPyterminal.mouseStatusCopy)
     if YiPyterminal.checkItemIsClicked("line1"):
-        YiPyterminal.updateItemFrame("line1", 1)
+        YiPyterminal.changeCurrentItemFrame("line1", 1)
     if YiPyterminal.checkItemIsClicked("line1", button="right"):
-        YiPyterminal.updateItemFrame("line1", 0)
+        YiPyterminal.changeCurrentItemFrame("line1", 0)
     if YiPyterminal.getKeyboardBindStatus("up", update=True) == True:
-        YiPyterminal.updateItemFrame("line1", 2)
+        YiPyterminal.changeCurrentItemFrame("line1", 2)
     if YiPyterminal.getKeyboardBindStatus("down", update=True) == True:
-        YiPyterminal.updateItemFrame("line1", 3)
+        YiPyterminal.changeCurrentItemFrame("line1", 3)
     # YiPyterminal.renderItem("line1")
     YiPyterminal.renderScreen()
     YiPyterminal.displayScreen()

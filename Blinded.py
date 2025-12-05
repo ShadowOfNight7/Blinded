@@ -60,27 +60,9 @@ def PhaseChange(Phase: str):
     elif phase.lower() == "puzzletext":
         pass
     elif phase.lower() == "battle":
-        global mobsStatus, currentMobNum, playersStatus, selectedButton
-        selectedButton = None
-        listOfMobs = ["slime", "slime"]
-        mobsStatus = []
-        for mobNum in range(len(listOfMobs)):
-            mobsStatus.append(YiPyterminal.mobInfo[listOfMobs[mobNum]].copy())
-            mobsStatus[mobNum]["name"] = listOfMobs[mobNum]
-            del mobsStatus[mobNum]["animation frames"]
+        global mobsStatus, currentMobNum
+        mobsStatus = ["Slime"]
         currentMobNum = 0
-        playersStatus = {
-            "health": 100,
-            "energy": 100,
-            "mana": 100,
-            "energy regneration": 5,
-            "mana regneration": 5,
-            "defence": 1,
-            "attacks": {
-                "strike": {"damage": 5, "energy cost": 10},
-                "fireball": {"damage": 10, "mana cost": 25},
-            },
-        }
         for mobNum in range(len(mobsStatus)):
             YiPyterminal.createItem(
                 mobsStatus[mobNum]["name"],
@@ -320,11 +302,11 @@ def SetRoomPhase(id: tuple):
                 return None
     else:
         if (SettingsRooms == 1):
-            pyterm.updateItemFrame(str(id), 0)
+            pyterm.changeCurrentItemFrame(str(id), 0)
         elif (SettingsRooms == 2):
-            pyterm.updateItemFrame(str(id), 1)
+            pyterm.changeCurrentItemFrame(str(id), 1)
         elif (SettingsRooms == 3):
-            pyterm.updateItemFrame(str(id), 1)
+            pyterm.changeCurrentItemFrame(str(id), 1)
             itemObjects[str(id)]["animation frames"][1] = "".join(random.choice('*&^%$#@!') if a=='#' else a for a in assets.get("FilledBlackHoleFar"))
     return None
 
@@ -563,7 +545,9 @@ player = {"Health": 100, "CurrentHp": 100, "Regen": 5,
 attacks = {"BasicAttack": {"BasePower": 10, "Accuracy": 10, "Energy": 10, "Mana": 0, "Cooldown": 0, "Effects": [{"Stat": "Strength", "Potency": 10, "Target": "AllEnemy", "Time": 3}], "Special": None},
            "": ""}
 
-enemies = {"Slime": {"Attacks": [{"AttackType": None, "Weight": 10}], "Stats": {}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Special": None}
+enemies = {"Slime": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"Health": 100, "CurrentHp": 100, "Regen": 5,
+          "Defense": 0, "MagicDefense": 0, 
+          "Strength": 0, "MagicPower": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Special": None}
 }
 
 
@@ -681,17 +665,17 @@ while True:
 
 
             if SettingsRooms == 1:
-                pyterm.updateItemFrame("SettingsRoomsNormal", 1)
-                pyterm.updateItemFrame("SettingsRoomsObfuscated", 0)
-                pyterm.updateItemFrame("SettingsRoomsAnimated", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsNormal", 1)
+                pyterm.changeCurrentItemFrame("SettingsRoomsObfuscated", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsAnimated", 0)
             elif SettingsRooms == 2:
-                pyterm.updateItemFrame("SettingsRoomsNormal", 0)
-                pyterm.updateItemFrame("SettingsRoomsObfuscated", 1)
-                pyterm.updateItemFrame("SettingsRoomsAnimated", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsNormal", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsObfuscated", 1)
+                pyterm.changeCurrentItemFrame("SettingsRoomsAnimated", 0)
             elif SettingsRooms == 3:
-                pyterm.updateItemFrame("SettingsRoomsNormal", 0)
-                pyterm.updateItemFrame("SettingsRoomsObfuscated", 0)
-                pyterm.updateItemFrame("SettingsRoomsAnimated", 1)
+                pyterm.changeCurrentItemFrame("SettingsRoomsNormal", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsObfuscated", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsAnimated", 1)
             pyterm.renderItem("SettingsRoomsNormal", xBias=-14, yBias= -65 + min(riseTitle, 55))
             pyterm.renderItem("SettingsRoomsObfuscated", xBias=0, yBias= -65 + min(riseTitle, 55))
             pyterm.renderItem("SettingsRoomsAnimated", xBias=14, yBias=-65 + min(riseTitle, 55))
@@ -869,15 +853,15 @@ while True:
                         FocusRoom = room
 
         if FocusRoom:
-            pyterm.updateItemFrame("RoomSidebar", 0)
+            pyterm.changeCurrentItemFrame("RoomSidebar", 0)
             if (os.get_terminal_size().columns - 24 <= location[0] <= os.get_terminal_size().columns) and (NonCenterOffset + 39 + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2) <= location[1] <= NonCenterOffset + 43 + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2)):
-                pyterm.updateItemFrame("RoomSidebar", 1)
+                pyterm.changeCurrentItemFrame("RoomSidebar", 1)
                 if LeftClick and not (TargetLocation[2] is 1):
                     FocusRoom = False
             #Play
             if (os.get_terminal_size().columns - 24 <= location[0] <= os.get_terminal_size().columns) and (10 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2) <= location[1] <= 14 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2)):
                 if ((itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose"))):
-                    pyterm.updateItemFrame("RoomSidebar", 2)
+                    pyterm.changeCurrentItemFrame("RoomSidebar", 2)
                     if (LeftClick) and not (TargetLocation[2] is 1):
                         AnimateRoomEntry = FocusRoom
                         TargetLocation[2] = 1
@@ -903,7 +887,7 @@ while True:
                 else:
                     itemObjects["RoomHierarchy"]["animation frames"][0] = "Hierarchy: ???"
                     itemObjects["RoomNo."]["animation frames"][0] = "Room Number: ???"
-                    pyterm.updateItemFrame("RoomSidebar", 3)
+                    pyterm.changeCurrentItemFrame("RoomSidebar", 3)
                 pyterm.renderItem("RoomSidebar", yBias = NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomHierarchy", xBias = -11, yBias = 6 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomNo.", xBias = -11, yBias = 7 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
@@ -914,7 +898,7 @@ while True:
         
         if AnimateRoomEntry:
             if itemObjects["RoomEntryAnimation"]["current frame"] + 1 >= 15:
-                pyterm.updateItemFrame("RoomEntryAnimation", 0)
+                pyterm.changeCurrentItemFrame("RoomEntryAnimation", 0)
                 PhaseChange("room")
                 # ClearedRooms.append(AnimateRoomEntry["id"])
                 AnimateRoomEntry = False
@@ -922,7 +906,7 @@ while True:
                 # PhaseChange("Battle")
             else:
                 pyterm.renderItem("RoomEntryAnimation", xBias = AnimateRoomEntry["Location"][0] + mapOffset[0], yBias = AnimateRoomEntry["Location"][1] + mapOffset[1], screenLimits= (999, 999))
-                pyterm.updateItemFrame("RoomEntryAnimation", itemObjects["RoomEntryAnimation"]["current frame"] + 1)
+                pyterm.changeCurrentItemFrame("RoomEntryAnimation", itemObjects["RoomEntryAnimation"]["current frame"] + 1)
 
         # pyterm.renderLiteralItem("X", FocusRoom["Location"][0] + mapOffset[0], FocusRoom["Location"][1] + mapOffset[1], "center", "center")
 
@@ -1020,13 +1004,13 @@ while True:
                 else:
                     selectedButton = button
             if YiPyterminal.checkItemIsHovered(button) == True and selectedButton == button:
-                YiPyterminal.updateItemFrame(button, 3)
+                YiPyterminal.changeCurrentItemFrame(button, 3)
             elif selectedButton == button:
-                YiPyterminal.updateItemFrame(button, 2)
+                YiPyterminal.changeCurrentItemFrame(button, 2)
             elif YiPyterminal.checkItemIsHovered(button) == True:
-                YiPyterminal.updateItemFrame(button, 1)
+                YiPyterminal.changeCurrentItemFrame(button, 1)
             elif YiPyterminal.itemObjects[button]["current frame"] != 0:
-                YiPyterminal.updateItemFrame(button, 0)
+                YiPyterminal.changeCurrentItemFrame(button, 0)
         currentFrameBarrier = None
         if selectedButton != None and (
             YiPyterminal.itemObjects["left barrier"]["current frame"] == 0
@@ -1046,7 +1030,7 @@ while True:
                 "left center barrier",
                 "right center barrier",
             ]:
-                YiPyterminal.updateItemFrame(barrier, currentFrameBarrier)
+                YiPyterminal.changeCurrentItemFrame(barrier, currentFrameBarrier)
         boxesToButtons = {
             "fight box": "fight button",
             "items box": "items button",
@@ -1075,10 +1059,10 @@ while True:
         ]:
             if YiPyterminal.checkItemIsHovered(option) == True:
                 if YiPyterminal.itemObjects[option]["current frame"] == 0:
-                    YiPyterminal.updateItemFrame(option, 1)
+                    YiPyterminal.changeCurrentItemFrame(option, 1)
             else:
                 if YiPyterminal.itemObjects[option]["current frame"] == 1:
-                    YiPyterminal.updateItemFrame(option, 0)
+                    YiPyterminal.changeCurrentItemFrame(option, 0)
         for item in [
             "fight box",
             "attack option 1",
@@ -1120,19 +1104,19 @@ while True:
         LeftClick = LeftClickCopy
         RightClick = RightClickCopy
         if (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 68 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 86 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]) and (not DisableOther):
-            pyterm.updateItemFrame("Ui", 1)
+            pyterm.changeCurrentItemFrame("Ui", 1)
             if LeftClick and (not SettingsUi):
                 InventoryUi = True
                 RiseUi = True
                 DisableOther = True
         elif (round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 88 + UiOffset[0] <= location[0] <= round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + 106 + UiOffset[0]) and (NonCenterOffset + UiOffset[1] <= location[1] <= NonCenterOffset + 5 + UiOffset[1]) and (not DisableOther):
-            pyterm.updateItemFrame("Ui", 2)
+            pyterm.changeCurrentItemFrame("Ui", 2)
             if LeftClick and (not InventoryUi):
                 SettingsUi = True
                 RiseUi = True
                 DisableOther = True
         else:
-            pyterm.updateItemFrame("Ui", 0)
+            pyterm.changeCurrentItemFrame("Ui", 0)
         pyterm.renderItem("Ui", xBias = round((os.get_terminal_size().columns - pyterm.getStrWidthAndHeight(assets.get("UI"))[0])/2) + UiOffset[0], yBias = NonCenterOffset + UiOffset[1], screenLimits=(999, 999))
 
         itemObjects["UiLevel"]["animation frames"][0] = str(level)
@@ -1233,7 +1217,7 @@ while True:
 
         #Inv
         if InventoryUi:
-            pyterm.updateItemFrame("Inventory", InventoryUiState - 1)
+            pyterm.changeCurrentItemFrame("Inventory", InventoryUiState - 1)
             pyterm.renderItem("Inventory", screenLimits=(999,999), yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4))
             pyterm.renderLiteralItem(assets["TitleReturn"], 10, -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
 
@@ -1295,7 +1279,7 @@ while True:
             for equipments in Equipment.values():
                 if equipments != None:
                     itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
-                    pyterm.updateItemFrame("Equipment", list(Equipment.values()).index(equipments))
+                    pyterm.changeCurrentItemFrame("Equipment", list(Equipment.values()).index(equipments))
                     pyterm.updateItemSize("Equipment")
                     pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments), screenLimits=(999,999))
 
@@ -1321,17 +1305,17 @@ while True:
 
 
             if SettingsRooms == 1:
-                pyterm.updateItemFrame("SettingsRoomsNormal", 1)
-                pyterm.updateItemFrame("SettingsRoomsObfuscated", 0)
-                pyterm.updateItemFrame("SettingsRoomsAnimated", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsNormal", 1)
+                pyterm.changeCurrentItemFrame("SettingsRoomsObfuscated", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsAnimated", 0)
             elif SettingsRooms == 2:
-                pyterm.updateItemFrame("SettingsRoomsNormal", 0)
-                pyterm.updateItemFrame("SettingsRoomsObfuscated", 1)
-                pyterm.updateItemFrame("SettingsRoomsAnimated", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsNormal", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsObfuscated", 1)
+                pyterm.changeCurrentItemFrame("SettingsRoomsAnimated", 0)
             elif SettingsRooms == 3:
-                pyterm.updateItemFrame("SettingsRoomsNormal", 0)
-                pyterm.updateItemFrame("SettingsRoomsObfuscated", 0)
-                pyterm.updateItemFrame("SettingsRoomsAnimated", 1)
+                pyterm.changeCurrentItemFrame("SettingsRoomsNormal", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsObfuscated", 0)
+                pyterm.changeCurrentItemFrame("SettingsRoomsAnimated", 1)
             pyterm.renderItem("SettingsRoomsNormal", xBias=-14, yBias= -10 + RiseMenu - round(os.get_terminal_size().lines * 3/4), screenLimits=(999,999))
             pyterm.renderItem("SettingsRoomsObfuscated", xBias=0, yBias= -10 + RiseMenu - round(os.get_terminal_size().lines * 3/4), screenLimits=(999,999))
             pyterm.renderItem("SettingsRoomsAnimated", xBias=14, yBias= -10 + RiseMenu - round(os.get_terminal_size().lines * 3/4), screenLimits=(999,999))
@@ -1449,7 +1433,7 @@ while True:
             for removed in RemoveItems:
                 InventoryCopy[removed[1]].remove(removed[0])
 
-            pyterm.updateItemFrame("Inventory", InventoryUiState - 1)
+            pyterm.changeCurrentItemFrame("Inventory", InventoryUiState - 1)
             pyterm.renderItem("Inventory", screenLimits=(999,999)) #yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4)
 
             if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
@@ -1496,7 +1480,7 @@ while True:
             for equipments in Equipment.values():
                 if equipments != None:
                     itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
-                    pyterm.updateItemFrame("Equipment", list(Equipment.values()).index(equipments))
+                    pyterm.changeCurrentItemFrame("Equipment", list(Equipment.values()).index(equipments))
                     pyterm.updateItemSize("Equipment")
                     pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments), screenLimits=(999,999))
 
@@ -1514,7 +1498,7 @@ while True:
             for removed in RemoveItems:
                 InventoryCopy[removed[1]].remove(removed[0])
 
-            pyterm.updateItemFrame("Inventory", InventoryUiState - 1)
+            pyterm.changeCurrentItemFrame("Inventory", InventoryUiState - 1)
             pyterm.renderItem("Inventory", screenLimits=(999,999)) #yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4)
 
             if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
@@ -1539,7 +1523,7 @@ while True:
             for equipments in Equipment.values():
                 if equipments != None:
                     itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
-                    pyterm.updateItemFrame("Equipment", list(Equipment.values()).index(equipments))
+                    pyterm.changeCurrentItemFrame("Equipment", list(Equipment.values()).index(equipments))
                     pyterm.updateItemSize("Equipment")
                     pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments), screenLimits=(999,999))
             OpenedFakeInv = False
@@ -1578,7 +1562,7 @@ while True:
             itemObjects["LevelUpTransition"]["current frame"] += 1
         else:
             if (pyterm.getTopLeft("LevelUpStats")[0] <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 23) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
-                pyterm.updateItemFrame("LevelUpHover", 0)
+                pyterm.changeCurrentItemFrame("LevelUpHover", 0)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["Health"] += 5
@@ -1589,7 +1573,7 @@ while True:
                     LevelUp = False
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             elif (pyterm.getTopLeft("LevelUpStats")[0] + 24 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 47) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
-                pyterm.updateItemFrame("LevelUpHover", 1)
+                pyterm.changeCurrentItemFrame("LevelUpHover", 1)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["Health"] += 5
@@ -1600,7 +1584,7 @@ while True:
                     LevelUp = False
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             elif (pyterm.getTopLeft("LevelUpStats")[0] + 48 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 71) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
-                pyterm.updateItemFrame("LevelUpHover", 2)
+                pyterm.changeCurrentItemFrame("LevelUpHover", 2)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["Health"] += 5
@@ -1611,7 +1595,7 @@ while True:
                     LevelUp = False
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             elif (pyterm.getTopLeft("LevelUpStats")[0] + 72 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 95) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
-                pyterm.updateItemFrame("LevelUpHover", 3)
+                pyterm.changeCurrentItemFrame("LevelUpHover", 3)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["Health"] += 5
@@ -1622,7 +1606,7 @@ while True:
                     LevelUp = False
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             elif (pyterm.getTopLeft("LevelUpStats")[0] + 96 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 119) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
-                pyterm.updateItemFrame("LevelUpHover", 4)
+                pyterm.changeCurrentItemFrame("LevelUpHover", 4)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["Health"] += 5
@@ -1633,7 +1617,7 @@ while True:
                     LevelUp = False
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             elif (pyterm.getTopLeft("LevelUpStats")[0] + 120 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 143) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
-                pyterm.updateItemFrame("LevelUpHover", 5)
+                pyterm.changeCurrentItemFrame("LevelUpHover", 5)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["Health"] += 5

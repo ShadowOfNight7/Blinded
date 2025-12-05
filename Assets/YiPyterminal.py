@@ -480,10 +480,10 @@ def getAnchorPosition(
         elif parentAnchor == "right center" or parentAnchor == "right centre":
             anchorX, anchorY = screenWidth - 1, math.ceil((screenHeight - 1) / 2)
         else:
-            pass
             addDebugMessage(
                 "".join(["Invalid input for parentAnchor in addItem():", parentAnchor])
             )
+            return
     elif parentObject in itemObjects:
         if parentAnchor == "top left":
             anchorX, anchorY = getTopLeft(parentObject)
@@ -507,11 +507,13 @@ def getAnchorPosition(
             addDebugMessage(
                 "".join(["Invalid input for parentAnchor in addItem():", parentAnchor])
             )
+            return
     else:
 
         addDebugMessage(
             "".join(["Invalid input for parentObject in addItem():", parentObject])
         )
+        return
     if isChildObjectLiteralStr == False:
         if width == None:
             width = itemObjects[childObject]["width"]
@@ -550,6 +552,7 @@ def getAnchorPosition(
         addDebugMessage(
             "".join(["Invalid input for childAnchor in addItem():", childAnchor])
         )
+        return
     if childObject != None and isChildObjectLiteralStr == False:
         anchorX += itemObjects[childObject]["x bias"]
         anchorY += itemObjects[childObject]["y bias"]

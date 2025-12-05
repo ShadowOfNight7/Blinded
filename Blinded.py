@@ -162,50 +162,27 @@ def PhaseChange(Phase: str):
             if box == "fight box":
                 attacks = []
                 for attackNum in range(8):
-                    if EquippedAttacks["Attack"+attackNum]==None:
+                    if EquippedAttacks["Attack" + str(attackNum)] == None:
                         attacks.append("".center(30))
-                    elif LockedAttacks["Attack"+attackNum]==True:
+                    elif LockedAttacks["Attack" + str(attackNum)] == True:
                         attacks.append("🔒".center(30))
                     else:
-                        attacks.append(EquippedAttacks["Attack"+attackNum].center(30))
+                        attacks.append(
+                            EquippedAttacks["Attack" + str(attackNum)].center(30)
+                        )
                 YiPyterminal.createItem(
                     box,
                     [
                         YiPyterminal.assets[box][0]
-                        .replace(
-                            ">        PLACEHOLDER1        <",
-                            EquippedAttacks["Attack0"].center(30),
-                        )
-                        .replace(
-                            ">        PLACEHOLDER2        <",
-                            EquippedAttacks["Attack1"].center(30),
-                        )
-                        .replace(
-                            ">        PLACEHOLDER3        <",
-                            EquippedAttacks["Attack2"].center(30),
-                        )
-                        .replace(
-                            ">        PLACEHOLDER4        <",
-                            EquippedAttacks["Attack3"].center(30),
-                        )
-                        .replace(
-                            ">        PLACEHOLDER5        <",
-                            EquippedAttacks["Attack4"].center(30),
-                        )
-                        .replace(
-                            ">        PLACEHOLDER6        <",
-                            EquippedAttacks["Attack5"].center(30),
-                        )
-                        .replace(
-                            ">        PLACEHOLDER7        <",
-                            EquippedAttacks["Attack6"].center(30),
-                        )
-                        .replace(
-                            ">        PLACEHOLDER8        <",
-                            EquippedAttacks["Attack7"].center(30),
-                        )
+                        .replace(">        PLACEHOLDER1        <", attacks[0])
+                        .replace(">        PLACEHOLDER2        <", attacks[1])
+                        .replace(">        PLACEHOLDER3        <", attacks[2])
+                        .replace(">        PLACEHOLDER4        <", attacks[3])
+                        .replace(">        PLACEHOLDER5        <", attacks[4])
+                        .replace(">        PLACEHOLDER6        <", attacks[5])
+                        .replace(">        PLACEHOLDER7        <", attacks[6])
+                        .replace(">        PLACEHOLDER8        <", attacks[7])
                     ],
-                    YiPyterminal.assets[box],
                     parentObject="center barrier",
                     parentAnchor="top center",
                     childAnchor="top center",
@@ -213,68 +190,106 @@ def PhaseChange(Phase: str):
                 YiPyterminal.createItem(
                     "attack option 1",
                     [
-                        str(EquippedAttacks["Attack0"]).center(30),
-                        "                              ",
-                        "              🔒              ",
+                        "".center(30, "#"),
+                        "š>šššššššššššššššššššššššššš<š",
                     ],
+                    parentObject="fight box",
+                    parentAnchor="center",
+                    childAnchor="bottom right",
+                    xBias=-32,
+                    yBias=-1,
+                    isEmptyCharacterPartOfHitbox=True,
                 )
                 YiPyterminal.createItem(
                     "attack option 2",
                     [
-                        str(EquippedAttacks["Attack1"]).center(30),
-                        "                              ",
-                        "              🔒              ",
+                        "".center(30, "#"),
+                        "š>šššššššššššššššššššššššššš<š",
                     ],
+                    parentObject="fight box",
+                    parentAnchor="center",
+                    childAnchor="bottom right",
+                    xBias=-1,
+                    yBias=-1,
+                    isEmptyCharacterPartOfHitbox=True,
                 )
                 YiPyterminal.createItem(
                     "attack option 3",
                     [
-                        str(EquippedAttacks["Attack2"]).center(30),
-                        "                              ",
-                        "              🔒              ",
+                        "".center(30, "š"),
+                        "š>šššššššššššššššššššššššššš<š",
                     ],
+                    parentObject="fight box",
+                    parentAnchor="center",
+                    childAnchor="bottom left",
+                    xBias=1,
+                    yBias=-1,
+                    isEmptyCharacterPartOfHitbox=True,
                 )
                 YiPyterminal.createItem(
                     "attack option 4",
                     [
-                        str(EquippedAttacks["Attack3"]).center(30),
-                        "                              ",
-                        "              🔒              ",
+                        "".center(30, "š"),
+                        "š>šššššššššššššššššššššššššš<š",
                     ],
+                    parentObject="fight box",
+                    parentAnchor="center",
+                    childAnchor="bottom left",
+                    xBias=32,
+                    yBias=-1,
+                    isEmptyCharacterPartOfHitbox=True,
                 )
                 YiPyterminal.createItem(
                     "attack option 5",
                     [
-                        str(EquippedAttacks["Attack4"]).center(30),
-                        "                              ",
-                        "              🔒              ",
+                        "".center(30, "š"),
+                        "š>šššššššššššššššššššššššššš<š",
                     ],
+                    parentObject="fight box",
+                    parentAnchor="center",
+                    childAnchor="top right",
+                    xBias=-32,
+                    yBias=1,
+                    isEmptyCharacterPartOfHitbox=True,
                 )
                 YiPyterminal.createItem(
                     "attack option 6",
                     [
-                        str(EquippedAttacks["Attack5"]).center(30),
-                        "                              ",
-                        "              🔒              ",
+                        "".center(30, "š"),
+                        "š>šššššššššššššššššššššššššš<š",
                     ],
+                    parentObject="fight box",
+                    parentAnchor="center",
+                    childAnchor="top right",
+                    xBias=-1,
+                    yBias=1,
+                    isEmptyCharacterPartOfHitbox=True,
                 )
                 YiPyterminal.createItem(
                     "attack option 7",
                     [
-                        str(EquippedAttacks["Attack6"]).center(30),
-                        "                              ",
-                        "              🔒              ",
+                        "".center(30, "š"),
+                        "š>šššššššššššššššššššššššššš<š",
                     ],
+                    parentObject="fight box",
+                    parentAnchor="center",
+                    childAnchor="top left",
+                    xBias=1,
+                    yBias=1,
+                    isEmptyCharacterPartOfHitbox=True,
                 )
                 YiPyterminal.createItem(
                     "attack option 8",
                     [
-                        str(EquippedAttacks["Attack7"]).center(30),
-                        "                              ",
-                        "              🔒              ",
+                        "".center(30, "š"),
+                        "š>šššššššššššššššššššššššššš<š",
                     ],
-                    
-                    currentFrame=
+                    parentObject="fight box",
+                    parentAnchor="center",
+                    childAnchor="top left",
+                    xBias=32,
+                    yBias=1,
+                    isEmptyCharacterPartOfHitbox=True,
                 )
             else:
                 YiPyterminal.createItem(
@@ -401,7 +416,7 @@ timed = 9
 AimTarget = []
 character_size = (19, 37) #NORMAL
 character_size = (9, 19) #PCS
-character_size = (12, 23) #LAPTOP
+# character_size = (12, 23) #LAPTOP
 # character_size = Cursor.initialize(10)
 score = 0
 MainClock = 1000
@@ -507,7 +522,8 @@ Inventory = {"Armor":
 #sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
 #apple = {"Name": "Apple", "Type": Consumable", "Asset": "", "Effects": [{"Type": Strength, "Time": 3, "Potency": 1, "Apply": "Player"},{"Type": "Damage", "Potency": 999, "Apply": "AllEnemy"}], "Description": "Could be used to make pie", "Id": None}
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
-EquippedAttacks = {"Attack0": "None", "Attack1": "None", "Attack2": "None", "Attack3": "None", "Attack4": "None", "Attack5": "None","Attack6": "None","Attack7": "None",}
+EquippedAttacks = {"Attack0": "slash", "Attack1": "heal", "Attack2": "focus", "Attack3": None, "Attack4": None, "Attack5": None,"Attack6": None,"Attack7": None,}
+LockedAttacks = {"Attack0": False, "Attack1": False, "Attack2": False, "Attack3": False, "Attack4": True, "Attack5": True,"Attack6": True,"Attack7": True,}
 EquippedUltimate = None
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
 FocusInv = False
@@ -962,12 +978,6 @@ while True:
         if EnteredRoom is "Home":
             room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#"]
 
-
-
-
-
-
-
             
     elif phase.lower() == "battle":
         Ui = False
@@ -998,28 +1008,67 @@ while True:
             elif YiPyterminal.itemObjects[button]["current frame"] != 0:
                 YiPyterminal.updateItemFrame(button, 0)
         currentFrameBarrier = None
-        if selectedButton != None and (YiPyterminal.itemObjects["left barrier"]["current frame"]==0 or YiPyterminal.itemObjects["right barrier"]["current frame"]==0):
+        if selectedButton != None and (
+            YiPyterminal.itemObjects["left barrier"]["current frame"] == 0
+            or YiPyterminal.itemObjects["right barrier"]["current frame"] == 0
+        ):
             currentFrameBarrier = 1
-        elif selectedButton == None and (YiPyterminal.itemObjects["left barrier"]["current frame"]==1 or YiPyterminal.itemObjects["right barrier"]["current frame"]==1):
+        elif selectedButton == None and (
+            YiPyterminal.itemObjects["left barrier"]["current frame"] == 1
+            or YiPyterminal.itemObjects["right barrier"]["current frame"] == 1
+        ):
             currentFrameBarrier = 0
         if currentFrameBarrier != None:
-            for barrier in ["left barrier","right barrier","center barrier","left center barrier","right center barrier"]:
-                YiPyterminal.updateItemFrame(barrier,currentFrameBarrier)
-        boxesToButtons={
-            "fight box":"fight button",
-            "items box":"items button",
-            "information box":"information button",
-            "mercy box":"mercy button",
+            for barrier in [
+                "left barrier",
+                "right barrier",
+                "center barrier",
+                "left center barrier",
+                "right center barrier",
+            ]:
+                YiPyterminal.updateItemFrame(barrier, currentFrameBarrier)
+        boxesToButtons = {
+            "fight box": "fight button",
+            "items box": "items button",
+            "information box": "information button",
+            "mercy box": "mercy button",
         }
         for box in boxesToButtons:
-            if boxesToButtons[box]==selectedButton:
-                if YiPyterminal.getBottomCenter(box)[1]>=YiPyterminal.getTopCenter("center barrier")[1]:
+            if boxesToButtons[box] == selectedButton:
+                if (
+                    YiPyterminal.getBottomCenter(box)[1]
+                    >= YiPyterminal.getTopCenter("center barrier")[1]
+                ):
                     YiPyterminal.moveItem(box, y=-1)
             else:
-                if YiPyterminal.itemObjects[box]["y bias"]<0:
+                if YiPyterminal.itemObjects[box]["y bias"] < 0:
                     YiPyterminal.moveItem(box, y=1)
+        for option in [
+            "attack option 1",
+            "attack option 2",
+            "attack option 3",
+            "attack option 4",
+            "attack option 5",
+            "attack option 6",
+            "attack option 7",
+            "attack option 8",
+        ]:
+            if YiPyterminal.checkItemIsHovered(option) == True:
+                if YiPyterminal.itemObjects[option]["current frame"] == 0:
+                    YiPyterminal.updateItemFrame(option, 1)
+            else:
+                if YiPyterminal.itemObjects[option]["current frame"] == 1:
+                    YiPyterminal.updateItemFrame(option, 0)
         for item in [
             "fight box",
+            "attack option 1",
+            "attack option 2",
+            "attack option 3",
+            "attack option 4",
+            "attack option 5",
+            "attack option 6",
+            "attack option 7",
+            "attack option 8",
             "items box",
             "information box",
             "mercy box",
@@ -1034,6 +1083,7 @@ while True:
             "right barrier",
         ]:
             YiPyterminal.renderItem(item, screenLimits=None)
+
     
     if keyboard.is_pressed("v"):
         RiseEnchantBool = True

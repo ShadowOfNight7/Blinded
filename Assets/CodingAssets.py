@@ -86,7 +86,11 @@ assets = {
         R"""┬
 │
 │
-│"""
+│""",
+        R"""┼
+│
+│
+│""",
     ],
     "left barrier": [
         R"""┌
@@ -182,27 +186,27 @@ assets = {
     ],
     "fight box": [
         R"""┌──────────────────────────────┬──────────────────────────────┬──────────────────────────────┬──────────────────────────────┐
-│         PLACEHOLDER1         │         PLACEHOLDER2         │         PLACEHOLDER3         │         PLACEHOLDER4         │
+│>        PLACEHOLDER1        <│>        PLACEHOLDER2        <│>        PLACEHOLDER3        <│>        PLACEHOLDER4        <│
 ├──────────────────────────────┼──────────────────────────────┼──────────────────────────────┼──────────────────────────────┤
-│         PLACEHOLDER5         │         PLACEHOLDER6         │         PLACEHOLDER7         │         PLACEHOLDER8         │"""
+│>        PLACEHOLDER5        <│>        PLACEHOLDER6        <│>        PLACEHOLDER7        <│>        PLACEHOLDER8        <│"""
     ],
     "items box": [
         R"""┌──────────────────────────────┬──────────────────────────────┬──────────────────────────────┬──────────────────────────────┐
-│         PLACEHOLDER1         │         PLACEHOLDER2         │         PLACEHOLDER3         │         PLACEHOLDER4         │
+│>        PLACEHOLDER1        <│>        PLACEHOLDER2        <│>        PLACEHOLDER3        <│>        PLACEHOLDER4        <│
 ├──────────────────────────────┼──────────────────────────────┼──────────────────────────────┼──────────────────────────────┤
-│         PLACEHOLDER5         │         PLACEHOLDER6         │         PLACEHOLDER7         │         PLACEHOLDER8         │"""
+│>        PLACEHOLDER5        <│>        PLACEHOLDER6        <│>        PLACEHOLDER7        <│>        PLACEHOLDER8        <│"""
     ],
     "information box": [
         R"""┌──────────────────────────────┬──────────────────────────────┬──────────────────────────────┬──────────────────────────────┐
-│         PLACEHOLDER1         │         PLACEHOLDER2         │         PLACEHOLDER3         │         PLACEHOLDER4         │
+│>        PLACEHOLDER1        <│>        PLACEHOLDER2        <│>        PLACEHOLDER3        <│>        PLACEHOLDER4        <│
 ├──────────────────────────────┼──────────────────────────────┼──────────────────────────────┼──────────────────────────────┤
-│         PLACEHOLDER5         │         PLACEHOLDER6         │         PLACEHOLDER7         │         PLACEHOLDER8         │"""
+│>        PLACEHOLDER5        <│>        PLACEHOLDER6        <│>        PLACEHOLDER7        <│>        PLACEHOLDER8        <│"""
     ],
     "mercy box": [
         R"""┌──────────────────────────────┬──────────────────────────────┬──────────────────────────────┬──────────────────────────────┐
-│         PLACEHOLDER1         │         PLACEHOLDER2         │         PLACEHOLDER3         │         PLACEHOLDER4         │
+│>        PLACEHOLDER1        <│>        PLACEHOLDER2        <│>        PLACEHOLDER3        <│>        PLACEHOLDER4        <│
 ├──────────────────────────────┼──────────────────────────────┼──────────────────────────────┼──────────────────────────────┤
-│         PLACEHOLDER5         │         PLACEHOLDER6         │         PLACEHOLDER7         │         PLACEHOLDER8         │"""
+│>        PLACEHOLDER5        <│>        PLACEHOLDER6        <│>        PLACEHOLDER7        <│>        PLACEHOLDER8        <│"""
     ],
 }
 mobInfo = {

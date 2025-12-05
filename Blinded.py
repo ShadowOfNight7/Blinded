@@ -142,28 +142,28 @@ def PhaseChange(Phase: str):
         )
         for box in ["fight box", "items box", "information box", "mercy box"]:
             if box == "fight box":
-                attacks = []
+                _attacks = []
                 for attackNum in range(8):
                     if EquippedAttacks["Attack" + str(attackNum)] == None:
-                        attacks.append("".center(30))
+                        _attacks.append("".center(30))
                     elif LockedAttacks["Attack" + str(attackNum)] == True:
-                        attacks.append("🔒".center(30))
+                        _attacks.append("🔒".center(30))
                     else:
-                        attacks.append(
+                        _attacks.append(
                             EquippedAttacks["Attack" + str(attackNum)].center(30)
                         )
                 YiPyterminal.createItem(
                     box,
                     [
                         YiPyterminal.assets[box][0]
-                        .replace(">        PLACEHOLDER1        <", attacks[0])
-                        .replace(">        PLACEHOLDER2        <", attacks[1])
-                        .replace(">        PLACEHOLDER3        <", attacks[2])
-                        .replace(">        PLACEHOLDER4        <", attacks[3])
-                        .replace(">        PLACEHOLDER5        <", attacks[4])
-                        .replace(">        PLACEHOLDER6        <", attacks[5])
-                        .replace(">        PLACEHOLDER7        <", attacks[6])
-                        .replace(">        PLACEHOLDER8        <", attacks[7])
+                        .replace(">        PLACEHOLDER1        <", _attacks[0])
+                        .replace(">        PLACEHOLDER2        <", _attacks[1])
+                        .replace(">        PLACEHOLDER3        <", _attacks[2])
+                        .replace(">        PLACEHOLDER4        <", _attacks[3])
+                        .replace(">        PLACEHOLDER5        <", _attacks[4])
+                        .replace(">        PLACEHOLDER6        <", _attacks[5])
+                        .replace(">        PLACEHOLDER7        <", _attacks[6])
+                        .replace(">        PLACEHOLDER8        <", _attacks[7])
                     ],
                     parentObject="center barrier",
                     parentAnchor="top center",
@@ -542,8 +542,27 @@ player = {"Health": 100, "CurrentHp": 100, "Regen": 5,
           "Effects": [],
           "Passives": []} #{"Stat": "Strength", "Potency": 10, "Time": 10} or {"Stat": "Strength", "Potency": 10, "Time": -2} or {"Stat": "Health", "Potency": -2, "Time": 5, "Special": "Poison"}
 
-attacks = {"BasicAttack": {"BasePower": 10, "Accuracy": 10, "Energy": 10, "Mana": 0, "Cooldown": 0, "Effects": [{"Stat": "Strength", "Potency": 10, "Target": "AllEnemy", "Time": 3}], "Special": None},
-           "": ""}
+attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [], "Special": None},
+            #Slime (Reg) + (Large) + (Giga) + (Corrupted) + (Defensive) + (Attack)
+            "Slime Leap": {"BasePowerMelee": 15, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1}], "Effects": [], "Special": None}, #15 * 1.3 = 19.5dmg * 80% acc = 15.6dmg avg
+            "Slime Shot": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1}], "Effects": [], "Special": None}, #25 * 1.3 = 32.5dmg * 50% acc = 16.25dmg avg
+            "Acidify": {"BasePowerMelee": 0, "BasePowerMagic": 10, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1}], "Effects": [], "Special": None},
+            "Tackle": {"BasePowerMelee": 10, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1}], "Effects": [], "Special": None}, #10 * 1.3 = 13dmg avg
+            "Slime Heat-Seeking Missile": {"BasePowerMelee": 150, "BasePowerMagic": 150, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1}], "Effects": [], "Special": None}, #150 * 1.3 = 195dmg avg
+            #Slime (Large) + (Giga) + (Defensive) + (Attack)
+            "Crush": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1}], "Effects": [], "Special": None}, #20 * 1.5 = 30dmg * 90% acc = 27dmg avg (Low Weight)
+            #Slime (Giga)
+            "Devour": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1}], "Effects": [], "Special": None}, #15 * 1.6 = 24dmg avg
+            #Slime (Corrosive)
+            "Corrode": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1}], "Effects": [], "Special": None}, #
+            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None}, #10 * 1.5 = 15 dmg * 65% acc = 9.75dmg, 
+            #Slime (Defensive)
+            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None},
+            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None},
+            #Slime (Attack)
+            "Reinforce": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [{"Stat": "Defense", "Potency": 15, "Target": "Self", "Time": 3},{"Stat": "MagicDefense", "Potency": 15, "Target": "Self", "Time": 3}], "Special": None},
+            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None},
+            }
 
 enemies = {"Slime": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"Health": 100, "CurrentHp": 100, "Regen": 5,
           "Defense": 0, "MagicDefense": 0, 
@@ -1087,6 +1106,8 @@ while True:
             "right barrier",
         ]:
             YiPyterminal.renderItem(item, screenLimits=None)
+        YiPyterminal.createItem("turn order box",[YiPyterminal.assets["turn order box"]])
+        YiPyterminal.renderItem("turn order box")
 
     
     if keyboard.is_pressed("v"):

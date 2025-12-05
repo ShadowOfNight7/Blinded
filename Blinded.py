@@ -29,7 +29,7 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
 
 # fmt: on
 def PhaseChange(Phase: str):
-    global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry, player_x, player_y, Ui
+    global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry, player_x, player_y, Ui, EnteredRoom, RoomData
     phase = Phase
     if phase.lower() == "title":
         riseTitle = 0
@@ -53,10 +53,10 @@ def PhaseChange(Phase: str):
         AnimateRoomEntry = False
         Ui = True
     elif phase.lower() == "room":
-        player_x, player_y = 0, 0
+        player_x, player_y = RoomData[EnteredRoom]["SpawnLocation"]
         Ui = True
     elif phase.lower() == "puzzlemove":
-        pass
+        """"""
     elif phase.lower() == "puzzletext":
         pass
     elif phase.lower() == "battle":
@@ -412,6 +412,13 @@ def RenderSpell(Spell):
             pyterm.renderItem("EnchantStar", xBias = Spell[spell][0], yBias = Spell[spell][1], screenLimits=(73,25), screenLimitsBias=(0, -1))
 
 
+def PlayerAttack(Attack, Enemy):
+    pass
+
+def EnemyAttack(Attack):
+    pass
+
+
 timed = 9
 AimTarget = []
 character_size = (19, 37) #NORMAL
@@ -468,12 +475,12 @@ pyterm.createItem("RoomType", ["Type: Battle"], "screen", "top right", "center",
 pyterm.createItem("RoomDifficulty", ["Difficulty: 1.05"], "screen", "top right", "center", 0)
 pyterm.createItem("RoomRewards", ["Rewards:", "- Light", "- Gold", "- Exp"], "screen", "top right", "center", 0)
 
-RoomData = {(0, 0): "Home"}
+RoomData = {(0, 1): {"Type": "Home", "SpawnLocation": (0, 10)}}
 RoomException = False
 
 player_x, player_y = 0, 0
 player_hitbox = [1, 1]
-pyterm.createItem("PlayerMove", ["O"], "screen", "center", "center", 0)
+pyterm.createItem("PlayerMove", ["0"], "screen", "center", "center", 0)
 room_size = [round(120), round(25)]
 # pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(round((room_size[0] - 1)/2 + 1))) + "\n" for i3 in range(round((room_size[1] - 1)/2 + 1))), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
 pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(room_size[0])) + "\n" for i3 in range(room_size[1])), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
@@ -550,10 +557,16 @@ player = {"Health": 100, "CurrentHp": 100, "Regen": 5,
           "ManaRegen": 10, "EnergyRegen": 10, 
           "CurrentMana": 100, "CurrentEnergy": 100, 
           "TrueAttack": 0, "TrueDefense": 0, 
-          "Effects": []} #{"Stat": "Strength", "Potency": 10, "Time": 10} or {"Stat": "Strength", "Potency": 10, "Time": -2} or {"Stat": "Health", "Potency": -2, "Time": 5, "Special": "Poison"}
+          "Effects": [],
+          "Passives": []} #{"Stat": "Strength", "Potency": 10, "Time": 10} or {"Stat": "Strength", "Potency": 10, "Time": -2} or {"Stat": "Health", "Potency": -2, "Time": 5, "Special": "Poison"}
+
+attacks = {"BasicAttack": {"BasePower": 10, "Accuracy": 10, "Energy": 10, "Mana": 0, "Cooldown": 0, "Effects": [{"Stat": "Strength", "Potency": 10, "Target": "AllEnemy", "Time": 3}], "Special": None},
+           "": ""}
 
 enemies = {"Slime": {"Attacks": [{"AttackType": None, "Weight": 10}], "Stats": {}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Special": None}
 }
+
+
 
 
 pyterm.createItem("LevelUpStats", [assets.get("LevelUpStats")], "screen", "center", "center", 0, 0, 5)
@@ -589,7 +602,7 @@ CastedSpells = {"Poisoning": [(27, 27), (80, 34), (27, 37), (69, 46), (53, 26)],
                 "Dev": [(24, 27), (23, 35), (77, 27), (77, 35), (24, 41), (37, 46), (61, 47), (75, 41), (37, 27), (37, 39), (63, 39), (61, 27), (49, 27), (23, 46), (83, 46), (48, 35)]}
 #
 
-PhaseChange("battle")
+PhaseChange("map")
 
 YiPyterminal.initializeTerminal(1, character_size) 
 YiPyterminal.startAsynchronousMouseListener()
@@ -780,7 +793,7 @@ while True:
                         pyterm.renderItem(str((i + 1, i2 + 1)), xBias = mapOffset[0], yBias = mapOffset[1], screenLimits=(999, 999))
                     # pyterm.renderLiteralItem(str(hierarchyLocations[i + 1][i2]["Movements"]), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
                     # pyterm.renderLiteralItem(assets.get("FilledBlackHole"), round(math.cos(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3) + mapOffset[0]), round(math.sin(math.radians(Angle * i2 + RandomAdd[i] + RandomAddMini[i][i2])) * MaxRooms * (10 + i/3)/2 + mapOffset[1]), "center", "center")
-            if GetRoomLoc == True:
+            if GetRoomLoc:
                 hierarchyLocations.append(hierarchyLocations2)
                 hierarchyLocations2 = []
 
@@ -870,8 +883,8 @@ while True:
                         TargetLocation[2] = 1
                         TargetLocation[0] = -FocusRoom["Location"][0]
                         TargetLocation[1] = -FocusRoom["Location"][1]
-                        FocusRoom = False
                         EnteredRoom = FocusRoom["id"]
+                        FocusRoom = False
             if keyboard.is_pressed("x"):
                 FocusRoom = False
             #Play
@@ -880,8 +893,8 @@ while True:
                 TargetLocation[2] = 1
                 TargetLocation[0] = -FocusRoom["Location"][0]
                 TargetLocation[1] = -FocusRoom["Location"][1]
-                FocusRoom = False
                 EnteredRoom = FocusRoom["id"]
+                FocusRoom = False
             if FocusRoom:
                 pyterm.renderItem("RoomSelect", xBias = FocusRoom["Location"][0] + mapOffset[0], yBias = FocusRoom["Location"][1] +  mapOffset[1], screenLimits = (999, 999), createItemIfNotExists = True, createItemArgs = {"animationFrames": [assets.get("RoomSelect")], "parentObject": "screen", "parentAnchor": "center", "childAnchor": "center", "currentFrame": 0})
                 if (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose")):
@@ -902,7 +915,8 @@ while True:
         if AnimateRoomEntry:
             if itemObjects["RoomEntryAnimation"]["current frame"] + 1 >= 15:
                 pyterm.updateItemFrame("RoomEntryAnimation", 0)
-                ClearedRooms.append(AnimateRoomEntry["id"])
+                PhaseChange("room")
+                # ClearedRooms.append(AnimateRoomEntry["id"])
                 AnimateRoomEntry = False
                 FocusRoom = False
                 # PhaseChange("Battle")
@@ -949,36 +963,42 @@ while True:
     elif phase.lower() == "room":
 
         # itemObjects["RoomSize"]["animation frames"][0] = pyterm.addBorder("".join("".join(" " for i2 in range(round((room_size[0] - 1)/2 + 1))) + "\n" for i3 in range(round((room_size[1] - 1)/2 + 1))), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})
-        if EnteredRoom == "Home":
-            room_size = [130, 30]
+        if RoomData[EnteredRoom]["Type"] == "Home":
+            room_size = [130, 25]
             RoomException = True
         else:
             RoomException = False
-            if EnteredRoom["Type"] == "Puzzle":
+            if RoomData[EnteredRoom]["Type"] == "Puzzle":
                 room_size = [120, 25]
         itemObjects["RoomSize"]["animation frames"][0] = pyterm.addBorder("".join("".join(" " for i2 in range(room_size[0])) + "\n" for i3 in range(room_size[1])), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})
-
+        pyterm.updateItemSize("RoomSize")
         pyterm.renderItem("RoomSize", screenLimits= (999, 999))
+
+        if RoomData[EnteredRoom]["Type"] is "Home":
+            room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#", "\\", "/", "O", "◉", ">", "<", "."]
+            pyterm.createItem("aA", [assets.get("EnchantHome")], "screen", "center", "center")
+            pyterm.renderItem("aA")
 
         pyterm.renderItem("PlayerMove", xBias = round(player_x), yBias = round(player_y))
 
         if keyboard.is_pressed("w"):
-            if pyterm.getLetter((round(player_x + os.get_terminal_size().columns/2), round(player_y - 1 + os.get_terminal_size().lines/2))) not in room_walls:
-                player_y -= 0.15 / ((math.sqrt(2) - 1) * (keyboard.is_pressed("a") or keyboard.is_pressed("d")) + 1)
+            if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y - 1) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
+                player_y -= 0.15
         if keyboard.is_pressed("s"):
-            if pyterm.getLetter((round(player_x + os.get_terminal_size().columns/2), round(player_y + 1 + os.get_terminal_size().lines/2))) not in room_walls:
-                player_y += 0.15 / ((math.sqrt(2) - 1) * (keyboard.is_pressed("a") or keyboard.is_pressed("d")) + 1)
+            if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y + 1) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
+                player_y += 0.15
         if keyboard.is_pressed("a"):
-            if pyterm.getLetter((round(player_x - 1 + os.get_terminal_size().columns/2), round(player_y + os.get_terminal_size().lines/2))) not in room_walls:
-                player_x -= 0.3 / ((math.sqrt(2) - 1) * (keyboard.is_pressed("w") or keyboard.is_pressed("s")) + 1)
+            if pyterm.getLetter((round(player_x - 1) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
+                player_x -= 0.3
         if keyboard.is_pressed("d"):
-            if pyterm.getLetter((round(player_x + 1 + os.get_terminal_size().columns/2), round(player_y + os.get_terminal_size().lines/2))) not in room_walls:
-                player_x += 0.3 / ((math.sqrt(2) - 1) * (keyboard.is_pressed("w") or keyboard.is_pressed("s")) + 1)
+            if pyterm.getLetter((round(player_x + 1) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
+                player_x += 0.3
+        if not (keyboard.is_pressed("w") or keyboard.is_pressed("a") or keyboard.is_pressed("s") or keyboard.is_pressed("d")):
+            player_x = round(player_x)
+            player_y = round(player_y)
         
-        if EnteredRoom is "Home":
-            room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#"]
 
-            
+
     elif phase.lower() == "battle":
         Ui = False
         YiPyterminal.renderItem(mobsStatus[currentMobNum]["name"])

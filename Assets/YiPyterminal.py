@@ -32,7 +32,6 @@ threadingLock = threading.Lock()
 endEscapeCode = CodingAssets.endEscapeCode
 styleCodes = CodingAssets.styleCodes
 colorCodes = CodingAssets.colorCodes
-mobInfo = CodingAssets.mobInfo
 assets = CodingAssets.assets
 
 
@@ -585,10 +584,32 @@ def getStrWidthAndHeight(itemStr: str) -> tuple:
     return (longestRowLen, len(splitItem))
 
 
-def updateItemFrame(item: str, newFrame: int) -> None:
+def changeCurrentItemFrame(item: str, newFrame: int) -> None:
     itemObjects[item]["current frame"] = newFrame
     updateItemSize(item)
     updateItemLocation(item)
+
+
+def changeItemFrameContent(
+    item: str,
+    newFrameContents: str | list,
+    selectedFrame: int = 0,
+    specificFrame: bool = False,
+) -> None:
+    if specificFrame == False:
+        if newFrameContents is str:
+            itemObjects[item]["animation frame"][selectedFrame] = newFrameContents
+        else:
+            addDebugMessage(
+                "changeItemFrameContent() received incorrect type for variable newFrameContents."
+            )
+    elif specificFrame == True:
+        if newFrameContents is list:
+            itemObjects[item]["animation frame"] = newFrameContents
+        else:
+            addDebugMessage(
+                "changeItemFrameContent() received incorrect type for variable newFrameContents."
+            )
 
 
 def moveItem(item: str, x: int = 0, y: int = 0) -> None:

@@ -598,7 +598,9 @@ def changeItemFrameContent(
 ) -> None:
     if specificFrame == True:
         if isinstance(newFrameContents, str):
-            itemObjects[item]["animation frames"][selectedFrame] = newFrameContents
+            itemObjects[item]["animation frames"][selectedFrame] = copy.deepcopy(
+                newFrameContents
+            )
         else:
             addDebugMessage(
                 "changeItemFrameContent() received incorrect type for variable newFrameContents. Type should be: str, but received type:"
@@ -607,7 +609,7 @@ def changeItemFrameContent(
             )
     elif specificFrame == False:
         if isinstance(newFrameContents, list):
-            itemObjects[item]["animation frames"] = newFrameContents
+            itemObjects[item]["animation frames"] = copy.deepcopy(newFrameContents)
         else:
             addDebugMessage(
                 "changeItemFrameContent() received incorrect type for variable newFrameContents. Type should be: list, but received type:"

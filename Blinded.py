@@ -599,7 +599,7 @@ def PhaseChange(Phase: str):
             # )
         YiPyterminal.createItem(
             "enemy information box",
-            YiPyterminal.ASSETS["enemy information box"],
+            copy.deepcopy(YiPyterminal.ASSETS["enemy information box"]),
             parentAnchor="right center",
             childAnchor="right center",
         )
@@ -1455,16 +1455,9 @@ while True:
             elif selectedViewMobOption != None:
                 selectedViewMobOption=clickedMobOption
             selectedViewMobOption=int(selectedViewMobOption[-1])-1
-            YiPyterminal.ASSETS["enemy information box"][1]=YiPyterminal.ASSETS["enemy information box"][2] 
-            #! Above is a patch for a bug I can't solve so it may resurfce in the furture. 
-            #! The bug is where even after deep copying the enemies info template (YiPyterminal.assets["enemy information box"][1]) into a varible and then using .replace on the varible the original would still be affected. 
-            #! Sometimes the enemies info template is affected by the .replace() but the varible isn'.t
-            #! Please look into it!
-            import Assets.CodingAssets as CodingAssets
-            enemyInformationBox=CodingAssets.ASSETS["enemy information box"].copy()
             YiPyterminal.changeItemFrameContent(
                 "enemy information box",
-                enemyInformationBox[1]
+                YiPyterminal.ASSETS["enemy information box"][1]
                 .replace(">      PLACEHOLDERNAME       <",str(mobsStatus[selectedViewMobOption]["Name"]).center(30))
                 .replace("[hp]",str(mobsStatus[selectedViewMobOption]["Stats"]["CurrentHp"]))
                 .replace("[max hp]",str(mobsStatus[selectedViewMobOption]["Stats"]["MaxHealth"]))
@@ -1479,9 +1472,6 @@ while True:
                 .replace("[true def]",str(mobsStatus[selectedViewMobOption]["Stats"]["TrueDefence"]))
                 ,1)
             YiPyterminal.changeCurrentItemFrame("enemy information box",1)
-            print(enemyInformationBox[1])
-            print(CodingAssets.ASSETS["enemy information box"][1])
-            exit()
         if selectedAttack != None and selectedMobNum != None:
             mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] -= (
                 attacks[selectedAttack]["BasePowerMelee"]
@@ -1557,7 +1547,7 @@ while True:
             "enemy information box",
         ]:
             YiPyterminal.renderItem(item, screenLimits=None)
-        YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"])+"|")
+        YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"]))
     if keyboard.is_pressed("v"):
         RiseEnchantBool = True
         Enchants = True

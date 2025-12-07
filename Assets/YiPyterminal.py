@@ -270,7 +270,7 @@ def createItem(
         if name in itemObjects:
             return None
     itemObjects[name] = {
-        "animation frames": animationFrames,
+        "animation frames": copy.deepcopy(animationFrames),
         "x": None,
         "y": None,
         "x bias": xBias,

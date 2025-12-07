@@ -905,7 +905,6 @@ pyterm.createItem("LevelUpText", [assets.get("LevelUpText")], "screen", "center"
 pyterm.createItem("LevelUpHover", [assets.get("LevelUpHover" + str(i + 1)) for i in range(6)], "screen", "top left", "top left", 0, 0, 0)
 LevelUp = False
 
-# PhaseChange("battle")
 #Enchanting
 Enchants = False
 pyterm.createItem("Enchant", [assets.get("Enchanting")], "screen", "center", "center", 0, 0, -11)
@@ -932,7 +931,15 @@ CastedSpells = {"Poisoning": [(27, 27), (80, 34), (27, 37), (69, 46), (53, 26)],
                 "Dev": [(24, 27), (23, 35), (77, 27), (77, 35), (24, 41), (37, 46), (61, 47), (75, 41), (37, 27), (37, 39), (63, 39), (61, 27), (49, 27), (23, 46), (83, 46), (48, 35)]}
 #
 
-PhaseChange("battle")
+pyterm.createItem("HomeEnchant", [assets.get("EnchantHome")], "screen", "center", "center", 0, -35, -8)
+pyterm.createItem("HomeCraft", [assets.get("CraftHome")], "screen", "center", "center", 0, 35, -7)
+pyterm.createItem("HomeShop", [assets.get("ShopHome")], "screen", "center", "center", 0, -35, 9)
+pyterm.createItem("RoomUi", [assets.get("RoomUi")], "screen", "center", "center", 0, 0, 16)
+pyterm.createItem("HomeResearch", [assets.get("ResearchHome")], "screen", "center", "center", 0, 35, 8)
+pyterm.createItem("Altar", [assets.get("Altar")], "screen", "center", "center", 0, 0, 0)
+
+
+PhaseChange("map")
 
 YiPyterminal.initializeTerminal(1, character_size) 
 YiPyterminal.startAsynchronousMouseListener()
@@ -1305,9 +1312,13 @@ while True:
         pyterm.renderItem("RoomSize", screenLimits= (999, 999))
 
         if RoomData[EnteredRoom]["Type"] is "Home":
-            room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#", "\\", "/", "O", "◉", ">", "<", "."]
-            pyterm.createItem("aA", [assets.get("EnchantHome")], "screen", "center", "center")
-            pyterm.renderItem("aA")
+            room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#", "\\", "/", "O", "◉", ">", "<", ".", "[", "]", "{", "}", "="]
+            pyterm.renderItem("HomeEnchant")
+            pyterm.renderItem("HomeCraft")
+            pyterm.renderItem("HomeShop")
+            pyterm.renderItem("RoomUi")
+            pyterm.renderItem("HomeResearch")
+            pyterm.renderItem("Altar")
 
         pyterm.renderItem("PlayerMove", xBias = round(player_x), yBias = round(player_y))
 

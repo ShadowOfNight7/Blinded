@@ -35,7 +35,7 @@ def AttackAim():
                 AimTarget.remove(i)
                 RemoveButton(i["Id"])
     return score
-
+#Targets
 def CreateButton(point1: tuple, point2: tuple, id):
     buttons.append({"Point1": point1, "Point2": point2, "Id": id})
 
@@ -81,7 +81,7 @@ def CircleStay(Range: tuple, Duration: int, Speed: float, Unpredictability: int)
     if circleStay["Time"] <= 0:
         return False
     return True
-
+#CircleStay
 def AimMinigame(Speedrange: tuple, Repeats = 1):
     global score, clickbuffer
     if aimMinigame["Repeats"] == 0:
@@ -112,7 +112,7 @@ def AimMinigame(Speedrange: tuple, Repeats = 1):
         if aimMinigame["Repeats"] == 0:
             return True
     return False
-
+#Aim
 def KeyboardMinigame(Inputs: list, Speed: int, Time: int):
     global score
     if keyboardMinigame["TotalTime"] <= 0:
@@ -143,7 +143,7 @@ def KeyboardMinigame(Inputs: list, Speed: int, Time: int):
     if keyboardMinigame["TotalTime"] <= 0:
         return True
     return False
-
+#Keyboard
 def Spam(Time: int, Type = 32, Message = "Spam Spacebar!"):
     global score
     if spamMinigame["Time"] <= 0:
@@ -156,7 +156,7 @@ def Spam(Time: int, Type = 32, Message = "Spam Spacebar!"):
     if spamMinigame["Time"] <= 0:
         return True
     return False
-    
+#Spam
 def SimonSays(Amount: int, InitialSpeed: int, Time: int):
     global score, location, Previous
     if simonSays["Time"] == 0:
@@ -223,7 +223,7 @@ def SimonSays(Amount: int, InitialSpeed: int, Time: int):
         if simonSays["Time"] == 0:
             return True
     return False
-
+#SimonSays
 
 def BlackHole(Range: float, Strength: float, Unpredictability: int, Time: int):
     global score, character_size
@@ -244,7 +244,7 @@ def BlackHole(Range: float, Strength: float, Unpredictability: int, Time: int):
     blackHole["Time"] -= 1
     if blackHole["Time"] == 0:
         return True
-
+#BlackHole
 def Reaction(TimeRange: float, Repetitions: int):
     global score
     if reaction["Repetitions"] == 0:
@@ -264,7 +264,7 @@ def Reaction(TimeRange: float, Repetitions: int):
     if reaction["Repetitions"] == 0:
         return True
     return False
-
+#Reaction
 def Shielded(Range: float, Time: int, Unpredictability: int, MaxWait: int):
     global score, location
     if shielded["Time"] == 0:
@@ -281,10 +281,10 @@ def Shielded(Range: float, Time: int, Unpredictability: int, MaxWait: int):
     if shielded["Time"] <= 0:
         return True
     return False
-
+#Shielded
 def KeyboardDefend(Range: float, Inputs: list, Speed: int, Time: int, SpawnSpeed: int):
     ""
-
+#KeyboardDefend
 def CircleDefend(SpawnRate: int, SpeedRange: float, Time: int):
     global score, location
     if circleDefend["Time"] <= 0:
@@ -318,7 +318,7 @@ def CircleDefend(SpawnRate: int, SpeedRange: float, Time: int):
     if circleDefend["Time"] <= 0:
         return True
     return False
-
+#CircleDefend
 def MouseMinigame(Speed: int, Time: int):
     global score
     Inputs = ["Left", "Right", "Middle", "Not Left", "Not Right", "Not Middle", "Not Left Or Right"]
@@ -367,7 +367,7 @@ def MouseMinigame(Speed: int, Time: int):
     if mouseMinigame["TotalTime"] <= 0:
         return True
     return False
-
+#Mouse
 def DodgeGrid(Character: str, SpeedRange: float, Time: int, SpawnRate: int, InverseBias = 10):
     global score, dodgeGrid
     if dodgeGrid["Time"] <= 0:
@@ -419,7 +419,7 @@ def DodgeGrid(Character: str, SpeedRange: float, Time: int, SpawnRate: int, Inve
     if dodgeGrid["Time"] <= 0:
         return True
     return False
-
+#DodgeGrid
 def TrackingMinigame(Character: int, SpawnRate: int, SpeedRange: float, DespawnRate: int, Time: int):
     global score, trackingMinigame, location
     if trackingMinigame["Time"] <= 0:
@@ -484,7 +484,7 @@ def TrackingMinigame(Character: int, SpawnRate: int, SpeedRange: float, DespawnR
     if trackingMinigame["Time"] <= 0:
         return True
     return False
-
+#Rain
 
 trackingMinigame = {"Location": [0, 0], "Character": "", "Hurt": [], "Time": 0, "SpeedRange": (0, 0), "SpawnRate": 0, "DespawnRate": 0}
 

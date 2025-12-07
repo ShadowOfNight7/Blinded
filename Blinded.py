@@ -72,13 +72,13 @@ def PhaseChange(Phase: str):
             mobsStatus[mobNum] = enemies[mobsStatus[mobNum]]
         YiPyterminal.createItem(
             "center barrier",
-            YiPyterminal.assets["center barrier"],
+            YiPyterminal.ASSETS["center barrier"],
             parentAnchor="bottom center",
             childAnchor="bottom center",
         )
         YiPyterminal.createItem(
             "items button",
-            YiPyterminal.assets["items button"],
+            YiPyterminal.ASSETS["items button"],
             parentObject="center barrier",
             parentAnchor="left center",
             childAnchor="right center",
@@ -86,7 +86,7 @@ def PhaseChange(Phase: str):
         )
         YiPyterminal.createItem(
             "information button",
-            YiPyterminal.assets["information button"],
+            YiPyterminal.ASSETS["information button"],
             parentObject="center barrier",
             parentAnchor="right center",
             childAnchor="left center",
@@ -94,7 +94,7 @@ def PhaseChange(Phase: str):
         )
         YiPyterminal.createItem(
             "left center barrier",
-            YiPyterminal.assets["center barrier"],
+            YiPyterminal.ASSETS["center barrier"],
             parentObject="items button",
             parentAnchor="left center",
             childAnchor="right center",
@@ -102,7 +102,7 @@ def PhaseChange(Phase: str):
         )
         YiPyterminal.createItem(
             "right center barrier",
-            YiPyterminal.assets["center barrier"],
+            YiPyterminal.ASSETS["center barrier"],
             parentObject="information button",
             parentAnchor="right center",
             childAnchor="left center",
@@ -110,7 +110,7 @@ def PhaseChange(Phase: str):
         )
         YiPyterminal.createItem(
             "fight button",
-            YiPyterminal.assets["fight button"],
+            YiPyterminal.ASSETS["fight button"],
             parentObject="left center barrier",
             parentAnchor="left center",
             childAnchor="right center",
@@ -118,7 +118,7 @@ def PhaseChange(Phase: str):
         )
         YiPyterminal.createItem(
             "mercy button",
-            YiPyterminal.assets["mercy button"],
+            YiPyterminal.ASSETS["mercy button"],
             parentObject="right center barrier",
             parentAnchor="right center",
             childAnchor="left center",
@@ -126,7 +126,7 @@ def PhaseChange(Phase: str):
         )
         YiPyterminal.createItem(
             "left barrier",
-            YiPyterminal.assets["left barrier"],
+            YiPyterminal.ASSETS["left barrier"],
             parentObject="fight button",
             parentAnchor="left center",
             childAnchor="right center",
@@ -134,7 +134,7 @@ def PhaseChange(Phase: str):
         )
         YiPyterminal.createItem(
             "right barrier",
-            YiPyterminal.assets["right barrier"],
+            YiPyterminal.ASSETS["right barrier"],
             parentObject="mercy button",
             parentAnchor="right center",
             childAnchor="left center",
@@ -155,7 +155,7 @@ def PhaseChange(Phase: str):
                 YiPyterminal.createItem(
                     box,
                     [
-                        YiPyterminal.assets[box][0]
+                        YiPyterminal.ASSETS[box][0]
                         .replace(">        PLACEHOLDER1        <", _attacks[0])
                         .replace(">        PLACEHOLDER2        <", _attacks[1])
                         .replace(">        PLACEHOLDER3        <", _attacks[2])
@@ -276,7 +276,7 @@ def PhaseChange(Phase: str):
             else:
                 YiPyterminal.createItem(
                     box,
-                    YiPyterminal.assets[box],
+                    YiPyterminal.ASSETS[box],
                     parentObject="center barrier",
                     parentAnchor="top center",
                     childAnchor="top center",
@@ -284,7 +284,7 @@ def PhaseChange(Phase: str):
 
         YiPyterminal.createItem(
             "enemy selection box",
-            YiPyterminal.assets["enemy selection box"],
+            YiPyterminal.ASSETS["enemy selection box"],
             parentAnchor="left center",
             childAnchor="left center",
         )
@@ -302,11 +302,11 @@ def PhaseChange(Phase: str):
                     + ("> " + mobsStatus[0]["Name"] + " <").center(30)
                     + "\n"
                     + " " * 30,
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <",
                         mobsStatus[0]["Name"].center(26),
                     ),
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <",
                         ("> " + mobsStatus[0]["Name"] + " <").center(26),
                     ),
@@ -343,10 +343,10 @@ def PhaseChange(Phase: str):
                     + ("> " + mobsStatus[1]["Name"] + " <").center(30)
                     + "\n"
                     + " " * 30,
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <", mobsStatus[1]["Name"].center(26)
                     ),
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <",
                         ("> " + mobsStatus[1]["Name"] + " <").center(26),
                     ),
@@ -383,10 +383,10 @@ def PhaseChange(Phase: str):
                     + ("> " + mobsStatus[2]["Name"] + " <").center(30)
                     + "\n"
                     + " " * 30,
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <", mobsStatus[2]["Name"].center(26)
                     ),
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <",
                         ("> " + mobsStatus[2]["Name"] + " <").center(26),
                     ),
@@ -423,10 +423,10 @@ def PhaseChange(Phase: str):
                     + ("> " + mobsStatus[3]["Name"] + " <").center(30)
                     + "\n"
                     + " " * 30,
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <", mobsStatus[3]["Name"].center(26)
                     ),
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <",
                         ("> " + mobsStatus[3]["Name"] + " <").center(26),
                     ),
@@ -463,10 +463,10 @@ def PhaseChange(Phase: str):
                     + ("> " + mobsStatus[4]["Name"] + " <").center(30)
                     + "\n"
                     + " " * 30,
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <", mobsStatus[4]["Name"].center(26)
                     ),
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <",
                         ("> " + mobsStatus[4]["Name"] + " <").center(26),
                     ),
@@ -503,10 +503,10 @@ def PhaseChange(Phase: str):
                     + ("> " + mobsStatus[5]["Name"] + " <").center(30)
                     + "\n"
                     + " " * 30,
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <", mobsStatus[5]["Name"].center(26)
                     ),
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <",
                         ("> " + mobsStatus[5]["Name"] + " <").center(26),
                     ),
@@ -543,10 +543,10 @@ def PhaseChange(Phase: str):
                     + ("> " + mobsStatus[6]["Name"] + " <").center(30)
                     + "\n"
                     + " " * 30,
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <", mobsStatus[6]["Name"].center(26)
                     ),
-                    YiPyterminal.assets["enemy selection option"][0].replace(
+                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
                         ">                        <",
                         ("> " + mobsStatus[6]["Name"] + " <").center(26),
                     ),
@@ -599,7 +599,7 @@ def PhaseChange(Phase: str):
             # )
         YiPyterminal.createItem(
             "enemy information box",
-            YiPyterminal.assets["enemy information box"],
+            YiPyterminal.ASSETS["enemy information box"],
             parentAnchor="right center",
             childAnchor="right center",
         )
@@ -1455,12 +1455,13 @@ while True:
             elif selectedViewMobOption != None:
                 selectedViewMobOption=clickedMobOption
             selectedViewMobOption=int(selectedViewMobOption[-1])-1
-            YiPyterminal.assets["enemy information box"][1]=YiPyterminal.assets["enemy information box"][2] 
+            YiPyterminal.ASSETS["enemy information box"][1]=YiPyterminal.ASSETS["enemy information box"][2] 
             #! Above is a patch for a bug I can't solve so it may resurfce in the furture. 
             #! The bug is where even after deep copying the enemies info template (YiPyterminal.assets["enemy information box"][1]) into a varible and then using .replace on the varible the original would still be affected. 
             #! Sometimes the enemies info template is affected by the .replace() but the varible isn'.t
             #! Please look into it!
-            enemyInformationBox=YiPyterminal.assets["enemy information box"].copy()
+            import Assets.CodingAssets as CodingAssets
+            enemyInformationBox=CodingAssets.ASSETS["enemy information box"].copy()
             YiPyterminal.changeItemFrameContent(
                 "enemy information box",
                 enemyInformationBox[1]
@@ -1478,6 +1479,9 @@ while True:
                 .replace("[true def]",str(mobsStatus[selectedViewMobOption]["Stats"]["TrueDefence"]))
                 ,1)
             YiPyterminal.changeCurrentItemFrame("enemy information box",1)
+            print(enemyInformationBox[1])
+            print(CodingAssets.ASSETS["enemy information box"][1])
+            exit()
         if selectedAttack != None and selectedMobNum != None:
             mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] -= (
                 attacks[selectedAttack]["BasePowerMelee"]

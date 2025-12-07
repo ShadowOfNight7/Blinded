@@ -32,7 +32,7 @@ threadingLock = threading.Lock()
 endEscapeCode = CodingAssets.endEscapeCode
 styleCodes = CodingAssets.styleCodes
 colorCodes = CodingAssets.colorCodes
-assets = CodingAssets.assets
+ASSETS = CodingAssets.ASSETS
 
 
 # Functions: Terminal Initialization

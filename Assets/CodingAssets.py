@@ -2,16 +2,16 @@ itemObjects = {
     "example target": {
         "animation frames": [
             """
-šššš|šššš
-šššš|šššš
+šššš│šššš
+šššš│šššš
 ----+----
-šššš|šššš
-šššš|šššš
+šššš│šššš
+šššš│šššš
 """,
             """
-šš|šš
+šš│šš
 --+--
-šš|šš
+šš│šš
 """,
             """
 +
@@ -212,44 +212,138 @@ assets = {
 ├──────────────────────────────┼──────────────────────────────┼──────────────────────────────┼──────────────────────────────┤
 │>        PLACEHOLDER5        <│>        PLACEHOLDER6        <│>        PLACEHOLDER7        <│>        PLACEHOLDER8        <│"""
     ],
-    "turn order box": [
-        """
-──────────────────────────────┐
-          Turn Order          │
+    "enemy selection box": [
+        """──────────────────────────────┐
+                              │
+>        PLACEHOLDER1        <│
+                              │
 ──────────────────────────────┤
                               │
-             enemy            │
+>        PLACEHOLDER2        <│
+                              │╲
+──────────────────────────────┼─╲
+                              │ E╲
+>        PLACEHOLDER3        <│ N │
+                              │ E │
+──────────────────────────────┤ M │
+                              │ Y │
+>        PLACEHOLDER4        <│   │
+                              │ S │
+──────────────────────────────┤ E │
+                              │ L │
+>        PLACEHOLDER5        <│ E │
+                              │ C │
+──────────────────────────────┤ T │
+                              │ I │
+>        PLACEHOLDER6        <│ O │
+                              │ N╱
+──────────────────────────────┼─╱
+                              │╱
+>        PLACEHOLDER7        <│
                               │
-──────────────────────────────┼╲
-                              │ ╲
-             enemy            │  ╲
-                              │   ╲
-──────────────────────────────┼    ╲
-                              │     │
-             enemy            │  ↻  │
-                              │     │
-──────────────────────────────┼────╱
-                              │   ╱
-             enemy            │  ╱
-                              │ ╱
-──────────────────────────────┼╱
+──────────────────────────────┤
                               │
-             enemy            │
+>        PLACEHOLDER8        <│
                               │
-──────────────────────────────┼ 
-                              │
-             enemy            │
-                              │
-──────────────────────────────┼
-                              │
-             enemy            │
-                              │
-──────────────────────────────┼
-                              │
-             enemy            │
-                              │
-──────────────────────────────┘
-    """
+──────────────────────────────┘"""
+    ],
+    "enemy selection option": [
+        """ ╔                          ╗ 
+ ║>                        <║ 
+ ╚                          ╝ """,
+    ],
+    "enemy information box": [
+        """┌──────────────────────────────
+│             ...
+├──────────────────────────────
+│ Select an enemy on the left
+│ to attack and view
+│ information...
+│
+│
+│
+│
+│
+│
+│
+│
+│
+│
+│
+│
+│
+│
+│
+│
+└──────────────────────────────""",
+        """┌──────────────────────────────
+│>      PLACEHOLDERNAME       <
+├──────────────────────────────
+│ Health: [hp]/[max hp]
+│
+│ Health Regen: [hp regen]
+│
+│ Defence: [def]
+│
+│ Magic Defence: [magic def]
+│
+│ Strength: [strength]
+│
+│ Magic Power: [magic power]
+│
+│ Critical Chance: [crit chance]
+│
+│ Critical Power: [crit power]
+│
+│ True Attack: [true attack]
+│
+│ True Defence: [true def]
+└──────────────────────────────""",
+        """┌──────────────────────────────
+│>      PLACEHOLDERNAME       <
+├──────────────────────────────
+│ Health: [hp]/[max hp]
+│
+│ Health Regen: [hp regen]
+│
+│ Defence: [def]
+│
+│ Magic Defence: [magic def]
+│
+│ Strength: [strength]
+│
+│ Magic Power: [magic power]
+│
+│ Critical Chance: [crit chance]
+│
+│ Critical Power: [crit power]
+│
+│ True Attack: [true attack]
+│
+│ True Defence: [true def]
+└──────────────────────────────""",
+    ],
+    "mercy bar": [
+        """
+     ┌──────│
+     │  ┌───│
+   ╱┬┴──┴┬  │
+  ╱ │    │  │
+ ╱  │    │  │
+╱   │    │  │
+│ M │    │  │
+│ E │    │  │
+│ R │    │  │
+│ C │░░░░│  │
+│ Y │▓▓▓▓│  │
+╲   │████│  │
+ ╲  │████│  │
+  ╲ │████│  │
+   ╲┴┬──┬┴  │
+     │  └───│
+     └──────│
+
+"""
     ],
     "Slime": [
         R"""

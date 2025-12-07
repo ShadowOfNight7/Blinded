@@ -60,16 +60,16 @@ def PhaseChange(Phase: str):
     elif phase.lower() == "puzzletext":
         pass
     elif phase.lower() == "battle":
-        global mobsStatus, currentMobNum
-        mobsStatus = ["Slime"]
-        currentMobNum = 0
+        global mobsStatus, currentMob, selectedButton, clickedMobOption, hoveredMobOption, selectedAttack, selectedMobNum
+        selectedButton = None
+        clickedMobOption = None
+        hoveredMobOption = None
+        selectedAttack = None
+        selectedMobNum = None
+        mobsStatus = ["Slime", "Slime2"]
+        currentMob = 0
         for mobNum in range(len(mobsStatus)):
-            YiPyterminal.createItem(
-                mobsStatus[mobNum]["name"],
-                YiPyterminal.mobInfo[mobsStatus[mobNum]["name"]]["animation frames"],
-                parentAnchor="center",
-                childAnchor="center",
-            )
+            mobsStatus[mobNum] = enemies[mobsStatus[mobNum]]
         YiPyterminal.createItem(
             "center barrier",
             YiPyterminal.assets["center barrier"],
@@ -144,10 +144,10 @@ def PhaseChange(Phase: str):
             if box == "fight box":
                 _attacks = []
                 for attackNum in range(8):
-                    if EquippedAttacks["Attack" + str(attackNum)] == None:
+                    if LockedAttacks["Attack" + str(attackNum)] == True:
+                        _attacks.append("LOCKED".center(30))
+                    elif EquippedAttacks["Attack" + str(attackNum)] == None:
                         _attacks.append("".center(30))
-                    elif LockedAttacks["Attack" + str(attackNum)] == True:
-                        _attacks.append("🔒".center(30))
                     else:
                         _attacks.append(
                             EquippedAttacks["Attack" + str(attackNum)].center(30)
@@ -172,7 +172,7 @@ def PhaseChange(Phase: str):
                 YiPyterminal.createItem(
                     "attack option 1",
                     [
-                        "".center(30, "#"),
+                        "".center(30, "š"),
                         "š>šššššššššššššššššššššššššš<š",
                     ],
                     parentObject="fight box",
@@ -185,7 +185,7 @@ def PhaseChange(Phase: str):
                 YiPyterminal.createItem(
                     "attack option 2",
                     [
-                        "".center(30, "#"),
+                        "".center(30, "š"),
                         "š>šššššššššššššššššššššššššš<š",
                     ],
                     parentObject="fight box",
@@ -281,6 +281,328 @@ def PhaseChange(Phase: str):
                     parentAnchor="top center",
                     childAnchor="top center",
                 )
+
+        YiPyterminal.createItem(
+            "enemy selection box",
+            YiPyterminal.assets["enemy selection box"],
+            parentAnchor="left center",
+            childAnchor="left center",
+        )
+        if len(mobsStatus) >= 1:
+            YiPyterminal.createItem(
+                "enemy selection option 1",
+                [
+                    " " * 30
+                    + "\n"
+                    + mobsStatus[0]["Name"].center(30)
+                    + "\n"
+                    + " " * 30,
+                    " " * 30
+                    + "\n"
+                    + ("> " + mobsStatus[0]["Name"] + " <").center(30)
+                    + "\n"
+                    + " " * 30,
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <",
+                        mobsStatus[0]["Name"].center(26),
+                    ),
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <",
+                        ("> " + mobsStatus[0]["Name"] + " <").center(26),
+                    ),
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=1,
+            )
+        else:
+            YiPyterminal.createItem(
+                "enemy selection option 1",
+                [
+                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=1,
+            )
+        if len(mobsStatus) >= 2:
+            YiPyterminal.createItem(
+                "enemy selection option 2",
+                [
+                    " " * 30
+                    + "\n"
+                    + mobsStatus[1]["Name"].center(30)
+                    + "\n"
+                    + " " * 30,
+                    " " * 30
+                    + "\n"
+                    + ("> " + mobsStatus[1]["Name"] + " <").center(30)
+                    + "\n"
+                    + " " * 30,
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <", mobsStatus[1]["Name"].center(26)
+                    ),
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <",
+                        ("> " + mobsStatus[1]["Name"] + " <").center(26),
+                    ),
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=5,
+            )
+        else:
+            YiPyterminal.createItem(
+                "enemy selection option 2",
+                [
+                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=5,
+            )
+        if len(mobsStatus) >= 3:
+            YiPyterminal.createItem(
+                "enemy selection option 3",
+                [
+                    " " * 30
+                    + "\n"
+                    + mobsStatus[2]["Name"].center(30)
+                    + "\n"
+                    + " " * 30,
+                    " " * 30
+                    + "\n"
+                    + ("> " + mobsStatus[2]["Name"] + " <").center(30)
+                    + "\n"
+                    + " " * 30,
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <", mobsStatus[2]["Name"].center(26)
+                    ),
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <",
+                        ("> " + mobsStatus[2]["Name"] + " <").center(26),
+                    ),
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=9,
+            )
+        else:
+            YiPyterminal.createItem(
+                "enemy selection option 3",
+                [
+                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=9,
+            )
+        if len(mobsStatus) >= 4:
+            YiPyterminal.createItem(
+                "enemy selection option 4",
+                [
+                    " " * 30
+                    + "\n"
+                    + mobsStatus[3]["Name"].center(30)
+                    + "\n"
+                    + " " * 30,
+                    " " * 30
+                    + "\n"
+                    + ("> " + mobsStatus[3]["Name"] + " <").center(30)
+                    + "\n"
+                    + " " * 30,
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <", mobsStatus[3]["Name"].center(26)
+                    ),
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <",
+                        ("> " + mobsStatus[3]["Name"] + " <").center(26),
+                    ),
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=13,
+            )
+        else:
+            YiPyterminal.createItem(
+                "enemy selection option 4",
+                [
+                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=13,
+            )
+        if len(mobsStatus) >= 5:
+            YiPyterminal.createItem(
+                "enemy selection option 5",
+                [
+                    " " * 30
+                    + "\n"
+                    + mobsStatus[4]["Name"].center(30)
+                    + "\n"
+                    + " " * 30,
+                    " " * 30
+                    + "\n"
+                    + ("> " + mobsStatus[4]["Name"] + " <").center(30)
+                    + "\n"
+                    + " " * 30,
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <", mobsStatus[4]["Name"].center(26)
+                    ),
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <",
+                        ("> " + mobsStatus[4]["Name"] + " <").center(26),
+                    ),
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=17,
+            )
+        else:
+            YiPyterminal.createItem(
+                "enemy selection option 5",
+                [
+                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=17,
+            )
+        if len(mobsStatus) >= 6:
+            YiPyterminal.createItem(
+                "enemy selection option 6",
+                [
+                    " " * 30
+                    + "\n"
+                    + mobsStatus[5]["Name"].center(30)
+                    + "\n"
+                    + " " * 30,
+                    " " * 30
+                    + "\n"
+                    + ("> " + mobsStatus[5]["Name"] + " <").center(30)
+                    + "\n"
+                    + " " * 30,
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <", mobsStatus[5]["Name"].center(26)
+                    ),
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <",
+                        ("> " + mobsStatus[5]["Name"] + " <").center(26),
+                    ),
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=21,
+            )
+        else:
+            YiPyterminal.createItem(
+                "enemy selection option 6",
+                [
+                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=21,
+            )
+        if len(mobsStatus) >= 7:
+            YiPyterminal.createItem(
+                "enemy selection option 7",
+                [
+                    " " * 30
+                    + "\n"
+                    + mobsStatus[6]["Name"].center(30)
+                    + "\n"
+                    + " " * 30,
+                    " " * 30
+                    + "\n"
+                    + ("> " + mobsStatus[6]["Name"] + " <").center(30)
+                    + "\n"
+                    + " " * 30,
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <", mobsStatus[6]["Name"].center(26)
+                    ),
+                    YiPyterminal.assets["enemy selection option"][0].replace(
+                        ">                        <",
+                        ("> " + mobsStatus[6]["Name"] + " <").center(26),
+                    ),
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=25,
+            )
+        else:
+            YiPyterminal.createItem(
+                "enemy selection option 7",
+                [
+                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+                ],
+                parentObject="enemy selection box",
+                parentAnchor="top center",
+                childAnchor="top center",
+                xBias=-2,
+                yBias=25,
+            )
+
+            # YiPyterminal.createItem("enemy selection option 8",[
+            #         " " * 30 + "\n" + mobsStatus[7]["Name"].center(30) + "\n" + " " * 30,
+            #         " " * 30
+            #         + "\n"
+            #         + ("> " + mobsStatus[7]["Name"] + " <").center(30)
+            #         + "\n"
+            #         + " " * 30,
+            #         YiPyterminal.assets["enemy selection option"][0].replace(
+            #             ">                        <",  mobsStatus[7]["Name"].center(26)
+            #         ),
+            #         YiPyterminal.assets["enemy selection option"][0].replace(
+            #             ">                        <",
+            #             ("> " + mobsStatus[7]["Name"] + " <").center(26),
+            #         ),
+            #     ],parentObject="enemy selection box",parentAnchor="top center",childAnchor="top center",xBias=-2,yBias=29,)
+            # else:
+            # YiPyterminal.createItem(
+            #     "enemy selection option 8",
+            #     [
+            #         " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+            #     ],
+            #     parentObject="enemy selection box",
+            #     parentAnchor="top center",
+            #     childAnchor="top center",
+            #     xBias=-2,
+            #     yBias=29,
+            # )
+        YiPyterminal.createItem(
+            "enemy information box",
+            YiPyterminal.assets["enemy information box"],
+            parentAnchor="right center",
+            childAnchor="right center",
+        )
 
 
 # fmt: off
@@ -511,7 +833,7 @@ Inventory = {"Armor":
 #sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
 #apple = {"Name": "Apple", "Type": Consumable", "Asset": "", "Effects": [{"Type": Strength, "Time": 3, "Potency": 1, "Apply": "Player"},{"Type": "Damage", "Potency": 999, "Apply": "AllEnemy"}], "Description": "Could be used to make pie", "Id": None}
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
-EquippedAttacks = {"Attack0": "slash", "Attack1": "heal", "Attack2": "focus", "Attack3": None, "Attack4": None, "Attack5": None,"Attack6": None,"Attack7": None,}
+EquippedAttacks = {"Attack0": "Slime Leap", "Attack1": None, "Attack2": None, "Attack3": None, "Attack4": None, "Attack5": None,"Attack6": None,"Attack7": None,}
 LockedAttacks = {"Attack0": False, "Attack1": False, "Attack2": False, "Attack3": False, "Attack4": True, "Attack5": True,"Attack6": True,"Attack7": True,}
 EquippedUltimate = None
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
@@ -529,8 +851,8 @@ level = 1
 experience = 0
 max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(level ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/level ** 3)) + 0.798935) * 100)
 #1 -> 999, 1.1 -> 10k, 10k -> 999k, 1.1mil -> ...
-player = {"Health": 100, "CurrentHp": 100, "Regen": 5,
-          "Defense": 0, "MagicDefense": 0, 
+player = {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
+          "Defence": 0, "MagicDefence": 0, 
           "Strength": 0, "MagicPower": 0, 
           "Dexterity": 100, "CastingSpeed": 100, 
           "Skill": 0, "Intelligence": 0, 
@@ -538,7 +860,7 @@ player = {"Health": 100, "CurrentHp": 100, "Regen": 5,
           "Mana": 100, "Energy": 100, 
           "ManaRegen": 10, "EnergyRegen": 10, 
           "CurrentMana": 100, "CurrentEnergy": 100, 
-          "TrueAttack": 0, "TrueDefense": 0, 
+          "TrueAttack": 0, "TrueDefence": 0, 
           "Effects": [],
           "Passives": []} #{"Stat": "Strength", "Potency": 10, "Time": 10} or {"Stat": "Strength", "Potency": 10, "Time": -2} or {"Stat": "Health", "Potency": -2, "Time": 5, "Special": "Poison"}
 
@@ -560,15 +882,20 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None},
             "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None},
             #Slime (Attack)
-            "Reinforce": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [{"Stat": "Defense", "Potency": 15, "Target": "Self", "Time": 3},{"Stat": "MagicDefense", "Potency": 15, "Target": "Self", "Time": 3}], "Special": None},
+            "Reinforce": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [{"Stat": "Defence", "Potency": 15, "Target": "Self", "Time": 3},{"Stat": "MagicDefence", "Potency": 15, "Target": "Self", "Time": 3}], "Special": None},
             "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None},
             }
 
-enemies = {"Slime": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"Health": 100, "CurrentHp": 100, "Regen": 5,
-          "Defense": 0, "MagicDefense": 0, 
-          "Strength": 0, "MagicPower": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Special": None}
+enemies = {"Slime": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
+          "Defence": 0, "MagicDefence": 0, 
+          "Strength": 0, "MagicPower": 0, "CritChance": 5, "CritPower": 100, "TrueAttack": 0, "TrueDefence": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Special": None}
+,"Slime2": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
+          "Defence": 1, "MagicDefence": 1, 
+          "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Special": None}
 }
-
+for dictionary in [attacks,enemies]:
+    for key in dictionary:
+        dictionary[key]["Name"]=key
 
 
 
@@ -605,7 +932,7 @@ CastedSpells = {"Poisoning": [(27, 27), (80, 34), (27, 37), (69, 46), (53, 26)],
                 "Dev": [(24, 27), (23, 35), (77, 27), (77, 35), (24, 41), (37, 46), (61, 47), (75, 41), (37, 27), (37, 39), (63, 39), (61, 27), (49, 27), (23, 46), (83, 46), (48, 35)]}
 #
 
-PhaseChange("map")
+PhaseChange("battle")
 
 YiPyterminal.initializeTerminal(1, character_size) 
 YiPyterminal.startAsynchronousMouseListener()
@@ -1004,7 +1331,6 @@ while True:
 
     elif phase.lower() == "battle":
         Ui = False
-        YiPyterminal.renderItem(mobsStatus[currentMobNum]["name"])
         for button in [
             "items button",
             "information button",
@@ -1066,7 +1392,7 @@ while True:
             else:
                 if YiPyterminal.itemObjects[box]["y bias"] < 0:
                     YiPyterminal.moveItem(box, y=1)
-        for option in [
+        attackOptions=[
             "attack option 1",
             "attack option 2",
             "attack option 3",
@@ -1074,14 +1400,125 @@ while True:
             "attack option 5",
             "attack option 6",
             "attack option 7",
-            "attack option 8",
-        ]:
-            if YiPyterminal.checkItemIsHovered(option) == True:
-                if YiPyterminal.itemObjects[option]["current frame"] == 0:
-                    YiPyterminal.changeCurrentItemFrame(option, 1)
-            else:
-                if YiPyterminal.itemObjects[option]["current frame"] == 1:
-                    YiPyterminal.changeCurrentItemFrame(option, 0)
+            # "attack option 8",
+        ]
+        if YiPyterminal.getBottomCenter("fight box")[1]+1==YiPyterminal.getTopCenter("center barrier")[1]:
+            for optionNum in range(len(attackOptions)):
+                if LockedAttacks["Attack"+str(optionNum)]==False:
+                    if YiPyterminal.checkItemIsHovered(attackOptions[optionNum]) == True:
+                        if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] == 0:
+                            YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 1)
+                    else:
+                        if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] == 1:
+                            YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 0)
+                    if YiPyterminal.checkItemIsClicked(attackOptions[optionNum],onlyCheckRelease=True) == True:
+                        selectedAttack = EquippedAttacks["Attack"+str(optionNum)]
+        hoveredMobOption = None
+        for option in [
+            "enemy selection option 1",
+            "enemy selection option 2",
+            "enemy selection option 3",
+            "enemy selection option 4",
+            "enemy selection option 5",
+            "enemy selection option 6",
+            "enemy selection option 7",
+            # "enemy selection option 8",
+            ]:
+            if len(YiPyterminal.itemObjects[option]["animation frames"])!=1:
+                if YiPyterminal.checkItemIsClicked(option,onlyCheckRelease=True) == True:
+                    if clickedMobOption != option:
+                        clickedMobOption = option
+                        selectedMobNum = int(clickedMobOption[-1])-1
+                    else:
+                        clickedMobOption = None
+                        selectedMobNum = None
+                if YiPyterminal.checkItemIsHovered(option)==True:
+                    hoveredMobOption = option
+                if clickedMobOption == option and hoveredMobOption == option:
+                    if YiPyterminal.itemObjects[option]["current frame"]!=3:
+                        YiPyterminal.changeCurrentItemFrame(option, 3)
+                elif clickedMobOption == option:
+                    if YiPyterminal.itemObjects[option]["current frame"]!=2:
+                        YiPyterminal.changeCurrentItemFrame(option, 2)
+                elif hoveredMobOption == option:
+                    if YiPyterminal.itemObjects[option]["current frame"]!=1:
+                        YiPyterminal.changeCurrentItemFrame(option, 1)
+                else:
+                    if YiPyterminal.itemObjects[option]["current frame"]!=0:
+                        YiPyterminal.changeCurrentItemFrame(option, 0)
+        if hoveredMobOption==None and clickedMobOption==None:
+            if YiPyterminal.itemObjects["enemy information box"]["current frame"]!=0:
+                YiPyterminal.changeCurrentItemFrame("enemy information box",0)
+        else:
+            if hoveredMobOption != None:
+                selectedViewMobOption = hoveredMobOption
+            elif selectedViewMobOption != None:
+                selectedViewMobOption=clickedMobOption
+            selectedViewMobOption=int(selectedViewMobOption[-1])-1
+            YiPyterminal.assets["enemy information box"][1]=YiPyterminal.assets["enemy information box"][2] 
+            #! Above is a patch for a bug I can't solve so it may resurfce in the furture. 
+            #! The bug is where even after deep copying the enemies info template (YiPyterminal.assets["enemy information box"][1]) into a varible and then using .replace on the varible the original would still be affected. 
+            #! Sometimes the enemies info template is affected by the .replace() but the varible isn'.t
+            #! Please look into it!
+            enemyInformationBox=YiPyterminal.assets["enemy information box"].copy()
+            YiPyterminal.changeItemFrameContent(
+                "enemy information box",
+                enemyInformationBox[1]
+                .replace(">      PLACEHOLDERNAME       <",str(mobsStatus[selectedViewMobOption]["Name"]).center(30))
+                .replace("[hp]",str(mobsStatus[selectedViewMobOption]["Stats"]["CurrentHp"]))
+                .replace("[max hp]",str(mobsStatus[selectedViewMobOption]["Stats"]["MaxHealth"]))
+                .replace("[hp regen]",str(mobsStatus[selectedViewMobOption]["Stats"]["Regen"]))
+                .replace("[def]",str(mobsStatus[selectedViewMobOption]["Stats"]["Defence"]))
+                .replace("[magic def]",str(mobsStatus[selectedViewMobOption]["Stats"]["MagicDefence"]))
+                .replace("[strength]",str(mobsStatus[selectedViewMobOption]["Stats"]["Strength"]))
+                .replace("[magic power]",str(mobsStatus[selectedViewMobOption]["Stats"]["MagicPower"]))
+                .replace("[crit chance]",str(mobsStatus[selectedViewMobOption]["Stats"]["CritChance"]))
+                .replace("[crit power]",str(mobsStatus[selectedViewMobOption]["Stats"]["CritPower"]))
+                .replace("[true attack]",str(mobsStatus[selectedViewMobOption]["Stats"]["TrueAttack"]))
+                .replace("[true def]",str(mobsStatus[selectedViewMobOption]["Stats"]["TrueDefence"]))
+                ,1)
+            YiPyterminal.changeCurrentItemFrame("enemy information box",1)
+        if selectedAttack != None and selectedMobNum != None:
+            mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] -= (
+                attacks[selectedAttack]["BasePowerMelee"]
+                * (1 + player["Strength"] / 100)
+                / (1 + mobsStatus[selectedMobNum]["Stats"]["Defence"] / 100)
+                + attacks[selectedAttack]["BasePowerMagic"]
+                * (1 + player["MagicPower"] / 100)
+                / (1 + mobsStatus[selectedMobNum]["Stats"]["MagicDefence"] / 100)
+                + (1 + player["TrueAttack"] / 100)
+                / (1 + mobsStatus[selectedMobNum]["Stats"]["TrueDefence"] / 100)
+            ) * (
+                1
+                + (player["CritPower"] if random.randint(1, 100) <= player["CritChance"] else 0)
+                / 100
+            )
+            selectedAttack = None
+            for mobNum in range(len(mobsStatus)):
+                selectedMobAttack = random.choices(
+                    population=[attack["AttackType"] for attack in mobsStatus[mobNum]["Attacks"]],
+                    weights=[attack["Weight"] for attack in mobsStatus[mobNum]["Attacks"]],
+                    k=1,
+                )[0]
+                player["CurrentHp"] -= (
+                    attacks[selectedMobAttack]["BasePowerMelee"]
+                    * (1 + mobsStatus[selectedMobNum]["Stats"]["Strength"] / 100)
+                    / (1 + player["Defence"] / 100)
+                    + attacks[selectedMobAttack]["BasePowerMagic"]
+                    * (1 + mobsStatus[selectedMobNum]["Stats"]["MagicPower"] / 100)
+                    / (1 + player["MagicDefence"] / 100)
+                    + (1 + mobsStatus[selectedMobNum]["Stats"]["TrueAttack"] / 100)
+                    / (1 + player["TrueDefence"] / 100)
+                ) * (
+                    1
+                    + (
+                        mobsStatus[selectedMobNum]["Stats"]["CritPower"]
+                        if random.randint(1, 100)
+                        <= mobsStatus[selectedMobNum]["Stats"]["CritChance"]
+                        else 0
+                    )
+                    / 100
+                )
         for item in [
             "fight box",
             "attack option 1",
@@ -1104,12 +1541,19 @@ while True:
             "mercy button",
             "left barrier",
             "right barrier",
+            "enemy selection box",
+            "enemy selection option 1",
+            "enemy selection option 2",
+            "enemy selection option 3",
+            "enemy selection option 4",
+            "enemy selection option 5",
+            "enemy selection option 6",
+            "enemy selection option 7",
+            # "enemy selection option 8",
+            "enemy information box",
         ]:
             YiPyterminal.renderItem(item, screenLimits=None)
-        YiPyterminal.createItem("turn order box",[YiPyterminal.assets["turn order box"]])
-        YiPyterminal.renderItem("turn order box")
-
-    
+        YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"])+"|")
     if keyboard.is_pressed("v"):
         RiseEnchantBool = True
         Enchants = True
@@ -1588,8 +2032,8 @@ while True:
                 if LeftClick:
                     player["Health"] += 5
                     player["CurrentHealth"] = player["Health"]
-                    player["Defense"] += 10
-                    player["MagicDefense"] += 10
+                    player["Defence"] += 10
+                    player["MagicDefence"] += 10
                     DisableOther = False
                     LevelUp = False
                     itemObjects["LevelUpTransition"]["current frame"] = 0

@@ -594,21 +594,25 @@ def changeItemFrameContent(
     item: str,
     newFrameContents: str | list,
     selectedFrame: int = 0,
-    specificFrame: bool = False,
+    specificFrame: bool = True,
 ) -> None:
-    if specificFrame == False:
-        if newFrameContents is str:
-            itemObjects[item]["animation frame"][selectedFrame] = newFrameContents
+    if specificFrame == True:
+        if isinstance(newFrameContents, str):
+            itemObjects[item]["animation frames"][selectedFrame] = newFrameContents
         else:
             addDebugMessage(
-                "changeItemFrameContent() received incorrect type for variable newFrameContents."
+                "changeItemFrameContent() received incorrect type for variable newFrameContents. Type should be: str, but received type:"
+                + str(type(newFrameContents))
+                + ". "
             )
-    elif specificFrame == True:
-        if newFrameContents is list:
-            itemObjects[item]["animation frame"] = newFrameContents
+    elif specificFrame == False:
+        if isinstance(newFrameContents, list):
+            itemObjects[item]["animation frames"] = newFrameContents
         else:
             addDebugMessage(
-                "changeItemFrameContent() received incorrect type for variable newFrameContents."
+                "changeItemFrameContent() received incorrect type for variable newFrameContents. Type should be: list, but received type:"
+                + str(type(newFrameContents))
+                + ". "
             )
 
 

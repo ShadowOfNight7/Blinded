@@ -64,7 +64,7 @@ def RemoveButton(ButtonId):
 
 
 
-
+#ReverseAttack functions scores for def
 def Targets(Time: int, Range: tuple, Duration: int, Clickable = True, ScoreMulti = 1):
     global targets, AimTarget
     if targets["Time"] == 0:
@@ -81,6 +81,9 @@ def Targets(Time: int, Range: tuple, Duration: int, Clickable = True, ScoreMulti
         return False
     return True
 #Targets
+# if timed >= 13:
+#AddAttackAim((round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), 20, True)
+#timed = 0
 def CircleStay(Time: int, Range: tuple, Speed: float, Unpredictability: int, ScoreMulti = 1):
     global score, location
     if circleStay["Time"] == 0:
@@ -103,6 +106,7 @@ def CircleStay(Time: int, Range: tuple, Speed: float, Unpredictability: int, Sco
         return False
     return True
 #CircleStay
+#CircleStay(10 * pyterm.fps, (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), 0.5, 25)
 def AimMinigame(Speedrange: tuple, Repeats = 1, ScoreMulti = 1):
     global score, clickbuffer
     if aimMinigame["Repeats"] == 0:
@@ -134,6 +138,7 @@ def AimMinigame(Speedrange: tuple, Repeats = 1, ScoreMulti = 1):
             return True
     return False
 #Aim
+#AimMinigame((3, 5), 12)
 def KeyboardMinigame(Inputs: list, Speed: int, Time: int, ScoreMulti = 1):
     global score
     if keyboardMinigame["TotalTime"] <= 0:
@@ -165,6 +170,7 @@ def KeyboardMinigame(Inputs: list, Speed: int, Time: int, ScoreMulti = 1):
         return True
     return False
 #Keyboard
+#KeyboardMinigame("a b c d e f g h i j k l m n o p q r s t u v w x y z".split(" "), 0.7 * pyterm.fps, 8 * pyterm.fps)
 def Spam(Time: int, Type = 32, Message = "Spam Spacebar!", ScoreMulti = 1):
     global score
     if spamMinigame["Time"] <= 0:
@@ -178,6 +184,8 @@ def Spam(Time: int, Type = 32, Message = "Spam Spacebar!", ScoreMulti = 1):
         return True
     return False
 #Spam
+#Spam(8 * pyterm.fps)
+
 def SimonSays(Amount: int, InitialSpeed: int, Time: int, ScoreMulti = 1):
     global score, location, Previous
     if simonSays["Time"] == 0:
@@ -245,7 +253,7 @@ def SimonSays(Amount: int, InitialSpeed: int, Time: int, ScoreMulti = 1):
             return True
     return False
 #SimonSays
-
+#SimonSays(8, 30, 20 * pyterm.fps)
 def BlackHole(Range: float, Strength: float, Unpredictability: int, Time: int, ScoreMulti = 1):
     global score, character_size
     if blackHole["Time"] == 0:
@@ -266,6 +274,7 @@ def BlackHole(Range: float, Strength: float, Unpredictability: int, Time: int, S
     if blackHole["Time"] == 0:
         return True
 #BlackHole
+#BlackHole((round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), 300, 30, 8.5 * pyterm.fps)
 def Reaction(TimeRange: float, Repetitions: int, ScoreMulti = 1):
     global score
     if reaction["Repetitions"] == 0:
@@ -286,6 +295,7 @@ def Reaction(TimeRange: float, Repetitions: int, ScoreMulti = 1):
         return True
     return False
 #Reaction
+#Reaction((1 * pyterm.fps, 3 * pyterm.fps), 3)
 def Shielded(Range: float, Time: int, Unpredictability: int, MaxWait: int, ScoreMulti = 1):
     global score, location
     if shielded["Time"] == 0:
@@ -303,6 +313,7 @@ def Shielded(Range: float, Time: int, Unpredictability: int, MaxWait: int, Score
         return True
     return False
 #Shielded
+#Shielded((round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), 10 * pyterm.fps, 60, 1 * pyterm.fps)
 def KeyboardDefend(Range: float, Inputs: list, Speed: int, Time: int, SpawnSpeed: int, ScoreMulti = 1):
     ""
 #KeyboardDefend
@@ -340,6 +351,7 @@ def CircleDefend(SpawnRate: int, SpeedRange: float, Time: int, ScoreMulti = 1):
         return True
     return False
 #CircleDefend
+#CircleDefend(0.25 * pyterm.fps, (20, 45), 15 * pyterm.fps)
 def MouseMinigame(Speed: int, Time: int, ScoreMulti = 1):
     global score
     Inputs = ["Left", "Right", "Middle", "Not Left", "Not Right", "Not Middle", "Not Left Or Right"]
@@ -441,6 +453,7 @@ def DodgeGrid(Character: str, SpeedRange: float, Time: int, SpawnRate: int, Inve
         return True
     return False
 #DodgeGrid
+#DodgeGrid("O", (10, 70), 20 * pyterm.fps, 0.025 * pyterm.fps, 4)
 def TrackingMinigame(Character: int, SpawnRate: int, SpeedRange: float, DespawnRate: int, Time: int, ScoreMulti = 1):
     global score, trackingMinigame, location
     if trackingMinigame["Time"] <= 0:
@@ -506,6 +519,7 @@ def TrackingMinigame(Character: int, SpawnRate: int, SpeedRange: float, DespawnR
         return True
     return False
 #Rain
+#TrackingMinigame("O", 0.05 * pyterm.fps, (15, 25), 4 * pyterm.fps, 20 * pyterm.fps)
 
 trackingMinigame = {"Location": [0, 0], "Character": "", "Hurt": [], "Time": 0, "SpeedRange": (0, 0), "SpawnRate": 0, "DespawnRate": 0}
 

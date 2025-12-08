@@ -721,41 +721,40 @@ def PlayerAttack(Attack, Enemy: int):
     mob = mobsStatus[Enemy]
     playercopy = copy.deepcopy(player)
     for effect in playercopy["Effects"]:
-        ""
+        playercopy[effect["Stat"]] += effect["Potency"]
     for passive in playercopy["Passives"]:
-        ""
-    player_maxhealth = ""
-    player_regen = ""
-    player_strength = ""
-    player_magicpower = ""
-    player_trueattack = ""
-    player_defence = ""
-    player_magicdefence = ""
-    player_truedefence = ""
-    player_skill = ""
-    player_intelligence = ""
-    player_castingspeed = ""
-    player_dexterity = ""
-    player_castingspeed = ""
-    player_critchance = ""
-    player_critpower = ""
-    player_energyregen = ""
-    player_manaregen = ""
-    mob["Stats"]["CurrentHp"] -= (
-                attacks[Attack]["BasePowerMelee"]
-                * (1 + player["Strength"] / 100)
-                / (1 + mobsStatus[selectedMobNum]["Stats"]["Defence"] / 100)
-                + attacks[Attack]["BasePowerMagic"]
-                * (1 + player["MagicPower"] / 100)
-                / (1 + mobsStatus[selectedMobNum]["Stats"]["MagicDefence"] / 100)
-                + (1 + player["TrueAttack"] / 100)
-                / (1 + mobsStatus[selectedMobNum]["Stats"]["TrueDefence"] / 100)
-            ) * (
-                1
-                + (player["CritPower"] if random.randint(1, 100) <= player["CritChance"] else 0)
-                / 100
-            )
-    
+        playercopy[passive["Stat"]] += passive["Potency"]
+    #Math
+    crit = (playercopy["CritPower"] if random.randint(1, 100) <= playercopy["CritChance"] else 0)
+    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100)
+    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100)
+    TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100)
+    #After Specials - Lifesteal, Etc
+    if attacks[Attack]["Special"] != None:
+        for special in attacks[Attack]["Special"]:
+            if "Pierce" in special:
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] * (1 - int(special.replace("Pierce", ""))/100) / 100) * (1 + crit / 100)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] * (1 - int(special.replace("Pierce", ""))/100)  / 100) * (1 + crit / 100)
+            elif "Lifesteal" in special:
+                Heal = min(player["Health"] - player["CurrentHealth"], (MagicDamage + MeleeDamage) * int(special.replace("Lifesteal", ""))/100)
+            elif "Critical" in special:
+                crit = (playercopy["CritPower"] if random.randint(1, 100) * (1 - int(special.replace("Critical", ""))/100) <= playercopy["CritChance"] else 0)
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100)
+                TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100)
+            elif "Percent" in special:
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100)
+                TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) + mob["Stats"]["CurrentHealth"] * int(special.replace("Percent", ""))/100
+            elif "Status" in special:
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+                TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+                
+
+
+
+
 
 def EnemyAttack(Attack):
     pass
@@ -926,10 +925,10 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
 
 enemies = {"Slime": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
           "Defence": 0, "MagicDefence": 0, 
-          "Strength": 0, "MagicPower": 0, "CritChance": 5, "CritPower": 100, "TrueAttack": 0, "TrueDefence": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Special": None}
+          "Strength": 0, "MagicPower": 0, "CritChance": 5, "CritPower": 100, "TrueAttack": 0, "TrueDefence": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Effects": [], "Special": None}
 ,"Slime2": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
           "Defence": 1, "MagicDefence": 1, 
-          "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Special": None}
+          "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Effects": [], "Special": None}
 }
 for dictionary in [attacks,enemies]:
     for key in dictionary:
@@ -977,7 +976,7 @@ pyterm.createItem("HomeResearch", [assets.get("ResearchHome")], "screen", "cente
 pyterm.createItem("Altar", [assets.get("Altar")], "screen", "center", "center", 0, 0, 0)
 
 
-PhaseChange("map")
+PhaseChange("battle")
 
 YiPyterminal.initializeTerminal(1, character_size) 
 YiPyterminal.startAsynchronousMouseListener()
@@ -1597,15 +1596,18 @@ while True:
         ]:
             YiPyterminal.renderItem(item, screenLimits=None)
         YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"]))
-    if keyboard.is_pressed("v"):
-        RiseEnchantBool = True
-        Enchants = True
-        DisableOther = True
-        EnchantHelp = False
+        print(mobsStatus)
+        time.sleep(999)
+    
+    # if keyboard.is_pressed("v"):
+    #     RiseEnchantBool = True
+    #     Enchants = True
+    #     DisableOther = True
+    #     EnchantHelp = False
 
-    if keyboard.is_pressed("x"):
-        print(SpellCast)
-        time.sleep(999)    
+    # if keyboard.is_pressed("x"):
+    #     print(SpellCast)
+    #     time.sleep(999)    
      
     #Ui
     if Ui:

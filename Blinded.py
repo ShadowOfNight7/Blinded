@@ -750,7 +750,8 @@ def PlayerAttack(Attack, Enemy: int):
                 MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
                 MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
                 TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
-                
+    mob["CurrentHealth"] -= (MeleeDamage + MagicDamage + TrueDamage - Heal)
+    return (MeleeDamage, MagicDamage, TrueDamage, Heal)
 
 
 
@@ -763,7 +764,7 @@ def EnemyAttack(Attack):
 timed = 9
 AimTarget = []
 character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PCS
+# character_size = (9, 19) #PCS
 # character_size = (12, 23) #LAPTOP
 # character_size = Cursor.initialize(10)
 score = 0
@@ -967,7 +968,7 @@ CastedSpells = {"Poisoning": [(27, 27), (80, 34), (27, 37), (69, 46), (53, 26)],
                 "Defensive": [(33, 26), (71, 26), (71, 37), (53, 45), (33, 37), (33, 32)], 
                 "Dev": [(24, 27), (23, 35), (77, 27), (77, 35), (24, 41), (37, 46), (61, 47), (75, 41), (37, 27), (37, 39), (63, 39), (61, 27), (49, 27), (23, 46), (83, 46), (48, 35)]}
 #
-
+#Home
 pyterm.createItem("HomeEnchant", [assets.get("EnchantHome")], "screen", "center", "center", 0, -35, -8)
 pyterm.createItem("HomeCraft", [assets.get("CraftHome")], "screen", "center", "center", 0, 35, -7)
 pyterm.createItem("HomeShop", [assets.get("ShopHome")], "screen", "center", "center", 0, -35, 9)
@@ -975,8 +976,23 @@ pyterm.createItem("RoomUi", [assets.get("RoomUi")], "screen", "center", "center"
 pyterm.createItem("HomeResearch", [assets.get("ResearchHome")], "screen", "center", "center", 0, 35, 8)
 pyterm.createItem("Altar", [assets.get("Altar")], "screen", "center", "center", 0, 0, 0)
 
+## ResearchUpgrades
+ResearchUps = False
+ResearchUpgrades = {"2xResearch": False, "Kills": False, "Light": False, "Level": False, "3xResearch": False, "Hierarchy": False, "Battle": False, "Research": False}
+MechanicUpgrades = {"Crafting": False, "Attacks56": False, "Shop": False, "Enchanting": False, "Attacks78": False, "PerfectEnchants": False, "ResetStatUpgrades": False}
+StatUpgrades = {"Strength1": False, "Strength2": False, "Strength3": False, "MagicPower1": False, "MagicPower2": False, "MagicPower3": False, #Powerful
+                "Defence1": False, "Defence2": False, "MagicDefence1": False, "MagicDefence2": False, "Health1": False, #Tank
+                "Skill1": False, "Skill2": False, "Intelligence1": False, "Intelligence2": False, "CritPower1": False, "CritChance1": False, #Wisdom
+                "Dexterity1": False, "Dexterity2": False, "CastingSpeed1": False, "CastingSpeed2": False, "Regen1": False, "Regen2": False, #Efficient
+                "Mana1": False, "Mana2": False, "Energy1": False, "Energy2": False, "ManaRegen1": False, "EnergyRegen1": False, #Stamina
+                "TrueAttack1": False, "TrueDefence1": False, #Truth
+                "Powerful": False, "Tank": False, "Wisdom": False, "Efficient": False, "Stamina": False, "Truth": False}
+ResearchScreen = {"Type": "Research", "Screen": 0}
+pyterm.createItem("ResearchUps", [assets.get("ResearchUpgrades")], "screen", "center", "center", 0, 4, 0)
 
-PhaseChange("battle")
+
+
+PhaseChange("map")
 
 YiPyterminal.initializeTerminal(1, character_size) 
 YiPyterminal.startAsynchronousMouseListener()
@@ -1175,7 +1191,7 @@ while True:
             for tier in hierarchyLocations:
                 for rooms in tier:
                     if rooms["id"][0] > 0:
-                        RoomData[rooms["id"]] = {"Type": random.choice(["Puzzle", "Puzzle", "Puzzle", "Treasure", "Battle", "Battle", "Battle", "Battle", "Battle", "Battle"]), "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3)}
+                        RoomData[rooms["id"]] = {"Type": random.choice(["Puzzle", "Puzzle", "Puzzle", "Treasure", "Battle", "Battle", "Battle", "Battle", "Battle", "Battle"]), "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
                         if rooms["id"] == (3, 1):
                             RoomData[rooms["id"]] = {"Type": "BossBattle1", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3)}
                         elif rooms["id"] == (5, 1):
@@ -1375,7 +1391,6 @@ while True:
             player_x = round(player_x)
             player_y = round(player_y)
         
-
 
     elif phase.lower() == "battle":
         Ui = False
@@ -1609,6 +1624,10 @@ while True:
     #     print(SpellCast)
     #     time.sleep(999)    
      
+    if keyboard.is_pressed("x"):
+        ResearchUps = True
+        DisableOther = True
+
     #Ui
     if Ui:
         LeftClick = LeftClickCopy
@@ -2061,6 +2080,10 @@ while True:
             RiseEnchant = min(RiseEnchant + round(os.get_terminal_size().lines / 20), round(os.get_terminal_size().lines * 3/4))
         else:
             RiseEnchant = max(RiseEnchant - round(os.get_terminal_size().lines / 20), 0)
+
+    #ResearchUpgrades
+    if ResearchUps:
+        pyterm.renderItem("ResearchUps")
 
     #Levels
     if LevelUp:

@@ -35,7 +35,7 @@ def AttackAim():
                 AimTarget.remove(i)
                 RemoveButton(i["Id"])
     return score
-#Targets
+
 def CreateButton(point1: tuple, point2: tuple, id):
     buttons.append({"Point1": point1, "Point2": point2, "Id": id})
 
@@ -60,10 +60,34 @@ def RemoveButton(ButtonId):
             buttons.remove(i)
             break
 
-def CircleStay(Range: tuple, Duration: int, Speed: float, Unpredictability: int):
+
+
+
+
+#ReverseAttack functions scores for def
+def Targets(Time: int, Range: tuple, Duration: int, Clickable = True, ScoreMulti = 1):
+    global targets, AimTarget
+    if targets["Time"] == 0:
+        targets["Time"] = Time
+        targets["Range"] = Range
+        targets["Duration"] = Duration
+        targets["Clickable"] = Clickable
+        AimTarget = []
+    score += AddAttackAim(targets["Range"], targets["Duration"], targets["Clickable"]) * ScoreMulti
+    AttackAim()
+    targets["Time"] -= 1
+
+    if targets["Time"] <= 0:
+        return False
+    return True
+#Targets
+# if timed >= 13:
+#AddAttackAim((round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), 20, True)
+#timed = 0
+def CircleStay(Time: int, Range: tuple, Speed: float, Unpredictability: int, ScoreMulti = 1):
     global score, location
     if circleStay["Time"] == 0:
-        circleStay["Time"] = Duration
+        circleStay["Time"] = Time
         circleStay["location"] = (random.randint(-Range[0], Range[0]), random.randint(-Range[1], Range[1]))
         circleStay["rotation"] = random.randint(0, 359)
     if (random.randint(1, Unpredictability) == 1):
@@ -75,14 +99,15 @@ def CircleStay(Range: tuple, Duration: int, Speed: float, Unpredictability: int)
     circleStay["absoluteloc"] = pyterm.renderLiteralItem(assets["CircleStay"], round(circleStay["location"][0]), round(circleStay["location"][1]), "center", "center")
     
     if ((circleStay["absoluteloc"][0] + 3.5) >= location[0] >= (circleStay["absoluteloc"][0] - 3.5)) and ((circleStay["absoluteloc"][1] + 3.5) >= location[1] >= (circleStay["absoluteloc"][1] - 3.5)):
-        score += 0.0925
+        score += 0.0925 * ScoreMulti
 
     circleStay["Time"] -= 1
     if circleStay["Time"] <= 0:
         return False
     return True
 #CircleStay
-def AimMinigame(Speedrange: tuple, Repeats = 1):
+#CircleStay(10 * pyterm.fps, (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), 0.5, 25)
+def AimMinigame(Speedrange: tuple, Repeats = 1, ScoreMulti = 1):
     global score, clickbuffer
     if aimMinigame["Repeats"] == 0:
         aimMinigame["Speed"] = random.randint(Speedrange[0], Speedrange[1])
@@ -104,7 +129,7 @@ def AimMinigame(Speedrange: tuple, Repeats = 1):
     pyterm.renderLiteralItem(assets["AimMinigame"].splitlines()[aimMinigame["CurrentFrame"] - 1], 0, 7, "center", "center")
 
     if (MouseDetect.ClickDetect("Left", "On") or MouseDetect.GeneralDetect(32, "On")) and (clickbuffer == False):
-        score += aimMinigame["CurrentFrame"] / 6
+        score += aimMinigame["CurrentFrame"] / 6 * ScoreMulti
         aimMinigame["Repeats"] -= 1
         aimMinigame["CurrentFrame"] = 0
         aimMinigame["CurrentWait"] = 0
@@ -113,7 +138,8 @@ def AimMinigame(Speedrange: tuple, Repeats = 1):
             return True
     return False
 #Aim
-def KeyboardMinigame(Inputs: list, Speed: int, Time: int):
+#AimMinigame((3, 5), 12)
+def KeyboardMinigame(Inputs: list, Speed: int, Time: int, ScoreMulti = 1):
     global score
     if keyboardMinigame["TotalTime"] <= 0:
         keyboardMinigame["Speed"] = Speed
@@ -126,16 +152,16 @@ def KeyboardMinigame(Inputs: list, Speed: int, Time: int):
             Inputs.remove(i)
             keyboardMinigame["Next"] = 0
             keyboardMinigame["CurrentKey"] = random.choice(Inputs)
-            score -= 0.5
+            score -= 0.5 * ScoreMulti
             score = max(score, 0)
     if MouseDetect.KeyboardDetect(keyboardMinigame["CurrentKey"], "On"):
         keyboardMinigame["Next"] = 0
         keyboardMinigame["CurrentKey"] = random.choice(Inputs)
-        score += 0.75
+        score += 0.75 * ScoreMulti
     elif keyboardMinigame["Next"] >= keyboardMinigame["Speed"]:
         keyboardMinigame["Next"] = 0
         keyboardMinigame["CurrentKey"] = random.choice(Inputs)
-        score -= 0.5
+        score -= 0.5 * ScoreMulti
         score = max(score, 0)
     keyboardMinigame["TotalTime"] -= 1
     keyboardMinigame["Next"] += 1
@@ -144,20 +170,23 @@ def KeyboardMinigame(Inputs: list, Speed: int, Time: int):
         return True
     return False
 #Keyboard
-def Spam(Time: int, Type = 32, Message = "Spam Spacebar!"):
+#KeyboardMinigame("a b c d e f g h i j k l m n o p q r s t u v w x y z".split(" "), 0.7 * pyterm.fps, 8 * pyterm.fps)
+def Spam(Time: int, Type = 32, Message = "Spam Spacebar!", ScoreMulti = 1):
     global score
     if spamMinigame["Time"] <= 0:
         spamMinigame["Time"] = Time
         spamMinigame["Key"] = Type
     if MouseDetect.GeneralDetect(spamMinigame["Key"], "On"):
-        score += 0.125
+        score += 0.125 * ScoreMulti
     spamMinigame["Time"] -= 1
     pyterm.renderLiteralItem(Message, 0, 7, "center", "center")
     if spamMinigame["Time"] <= 0:
         return True
     return False
 #Spam
-def SimonSays(Amount: int, InitialSpeed: int, Time: int):
+#Spam(8 * pyterm.fps)
+
+def SimonSays(Amount: int, InitialSpeed: int, Time: int, ScoreMulti = 1):
     global score, location, Previous
     if simonSays["Time"] == 0:
         simonSays["Order"] = []
@@ -191,30 +220,30 @@ def SimonSays(Amount: int, InitialSpeed: int, Time: int):
             if (simonSays["Order"][simonSays["PlayerFrame"]] == "TL"):
                 simonSays["PlayerFrame"] += 1
                 pyterm.renderLiteralItem(assets["GridTL"], 0, 0, "center", "center")
-                score += 1
+                score += 1 * ScoreMulti
             else:
                 score = max(score - 1, 0)
         elif (GridCenter[0] - 20 <= location[0] <= GridCenter[0] - 1) and (GridCenter[1] + 7 >= location[1] >= GridCenter[1] + 1) and (MouseDetect.ClickDetect("Left", "On")): #y7, x9
             if (simonSays["Order"][simonSays["PlayerFrame"]] == "BL"):
                 simonSays["PlayerFrame"] += 1
                 pyterm.renderLiteralItem(assets["GridBL"], 0, 0, "center", "center")
-                score += 1
+                score += 1 * ScoreMulti
             else:
                 score = max(score - 1, 0)
         elif (GridCenter[0] + 20 >= location[0] >= GridCenter[0] + 1) and (GridCenter[1] - 7 <= location[1] <= GridCenter[1] - 1) and (MouseDetect.ClickDetect("Left", "On")): #y7, x9
             if (simonSays["Order"][simonSays["PlayerFrame"]] == "TR"):
                 simonSays["PlayerFrame"] += 1
                 pyterm.renderLiteralItem(assets["GridTR"], 0, 0, "center", "center")
-                score += 1
+                score += 1 * ScoreMulti
             else:
                 score = max(score - 1, 0)
         elif (GridCenter[0] + 20 >= location[0] >= GridCenter[0] + 1) and (GridCenter[1] + 7 >= location[1] >= GridCenter[1] + 1) and (MouseDetect.ClickDetect("Left", "On")): #y7, x9
             if (simonSays["Order"][simonSays["PlayerFrame"]] == "BR"):
                 simonSays["PlayerFrame"] += 1
                 pyterm.renderLiteralItem(assets["GridBR"], 0, 0, "center", "center")
-                score += 1
+                score += 1 * ScoreMulti
             else:
-                score = max(score - 1, 0)
+                score = max(score - 1 * ScoreMulti, 0)
         if simonSays["PlayerFrame"] == len(simonSays["Order"]):
             score *= 1.25
             simonSays["Time"] = 0
@@ -224,8 +253,8 @@ def SimonSays(Amount: int, InitialSpeed: int, Time: int):
             return True
     return False
 #SimonSays
-
-def BlackHole(Range: float, Strength: float, Unpredictability: int, Time: int):
+#SimonSays(8, 30, 20 * pyterm.fps)
+def BlackHole(Range: float, Strength: float, Unpredictability: int, Time: int, ScoreMulti = 1):
     global score, character_size
     if blackHole["Time"] == 0:
         blackHole["Time"] = Time
@@ -239,13 +268,14 @@ def BlackHole(Range: float, Strength: float, Unpredictability: int, Time: int):
     else:
         mouse.move((blackholeCoords[0] - mouse.get_position()[0]) * Strength / max(math.sqrt((blackholeCoords[0] - mouse.get_position()[0]) ** 2 + (blackholeCoords[1] - mouse.get_position()[1]) ** 2) ** 1.35 / 5, 0.1), (blackholeCoords[1] - mouse.get_position()[1]) * Strength / max(math.sqrt((blackholeCoords[0] - mouse.get_position()[0]) ** 2 + (blackholeCoords[1] - mouse.get_position()[1]) ** 2) ** 1.35 / 5, 0.1), False)
     # pyterm.renderLiteralItem(str((blackholeCoords[0] - mouse.get_position()[0]) * Strength / math.sqrt((blackholeCoords[0] - mouse.get_position()[0]) ** 2 + (blackholeCoords[1] - mouse.get_position()[1]) ** 2)) + " " + str((blackholeCoords[1] - mouse.get_position()[1]) * Strength / math.sqrt((blackholeCoords[0] - mouse.get_position()[0]) ** 2 + (blackholeCoords[1] - mouse.get_position()[1]) ** 2)), 0, 7, "center", "center")
-    score += 13.5 / max(((blackholeCoords[0] - mouse.get_position()[0]) ** 2 + (blackholeCoords[1] - mouse.get_position()[1]) ** 2) ** 0.55, 180)
+    score += 13.5 / max(((blackholeCoords[0] - mouse.get_position()[0]) ** 2 + (blackholeCoords[1] - mouse.get_position()[1]) ** 2) ** 0.55, 180) * ScoreMulti
 
     blackHole["Time"] -= 1
     if blackHole["Time"] == 0:
         return True
 #BlackHole
-def Reaction(TimeRange: float, Repetitions: int):
+#BlackHole((round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), 300, 30, 8.5 * pyterm.fps)
+def Reaction(TimeRange: float, Repetitions: int, ScoreMulti = 1):
     global score
     if reaction["Repetitions"] == 0:
         reaction["Time"] = random.randint(TimeRange[0], TimeRange[1])
@@ -257,15 +287,16 @@ def Reaction(TimeRange: float, Repetitions: int):
             reaction["Repetitions"] -= 1
             reaction["Time"] = random.randint(TimeRange[0], TimeRange[1])
         else:
-            score += 0.16
+            score += 0.16 * ScoreMulti
     elif MouseDetect.ClickDetect("Left", "On"):
-        score += 1
+        score += 1 * ScoreMulti
 
     if reaction["Repetitions"] == 0:
         return True
     return False
 #Reaction
-def Shielded(Range: float, Time: int, Unpredictability: int, MaxWait: int):
+#Reaction((1 * pyterm.fps, 3 * pyterm.fps), 3)
+def Shielded(Range: float, Time: int, Unpredictability: int, MaxWait: int, ScoreMulti = 1):
     global score, location
     if shielded["Time"] == 0:
         shielded["Time"] = Time
@@ -276,16 +307,17 @@ def Shielded(Range: float, Time: int, Unpredictability: int, MaxWait: int):
         shielded["Location"] = (random.randint(-Range[0], Range[0]), random.randint(-Range[1], Range[1]))
         shielded["PastTime"] = shielded["Time"]
     shieldedpos = pyterm.renderLiteralItem(str(assets["Shielded"]), shielded["Location"][0], shielded["Location"][1], "center", "centre")
-    score += math.sqrt((location[0] - shieldedpos[0]) ** 2 + (location[1] - shieldedpos[1]) ** 2) / 1800
+    score += math.sqrt((location[0] - shieldedpos[0]) ** 2 + (location[1] - shieldedpos[1]) ** 2) / 1800 * ScoreMulti
 
     if shielded["Time"] <= 0:
         return True
     return False
 #Shielded
-def KeyboardDefend(Range: float, Inputs: list, Speed: int, Time: int, SpawnSpeed: int):
+#Shielded((round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), 10 * pyterm.fps, 60, 1 * pyterm.fps)
+def KeyboardDefend(Range: float, Inputs: list, Speed: int, Time: int, SpawnSpeed: int, ScoreMulti = 1):
     ""
 #KeyboardDefend
-def CircleDefend(SpawnRate: int, SpeedRange: float, Time: int):
+def CircleDefend(SpawnRate: int, SpeedRange: float, Time: int, ScoreMulti = 1):
     global score, location
     if circleDefend["Time"] <= 0:
         circleDefend["Time"] = Time
@@ -310,7 +342,7 @@ def CircleDefend(SpawnRate: int, SpeedRange: float, Time: int):
             circleDefend["Spawns"].remove(i)
             continue
         elif math.sqrt((centercoords[0] - i["Location"][0]) ** 2 + (centercoords[1] - i["Location"][1]) ** 2) <= 3:
-            score += 1.2
+            score += 1.2 * ScoreMulti
             circleDefend["Spawns"].remove(i)
             continue
     
@@ -319,7 +351,8 @@ def CircleDefend(SpawnRate: int, SpeedRange: float, Time: int):
         return True
     return False
 #CircleDefend
-def MouseMinigame(Speed: int, Time: int):
+#CircleDefend(0.25 * pyterm.fps, (20, 45), 15 * pyterm.fps)
+def MouseMinigame(Speed: int, Time: int, ScoreMulti = 1):
     global score
     Inputs = ["Left", "Right", "Middle", "Not Left", "Not Right", "Not Middle", "Not Left Or Right"]
     if mouseMinigame["TotalTime"] <= 0:
@@ -331,22 +364,22 @@ def MouseMinigame(Speed: int, Time: int):
     if ((mouseMinigame["CurrentKey"] == "Left") or (mouseMinigame["CurrentKey"] == "Not Right") or (mouseMinigame["CurrentKey"] == "Not Middle")) and (MouseDetect.ClickDetect("Left", "On")):
         mouseMinigame["Next"] = 0
         mouseMinigame["CurrentKey"] = random.choice(Inputs)
-        score += 0.75
+        score += 0.75 * ScoreMulti
         time.sleep(0.1)
     elif ((mouseMinigame["CurrentKey"] == "Right") or (mouseMinigame["CurrentKey"] == "Not Left") or (mouseMinigame["CurrentKey"] == "Not Middle")) and (MouseDetect.ClickDetect("Right", "On")):
         mouseMinigame["Next"] = 0
         mouseMinigame["CurrentKey"] = random.choice(Inputs)
-        score += 0.75
+        score += 0.75 * ScoreMulti
         time.sleep(0.1)
     elif ((mouseMinigame["CurrentKey"] == "Middle") or (mouseMinigame["CurrentKey"] == "Not Right") or (mouseMinigame["CurrentKey"] == "Not Left") or (mouseMinigame["CurrentKey"] == "Not Left Or Right")) and (MouseDetect.ClickDetect("Middle", "On")):
         mouseMinigame["Next"] = 0
         mouseMinigame["CurrentKey"] = random.choice(Inputs)
-        score += 0.75
+        score += 0.75 * ScoreMulti
         time.sleep(0.1)
     elif mouseMinigame["Next"] >= mouseMinigame["Speed"]:
         mouseMinigame["Next"] = 0
         mouseMinigame["CurrentKey"] = random.choice(Inputs)
-        score -= 0.5
+        score -= 0.5 * ScoreMulti
         score = max(score, 0)
     mouseMinigame["TotalTime"] -= 1
     mouseMinigame["Next"] += 1
@@ -368,7 +401,7 @@ def MouseMinigame(Speed: int, Time: int):
         return True
     return False
 #Mouse
-def DodgeGrid(Character: str, SpeedRange: float, Time: int, SpawnRate: int, InverseBias = 10):
+def DodgeGrid(Character: str, SpeedRange: float, Time: int, SpawnRate: int, InverseBias = 10, ScoreMulti = 1):
     global score, dodgeGrid
     if dodgeGrid["Time"] <= 0:
         dodgeGrid["Time"] = Time
@@ -413,14 +446,15 @@ def DodgeGrid(Character: str, SpeedRange: float, Time: int, SpawnRate: int, Inve
         i["Location"][1] += i["Speed"]
         pyterm.renderLiteralItem("X", round(i["Location"][0]), round(i["Location"][1]), "center", "center")
         if (round(dodgeGrid["Location"][0]) == round(i["Location"][0])) and (round(dodgeGrid["Location"][1]) == round(i["Location"][1])):
-            score -= 0.65
+            score += 0.65 * ScoreMulti
 
     dodgeGrid["Time"] -= 1
     if dodgeGrid["Time"] <= 0:
         return True
     return False
 #DodgeGrid
-def TrackingMinigame(Character: int, SpawnRate: int, SpeedRange: float, DespawnRate: int, Time: int):
+#DodgeGrid("O", (10, 70), 20 * pyterm.fps, 0.025 * pyterm.fps, 4)
+def TrackingMinigame(Character: int, SpawnRate: int, SpeedRange: float, DespawnRate: int, Time: int, ScoreMulti = 1):
     global score, trackingMinigame, location
     if trackingMinigame["Time"] <= 0:
         trackingMinigame["Time"] = Time
@@ -477,7 +511,7 @@ def TrackingMinigame(Character: int, SpawnRate: int, SpeedRange: float, DespawnR
 
         pyterm.renderLiteralItem("X", round(i["Location"][0]), round(i["Location"][1]), "center", "center")
         if (trackingMinigame["Location"][0] == i["Location"][0]) and (trackingMinigame["Location"][1] == i["Location"][1]):
-            score -= 1
+            score += 1 * ScoreMulti
             trackingMinigame["Hurt"].remove(i)
         
     trackingMinigame["Time"] -= 1
@@ -485,6 +519,7 @@ def TrackingMinigame(Character: int, SpawnRate: int, SpeedRange: float, DespawnR
         return True
     return False
 #Rain
+#TrackingMinigame("O", 0.05 * pyterm.fps, (15, 25), 4 * pyterm.fps, 20 * pyterm.fps)
 
 trackingMinigame = {"Location": [0, 0], "Character": "", "Hurt": [], "Time": 0, "SpeedRange": (0, 0), "SpawnRate": 0, "DespawnRate": 0}
 
@@ -512,6 +547,8 @@ keyboardMinigame = {"Speed": 0, "Next": 0, "TotalTime": 0, "CurrentKey": ""}
 aimMinigame = {"Speed": 10, "CurrentFrame": 0, "Repeats": 0, "CurrentWait": 0}
 
 circleStay = {"location": (0, 0), "Time": 0, "rotation": 0, "absoluteloc": (0, 0)}
+
+targets = {"Time": 0, "Range": (0, 0), "Duration": 0, "Clickable": True}
 
 buttons = []
 

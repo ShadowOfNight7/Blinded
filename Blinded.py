@@ -60,12 +60,17 @@ def PhaseChange(Phase: str):
     elif phase.lower() == "puzzletext":
         pass
     elif phase.lower() == "battle":
-        global mobsStatus, currentMob, selectedButton, clickedMobOption, hoveredMobOption, selectedAttack, selectedMobNum
+        global mobsStatus, currentMob, selectedButton, clickedMobOption, hoveredMobOption, selectedAttack, selectedMobNum, isUltimateSelected, UltimateAnimationFrame, UltimateCharge, whisperOfTheUltimate, isUltimateClicked
         selectedButton = None
         clickedMobOption = None
         hoveredMobOption = None
         selectedAttack = None
         selectedMobNum = None
+        isUltimateSelected = False
+        isUltimateClicked = False
+        whisperOfTheUltimate = None
+        UltimateAnimationFrame = 1
+        UltimateCharge = 0
         mobsStatus = ["Slime", "Slime2"]
         currentMob = 0
         for mobNum in range(len(mobsStatus)):
@@ -155,7 +160,7 @@ def PhaseChange(Phase: str):
                 YiPyterminal.createItem(
                     box,
                     [
-                        YiPyterminal.ASSETS[box][0]
+                        copy.deepcopy(YiPyterminal.ASSETS[box][0])
                         .replace(">        PLACEHOLDER1        <", _attacks[0])
                         .replace(">        PLACEHOLDER2        <", _attacks[1])
                         .replace(">        PLACEHOLDER3        <", _attacks[2])
@@ -163,7 +168,16 @@ def PhaseChange(Phase: str):
                         .replace(">        PLACEHOLDER5        <", _attacks[4])
                         .replace(">        PLACEHOLDER6        <", _attacks[5])
                         .replace(">        PLACEHOLDER7        <", _attacks[6])
-                        .replace(">        PLACEHOLDER8        <", _attacks[7])
+                        .replace(">        PLACEHOLDER8        <", _attacks[7]),
+                        copy.deepcopy(YiPyterminal.ASSETS[box][1])
+                        .replace(">        PLACEHOLDER1        <", _attacks[0])
+                        .replace(">        PLACEHOLDER2        <", _attacks[1])
+                        .replace(">        PLACEHOLDER3        <", _attacks[2])
+                        .replace(">        PLACEHOLDER4        <", _attacks[3])
+                        .replace(">        PLACEHOLDER5        <", _attacks[4])
+                        .replace(">        PLACEHOLDER6        <", _attacks[5])
+                        .replace(">        PLACEHOLDER7        <", _attacks[6])
+                        .replace(">        PLACEHOLDER8        <", _attacks[7]),
                     ],
                     parentObject="center barrier",
                     parentAnchor="top center",
@@ -281,10 +295,25 @@ def PhaseChange(Phase: str):
                     parentAnchor="top center",
                     childAnchor="top center",
                 )
-
+        YiPyterminal.createItem(
+            "ultimate bar",
+            copy.deepcopy(YiPyterminal.ASSETS["ultimate bar"]),
+            parentObject="fight box",
+            parentAnchor="top center",
+            childAnchor="bottom center",
+            yBias=10,
+        )
+        YiPyterminal.createItem(
+            "ultimate button",
+            copy.deepcopy(YiPyterminal.ASSETS["ultimate button"]),
+            parentObject="fight box",
+            parentAnchor="center",
+            childAnchor="center",
+            yBias=100,
+        )
         YiPyterminal.createItem(
             "enemy selection box",
-            YiPyterminal.ASSETS["enemy selection box"],
+            copy.deepcopy(YiPyterminal.ASSETS["enemy selection box"]),
             parentAnchor="left center",
             childAnchor="left center",
         )
@@ -925,7 +954,7 @@ Inventory = {"Armor":
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
 EquippedAttacks = {"Attack0": "Slime Leap", "Attack1": None, "Attack2": None, "Attack3": None, "Attack4": None, "Attack5": None,"Attack6": None,"Attack7": None,}
 LockedAttacks = {"Attack0": False, "Attack1": False, "Attack2": False, "Attack3": False, "Attack4": True, "Attack5": True,"Attack6": True,"Attack7": True,}
-EquippedUltimate = None
+EquippedUltimate = "Slime Heat-Seeking Missile"
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
 FocusInv = False
 pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "bottom right", 0, -2, -15)
@@ -962,18 +991,19 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             "Tackle": {"BasePowerMelee": 10, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1}], "Effects": [], "Special": None}, #10 * 1.3 = 13dmg avg
             "Slime Heat-Seeking Missile": {"BasePowerMelee": 150, "BasePowerMagic": 150, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1}], "Effects": [], "Special": None}, #150 * 1.3 = 195dmg avg
             #Slime (Large) + (Giga) + (Defensive) + (Attack)
-            "Crush": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1}], "Effects": [], "Special": None}, #20 * 1.5 = 30dmg * 90% acc = 27dmg avg (Low Weight)
+            "Crush": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1}], "Effects": [], "Special": None}, #20 * 1.5 = 30dmg * 80% acc = 24dmg avg (Low Weight)
             #Slime (Giga)
             "Devour": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1}], "Effects": [], "Special": None}, #15 * 1.6 = 24dmg avg
             #Slime (Corrosive)
             "Corrode": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1}], "Effects": [], "Special": None}, #
             "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None}, #10 * 1.5 = 15 dmg * 65% acc = 9.75dmg, 
             #Slime (Defensive)
-            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None},
-            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None},
+            "Reinforce": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [{"Stat": "Defense", "Potency": 15, "Target": "Self", "Time": 3},{"Stat": "MagicDefense", "Potency": 15, "Target": "Self", "Time": 3}], "Special": None},
+            "Intimidate": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [{"Stat": "MagicPower", "Potency": -20, "Target": "Enemy", "Time": 5}], "Special": None},
             #Slime (Attack)
-            "Reinforce": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [{"Stat": "Defence", "Potency": 15, "Target": "Self", "Time": 3},{"Stat": "MagicDefence", "Potency": 15, "Target": "Self", "Time": 3}], "Special": None},
-            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1}], "Effects": [], "Special": None},
+            "Piercing Slime": {"BasePowerMelee": 12, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Reaction", "Weight": 1}], "Effects": [], "Special": ["Pierce"]}, #15 * 2.5 = 30dmg avg
+            "Enlarge": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [{"Stat": "Strength", "Potency": 50, "Target": "Self", "Time": 3}], "Special": None},
+            "Slime Rollout": {"BasePowerMelee": 30, "BasePowerMagic": 0, "Accuracy": 95, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1}], "Effects": [], "Special": None} #30 * 2.5 = 70 dmg * 95% acc = 66.5dmg avg (Lower Weight)
             }
 
 enemies = {"Slime": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
@@ -1303,7 +1333,7 @@ highestHierarchy = 0
 
 
 
-PhaseChange("map")
+PhaseChange("battle")
 
 YiPyterminal.initializeTerminal(1, character_size) 
 YiPyterminal.startAsynchronousMouseListener()
@@ -1415,7 +1445,7 @@ while True:
             PrideLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), 40, -76 + min(riseTitle, 61), "center", "center")
             EnvyLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), 20, -67 + min(riseTitle, 58), "center", "center")
             SlothLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), 0, -70 + min(riseTitle, 55), "center", "center")
-            DesireLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), -20, -61 + min(riseTitle, 52), "center", "center")
+            DesireLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), -20, -61 + min(riseTitle, 51), "center", "center")
             GluttonyLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), -40, -64 + min(riseTitle, 49), "center", "center")
             WrathLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), -60, -55 + min(riseTitle, 46), "center", "center")
             #7sins buttondetect
@@ -1428,9 +1458,9 @@ while True:
             else:
                 pyterm.renderLiteralItem("SWEET TOOTH", -40, -64 + min(riseTitle, 49) + 15, "center", "center")
             if (math.hypot((DesireLoc[0] - location[0]), 2 * (DesireLoc[1] + 14.5 - location[1])) <= 11.5) and (riseTitle == 70):
-                pyterm.renderLiteralItem("X", -20, -61 + min(riseTitle, 52) + 15, "center", "center")
+                pyterm.renderLiteralItem("X", -20, -61 + min(riseTitle, 51) + 15, "center", "center")
             else:
-                pyterm.renderLiteralItem("CHARISMATIC", -20, -61 + min(riseTitle, 52) + 15, "center", "center")
+                pyterm.renderLiteralItem("CHARISMATIC", -20, -61 + min(riseTitle, 51) + 15, "center", "center")
             if (math.hypot((SlothLoc[0] - location[0]), 2 * (SlothLoc[1] + 14.5 - location[1])) <= 11.5) and (riseTitle == 70):
                 pyterm.renderLiteralItem("X", 0, -70 + min(riseTitle, 55) + 15, "center", "center")
             else:
@@ -1825,6 +1855,9 @@ while True:
                     selectedButton = None
                 else:
                     selectedButton = button
+                # if selectedButton != "fight button":
+                    # isUltimateSelected==False
+                    # YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
             if YiPyterminal.checkItemIsHovered(button) == True and selectedButton == button:
                 YiPyterminal.changeCurrentItemFrame(button, 3)
             elif selectedButton == button:
@@ -1853,6 +1886,102 @@ while True:
                 "right center barrier",
             ]:
                 YiPyterminal.changeCurrentItemFrame(barrier, currentFrameBarrier)
+        if not YiPyterminal.getBottomCenter("fight box")[1]+1==YiPyterminal.getTopCenter("center barrier")[1]:
+            YiPyterminal.moveItem("ultimate bar",y=1)
+            if YiPyterminal.getTopCenter("ultimate bar")[1]<YiPyterminal.getTopCenter("fight box")[1]:
+                YiPyterminal.moveItem("ultimate bar",y=1)
+            elif YiPyterminal.getTopCenter("ultimate bar")[1]>YiPyterminal.getTopCenter("fight box")[1]:
+                YiPyterminal.moveItem("ultimate bar",y=-1)
+            if YiPyterminal.itemObjects["fight box"]["current frame"]!=0:
+                YiPyterminal.changeCurrentItemFrame("fight box",0)
+        if YiPyterminal.getBottomCenter("fight box")[1]+1==YiPyterminal.getTopCenter("center barrier")[1] and EquippedUltimate!=None:
+            if YiPyterminal.getBottomCenter("ultimate bar")[1]+1>YiPyterminal.getTopCenter("fight box")[1]:
+                YiPyterminal.moveItem("ultimate bar",y=-1)
+            if YiPyterminal.getBottomCenter("ultimate bar")[1]+1==YiPyterminal.getTopCenter("fight box")[1]:
+                if UltimateCharge>=100:
+                    if YiPyterminal.checkItemIsClicked("ultimate bar",onlyCheckRelease=True):
+                        isUltimateSelected = not isUltimateSelected
+                        if isUltimateSelected == True:
+                            YiPyterminal.moveItem("ultimate button",y=0,absoluteBias=True)
+                            whispersOfTheUltimate=["Make them pay.","Avenge your brothers in arms.","Unleash true power.","Only you are left.","One clean strike.","Show them your might.","Do you still remember that fateful day?","Take revenge.","Do not hold back.","Do not let the flame fade.","You must do what you have to.","Revenge at ALL costs.","Do not let them die in vain.","Do not let their sacrifice go to waste.","They didn't pay the ultimate price for nothing.","You did not come this far to give up.","Finish it.","Do not disappoint them, for they are waiting.","Do it.","Now is not the time to stand around.","End this. ONCE. AND. FOR. ALL.","Embrace the power.","Your hands are already stained.","Show them the light.","They did this to you.","It's not your fault.","Remeber the fallen.","Channel your anguish.","Let your rage take over.","Remember what you are fighting for.","We are nearly there.","Can you still hear their cries?","You will reunite with them soon.","Push forth.","There will be light at the end of the tunnel.","Carry out the will of your brothers in arms.","This is what they would have wanted.","Give them what they deserve.","You need shackle your anger no more.","Let your fury strike.","They only deserve what they did to your crew.","History will talk greatly of you.",]
+                            if whisperOfTheUltimate != None:
+                                whispersOfTheUltimate.remove(whisperOfTheUltimate)
+                            whisperOfTheUltimate = random.choice(whispersOfTheUltimate)
+                        if isUltimateSelected == False:
+                            YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
+                    if isUltimateSelected == True:
+                        if whisperOfTheUltimate != None:
+                            YiPyterminal.changeItemFrameContent("ultimate bar",copy.deepcopy(YiPyterminal.ASSETS["ultimate bar"][0]).replace("            Whispers Of The Ultimate           ",whisperOfTheUltimate.center(47)))
+                        UltimateAnimationFrame+=0.35
+                    elif isUltimateSelected == False:
+                        YiPyterminal.changeItemFrameContent("ultimate bar",copy.deepcopy(YiPyterminal.ASSETS["ultimate bar"][0]).replace("            Whispers Of The Ultimate           ","                U L T I M A T E                "))
+                    UltimateAnimationFrame+=0.20
+                    roundedUltimateAnimationFrame=round(UltimateAnimationFrame)
+                    YiPyterminal.changeItemFrameContent(
+                        "ultimate bar",
+                        copy.deepcopy(YiPyterminal.itemObjects["ultimate bar"]["animation frames"][0])
+                        .replace("                                                   ","___________________________________________________")
+                        .replace(
+                            "___________________________________________________",
+                            YiPyterminal.replaceNthLetterInStr(
+                                YiPyterminal.replaceNthLetterInStr(
+                                    YiPyterminal.replaceNthLetterInStr(
+                                        "___________________________________________________",
+                                        "▓",
+                                        (roundedUltimateAnimationFrame - 1) % 51,
+                                    ),
+                                    "▓",
+                                    (roundedUltimateAnimationFrame + 1) % 51,
+                                ),
+                                "░",
+                                roundedUltimateAnimationFrame % 51,
+                            ),
+                            1,
+                        )
+                        .replace(
+                            "___________________________________________________",
+                            YiPyterminal.replaceNthLetterInStr(
+                                YiPyterminal.replaceNthLetterInStr(
+                                    YiPyterminal.replaceNthLetterInStr(
+                                        "___________________________________________________",
+                                        "▓",
+                                        roundedUltimateAnimationFrame % 51,
+                                    ),
+                                    "▓",
+                                    (roundedUltimateAnimationFrame + 2) % 51,
+                                ),
+                                "░",
+                                (roundedUltimateAnimationFrame + 1) % 51,
+                            ),
+                            1,
+                        ).replace("_","█"),
+                    )
+                    if roundedUltimateAnimationFrame > 51:
+                        UltimateAnimationFrame=1
+                elif UltimateCharge<100:
+                    bar = "█"*math.floor(UltimateCharge/(100/51))
+                    if 0.125<=((UltimateCharge/(100/51)-math.floor(UltimateCharge/(100/51)))/(100/51))<0.375:
+                        bar+="░"
+                    elif 0.375<=((UltimateCharge/(100/51)-math.floor(UltimateCharge/(100/51)))/(100/51))<0.625:
+                        bar+="▒"
+                    elif 0.625<=((UltimateCharge/(100/51)-math.floor(UltimateCharge/(100/51)))/(100/51))<0.875:
+                        bar+="▓"
+                    bar += (51-len(bar))*" "
+                    YiPyterminal.changeItemFrameContent(
+                        "ultimate bar",
+                        copy.deepcopy(YiPyterminal.ASSETS["ultimate bar"][0]).replace("                                                   ",bar).replace("            Whispers Of The Ultimate           ","                U L T I M A T E                "))
+            if YiPyterminal.checkItemIsClicked("ultimate button",onlyCheckRelease=True) == True:
+                isUltimateClicked = not isUltimateClicked
+                if isUltimateClicked == True:
+                    selectedAttack = EquippedUltimate
+            if YiPyterminal.checkItemIsHovered("ultimate button") == True or isUltimateClicked == True:
+                YiPyterminal.changeItemFrameContent("ultimate button",copy.deepcopy(YiPyterminal.ASSETS["ultimate button"][0]).replace("○","●").replace("✧                                          ✧","✦"+EquippedUltimate.center(42)+"✦"))
+            else:
+                YiPyterminal.changeItemFrameContent("ultimate button",copy.deepcopy(YiPyterminal.ASSETS["ultimate button"][0]))
+            if isUltimateClicked == False:
+                YiPyterminal.changeItemFrameContent("ultimate button",copy.deepcopy(YiPyterminal.itemObjects["ultimate button"]["animation frames"][0]).replace("║"," ").replace("╔"," ").replace("╚"," ").replace("╗"," ").replace("╝"," "))
+            if YiPyterminal.itemObjects["fight box"]["current frame"]!=1:
+                YiPyterminal.changeCurrentItemFrame("fight box",1)
         boxesToButtons = {
             "fight box": "fight button",
             "items box": "items button",
@@ -1877,11 +2006,11 @@ while True:
             "attack option 5",
             "attack option 6",
             "attack option 7",
-            # "attack option 8",
+            "attack option 8",
         ]
-        if YiPyterminal.getBottomCenter("fight box")[1]+1==YiPyterminal.getTopCenter("center barrier")[1]:
+        if YiPyterminal.getBottomCenter("fight box")[1]+1==YiPyterminal.getTopCenter("center barrier")[1] and isUltimateSelected==False:
             for optionNum in range(len(attackOptions)):
-                if LockedAttacks["Attack"+str(optionNum)]==False:
+                if LockedAttacks["Attack"+str(optionNum)]==False and EquippedAttacks["Attack"+str(optionNum)]!=None:
                     if YiPyterminal.checkItemIsHovered(attackOptions[optionNum]) == True:
                         if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] == 0:
                             YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 1)
@@ -1964,6 +2093,13 @@ while True:
                 + (player["CritPower"] if random.randint(1, 100) <= player["CritChance"] else 0)
                 / 100
             )
+            UltimateCharge+=10
+            UltimateCharge=min(UltimateCharge,100)
+            if selectedAttack == EquippedUltimate:
+                UltimateCharge=0
+                isUltimateClicked=False
+                isUltimateSelected=False
+                YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
             selectedAttack = None
             for mobNum in range(len(mobsStatus)):
                 selectedMobAttack = random.choices(
@@ -1991,6 +2127,7 @@ while True:
                     / 100
                 )
         for item in [
+            "ultimate bar",
             "fight box",
             "attack option 1",
             "attack option 2",
@@ -2012,6 +2149,7 @@ while True:
             "mercy button",
             "left barrier",
             "right barrier",
+            "ultimate button",
             "enemy selection box",
             "enemy selection option 1",
             "enemy selection option 2",
@@ -2024,9 +2162,8 @@ while True:
             "enemy information box",
         ]:
             YiPyterminal.renderItem(item, screenLimits=None)
-        YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"]))
-        print(mobsStatus)
-        time.sleep(999)
+        YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"])+" | "+str(UltimateCharge))
+
     
     # if keyboard.is_pressed("v"):
     #     RiseEnchantBool = True

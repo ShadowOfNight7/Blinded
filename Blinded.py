@@ -717,9 +717,21 @@ def RenderSpell(Spell):
 
 
 def PlayerAttack(Attack, Enemy: int):
-    global player, mobsStatus, attacks
+    global player, mobsStatus, attacks, StatUpgrades
     mob = mobsStatus[Enemy]
     playercopy = copy.deepcopy(player)
+    if StatUpgrades["Wisdom"]:
+        playercopy["Skill"] *= 1.2
+        playercopy["Intelligence"] *= 1.2
+        playercopy["CritChance"] *= 1.2
+        playercopy["CritPower"] *= 1.2
+    if StatUpgrades["Efficient"]:
+        playercopy["Dexterity"] *= 1.2
+        playercopy["CastingSpeed"] *= 1.2
+        playercopy["Regen"] *= 1.5
+    if StatUpgrades["Truth"]:
+        playercopy["TrueAttack"] *= 1.5
+        playercopy["TrueDefence"] *= 1.5
     for effect in playercopy["Effects"]:
         playercopy[effect["Stat"]] += effect["Potency"]
     for passive in playercopy["Passives"]:
@@ -750,21 +762,59 @@ def PlayerAttack(Attack, Enemy: int):
                 MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
                 MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
                 TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
-    mob["CurrentHealth"] -= (MeleeDamage + MagicDamage + TrueDamage - Heal)
+    if StatUpgrades["Powerful"]:
+        mob["CurrentHealth"] -= (MeleeDamage + MagicDamage + TrueDamage) * 1.25
+    else:
+        mob["CurrentHealth"] -= (MeleeDamage + MagicDamage + TrueDamage)
+    mob["CurrentHealth"] += Heal
     return (MeleeDamage, MagicDamage, TrueDamage, Heal)
 
 
 
-
-
-def EnemyAttack(Attack):
-    pass
+def EnemyAttack(Attack, Enemy: int):
+    global player, mobsStatus, attacks, StatUpgrades
+    mob = mobsStatus[Enemy]
+    mobcopy = copy.deepcopy(mob)
+    for effect in mob["Effects"]:
+        mob[effect["Stat"]] += effect["Potency"]
+    #Math
+    crit = (mobcopy["Stats"]["CritPower"] if random.randint(1, 100) <= mobcopy["Stats"]["CritChance"] else 0)
+    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100)
+    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100)
+    TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100)
+    #After Specials - Lifesteal, Etc
+    if attacks[Attack]["Special"] != None:
+        for special in attacks[Attack]["Special"]:
+            if "Pierce" in special:
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] * (1 - int(special.replace("Pierce", ""))/100) / 100) * (1 + crit / 100)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] * (1 - int(special.replace("Pierce", ""))/100)  / 100) * (1 + crit / 100)
+            elif "Lifesteal" in special:
+                Heal = min(mob["Stats"]["Health"] - mob["Stats"]["CurrentHealth"], (MagicDamage + MeleeDamage) * int(special.replace("Lifesteal", ""))/100)
+            elif "Critical" in special:
+                crit = (mobcopy["Stats"]["CritPower"] if random.randint(1, 100) * (1 - int(special.replace("Critical", ""))/100) <= mobcopy["Stats"]["CritChance"] else 0)
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100)
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100)
+            elif "Percent" in special:
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100)
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) + player["CurrentHealth"] * int(special.replace("Percent", ""))/100
+            elif "Status" in special:
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+    if StatUpgrades["Tank"]:
+        mob["CurrentHealth"] -= (MeleeDamage + MagicDamage + TrueDamage) * 0.8
+    else:
+        mob["CurrentHealth"] -= (MeleeDamage + MagicDamage + TrueDamage)
+    mob["CurrentHealth"] += Heal
+    return (MeleeDamage, MagicDamage, TrueDamage, Heal)
 
 
 timed = 9
 AimTarget = []
 character_size = (19, 37) #NORMAL
-# character_size = (9, 19) #PCS
+character_size = (9, 19) #PCS
 # character_size = (12, 23) #LAPTOP
 # character_size = Cursor.initialize(10)
 score = 0
@@ -827,6 +877,8 @@ room_size = [round(120), round(25)]
 # pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(round((room_size[0] - 1)/2 + 1))) + "\n" for i3 in range(round((room_size[1] - 1)/2 + 1))), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
 pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(room_size[0])) + "\n" for i3 in range(room_size[1])), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
 room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#"]
+room_push = [{"Character": "#", "Location": (0, 0)}, {"Character": "%", "Location": (1, 1)}]
+pyterm.createItem("Pushable", ["#"], "screen", "center", "center", 0)
 
 UiOffset = [0, 0]
 EnteredRoom = (0, 1)
@@ -972,23 +1024,282 @@ CastedSpells = {"Poisoning": [(27, 27), (80, 34), (27, 37), (69, 46), (53, 26)],
 pyterm.createItem("HomeEnchant", [assets.get("EnchantHome")], "screen", "center", "center", 0, -35, -8)
 pyterm.createItem("HomeCraft", [assets.get("CraftHome")], "screen", "center", "center", 0, 35, -7)
 pyterm.createItem("HomeShop", [assets.get("ShopHome")], "screen", "center", "center", 0, -35, 9)
+pyterm.createItem("HomeEnchantRuin", [assets.get("EnchantHomeRuin")], "screen", "center", "center", 0, -35, -8)
+pyterm.createItem("HomeCraftRuin", [assets.get("CraftHomeRuin")], "screen", "center", "center", 0, 35, -7)
+pyterm.createItem("HomeShopRuin", [assets.get("ShopHomeRuin")], "screen", "center", "center", 0, -35, 9)
+
 pyterm.createItem("RoomUi", [assets.get("RoomUi")], "screen", "center", "center", 0, 0, 16)
 pyterm.createItem("HomeResearch", [assets.get("ResearchHome")], "screen", "center", "center", 0, 35, 8)
 pyterm.createItem("Altar", [assets.get("Altar")], "screen", "center", "center", 0, 0, 0)
 
+pyterm.createItem("RoomInteract", ["Press [E] into Interact"], "RoomUi", "center", "center", 0, 0, 0)
+
+
 ## ResearchUpgrades
 ResearchUps = False
-ResearchUpgrades = {"2xResearch": False, "Kills": False, "Light": False, "Level": False, "3xResearch": False, "Hierarchy": False, "Battle": False, "Research": False}
-MechanicUpgrades = {"Crafting": False, "Attacks56": False, "Shop": False, "Enchanting": False, "Attacks78": False, "PerfectEnchants": False, "ResetStatUpgrades": False}
+ResearchUpgrades = {"2xResearch": False, "Kills": False, "Light": False, "Level": False, "3xResearch": False, "Hierarchy": False, "Battle": False, "Research": False, "N/A1": None, "N/A2": None, "N/A3": None, "N/A4": None}
+MechanicUpgrades = {"Crafting": False, "Attacks56": False, "Shop": False, "Enchanting": False, "Attacks78": False, "PerfectEnchants": False, "ResetStatUpgrades": False, "N/A1": None, "N/A2": None, "N/A3": None, "N/A4": None, "N/A5": None}
 StatUpgrades = {"Strength1": False, "Strength2": False, "Strength3": False, "MagicPower1": False, "MagicPower2": False, "MagicPower3": False, #Powerful
-                "Defence1": False, "Defence2": False, "MagicDefence1": False, "MagicDefence2": False, "Health1": False, #Tank
+                "Defence1": False, "Defence2": False, "MagicDefence1": False, "MagicDefence2": False, "Health1": False, "N/A1": None, #Tank
                 "Skill1": False, "Skill2": False, "Intelligence1": False, "Intelligence2": False, "CritPower1": False, "CritChance1": False, #Wisdom
                 "Dexterity1": False, "Dexterity2": False, "CastingSpeed1": False, "CastingSpeed2": False, "Regen1": False, "Regen2": False, #Efficient
                 "Mana1": False, "Mana2": False, "Energy1": False, "Energy2": False, "ManaRegen1": False, "EnergyRegen1": False, #Stamina
-                "TrueAttack1": False, "TrueDefence1": False, #Truth
+                "TrueAttack1": False, "TrueDefence1": False, "N/A2": None, "N/A3": None, "N/A4": None, "N/A5": None, #Truth
                 "Powerful": False, "Tank": False, "Wisdom": False, "Efficient": False, "Stamina": False, "Truth": False}
 ResearchScreen = {"Type": "Research", "Screen": 0}
-pyterm.createItem("ResearchUps", [assets.get("ResearchUpgrades")], "screen", "center", "center", 0, 4, 0)
+pyterm.createItem("ResearchUps", [assets.get("ResearchUpgrades"), assets.get("MechanicUpgrades"), assets.get("StatUpgrades")], "screen", "center", "center", 0, 4, 0)
+pyterm.createItem("ResearchButtons", [assets["R-U" + str(i+1)] for i in range(8)]+["", "", "", ""], "ResearchUps", "top left", "top left", 0, 1, 3)
+pyterm.createItem("MechanicButtons", [assets["M-U" + str(i+1)] for i in range(7)]+["", "", "", "", ""], "ResearchUps", "top left", "top left", 0, 1, 3)
+pyterm.createItem("StatButtons", [assets["S-U" + str(i+1)] for i in range(6)]+[assets["S-U" + str(i+7)] for i in range(5)]+[""]+[assets["S-U" + str(i+12)] for i in range(6)]+[assets["S-U" + str(i+18)] for i in range(6)]+[assets["S-U" + str(i+24)] for i in range(6)]+[assets["S-U" + str(i+30)] for i in range(2)]+["","","",""]+[assets["S-U" + str(i+32)] for i in range(6)], "ResearchUps", "top left", "top left", 0, 1, 3)
+pyterm.createItem("BoughtButtons", ["  Bought!  "], "ResearchButtons", "top left", "top left", 0, 1, 1)
+
+def AddResearch(Research: int):
+    global light, battles, enemiesKilled, level, highestHierarchy, ResearchUpgrades, research
+    for upgrade in ResearchUpgrades.keys():
+        if ResearchUpgrades[upgrade]:
+            if str(upgrade) is "2xResearch":
+                Research *= 2
+            elif str(upgrade) is "Kills":
+                Research *= (1 + 0.1 * enemiesKilled)
+            elif str(upgrade) is "Light":
+                Research *= 1.1 ** light
+            elif str(upgrade) is "Level":
+                Research *= (1 + 0.3 * level)
+            elif str(upgrade) is "3xResearch":
+                Research *= 3
+            elif str(upgrade) is "Hierarchy":
+                Research *= highestHierarchy
+            elif str(upgrade) is "Battle":
+                Research *= (1 + 0.5 * battles)
+            elif str(upgrade) is "Research":
+                Research *= (1 + research ** 0.125)
+    return Research
+
+def BuyUpgrade(Type: str, Number: int):
+    global ResearchUpgrades, MechanicUpgrades, StatUpgrades, Research, player
+    if Type is "Research":
+        Upgrade = str(list(ResearchUpgrades.keys())[Number])
+        if ResearchUpgrades[Upgrade] == False:
+            if Upgrade is "2xResearch":
+                if CheckResearchUpgrade(100):
+                    ResearchUpgrades[Upgrade] = True
+            if Upgrade is "Kills":
+                if CheckResearchUpgrade(500):
+                    ResearchUpgrades[Upgrade] = True
+            if Upgrade is "Light":
+                if CheckResearchUpgrade(5000):
+                    ResearchUpgrades[Upgrade] = True
+            if Upgrade is "Level":
+                if CheckResearchUpgrade(25000):
+                    ResearchUpgrades[Upgrade] = True
+            if Upgrade is "3xResearch":
+                if CheckResearchUpgrade(100000):
+                    ResearchUpgrades[Upgrade] = True
+            if Upgrade is "Hierarchy":
+                if CheckResearchUpgrade(1500000):
+                    ResearchUpgrades[Upgrade] = True
+            if Upgrade is "Battle":
+                if CheckResearchUpgrade(3000000):
+                    ResearchUpgrades[Upgrade] = True
+            if Upgrade is "Research":
+                if CheckResearchUpgrade(99900000):
+                    ResearchUpgrades[Upgrade] = True
+
+    elif Type is "Mechanic":
+        Upgrade = str(list(MechanicUpgrades.keys())[Number])
+        if MechanicUpgrades[Upgrade] == False:
+            if Upgrade is "Crafting":
+                if CheckResearchUpgrade(2000):
+                    MechanicUpgrades[Upgrade] = True
+            if Upgrade is "Attacks56":
+                if CheckResearchUpgrade(7500):
+                    MechanicUpgrades[Upgrade] = True
+            if Upgrade is "Shop":
+                if CheckResearchUpgrade(10000):
+                    MechanicUpgrades[Upgrade] = True
+            if Upgrade is "Enchanting":
+                if CheckResearchUpgrade(1000000):
+                    MechanicUpgrades[Upgrade] = True
+            if Upgrade is "Attacks78":
+                if CheckResearchUpgrade(2000000):
+                    MechanicUpgrades[Upgrade] = True
+            if Upgrade is "PerfectEnchants":
+                if CheckResearchUpgrade(25000000):
+                    MechanicUpgrades[Upgrade] = True
+            if Upgrade is "ResetStatUpgrades":
+                if not (False in StatUpgrades.values()):
+                    if CheckResearchUpgrade(10^9):
+                        MechanicUpgrades[Upgrade] = True
+                        for statupgrade in StatUpgrades.keys():
+                            StatUpgrades[statupgrade] = False
+                
+    elif Type is "Stat":
+        Upgrade = str(list(StatUpgrades.keys())[Number])
+        if StatUpgrades[Upgrade] == False:
+            if Upgrade is "Strength1":
+                if CheckResearchUpgrade(5000):
+                    StatUpgrades[Upgrade] = True
+                    player["Strength"] += 10
+            if Upgrade is "Strength2":
+                if CheckResearchUpgrade(350000):
+                    StatUpgrades[Upgrade] = True
+                    player["Strength"] += 10
+            if Upgrade is "Strength3":
+                if CheckResearchUpgrade(3000000):
+                    StatUpgrades[Upgrade] = True
+                    player["Strength"] += 10
+            if Upgrade is "MagicPower1":
+                if CheckResearchUpgrade(5000):
+                    StatUpgrades[Upgrade] = True
+                    player["MagicPower"] += 10
+            if Upgrade is "MagicPower2":
+                if CheckResearchUpgrade(350000):
+                    StatUpgrades[Upgrade] = True
+                    player["MagicPower"] += 10
+            if Upgrade is "MagicPower3":
+                if CheckResearchUpgrade(3000000):
+                    StatUpgrades[Upgrade] = True
+                    player["MagicPower"] += 10
+
+            if Upgrade is "Defence1":
+                if CheckResearchUpgrade(25000):
+                    StatUpgrades[Upgrade] = True
+                    player["Defence"] += 15
+            if Upgrade is "Defence2":
+                if CheckResearchUpgrade(1000000):
+                    StatUpgrades[Upgrade] = True
+                    player["Defence"] += 15
+            if Upgrade is "MagicDefence1":
+                if CheckResearchUpgrade(25000):
+                    StatUpgrades[Upgrade] = True
+                    player["MagicDefence"] += 15
+            if Upgrade is "MagicDefence2":
+                if CheckResearchUpgrade(1000000):
+                    StatUpgrades[Upgrade] = True
+                    player["MagicDefence"] += 15
+            if Upgrade is "Health1":
+                if CheckResearchUpgrade(100000):
+                    StatUpgrades[Upgrade] = True
+                    player["MaxHealth"] += 25
+                    player["CurrentHp"] += 25
+
+            if Upgrade is "Skill1":
+                if CheckResearchUpgrade(10000):
+                    StatUpgrades[Upgrade] = True
+                    player["Skill"] += 15
+            if Upgrade is "Skill2":
+                if CheckResearchUpgrade(750000):
+                    StatUpgrades[Upgrade] = True
+                    player["Skill"] += 15
+            if Upgrade is "Intelligence1":
+                if CheckResearchUpgrade(10000):
+                    StatUpgrades[Upgrade] = True
+                    player["Intelligence"] += 15
+            if Upgrade is "Intelligence2":
+                if CheckResearchUpgrade(750000):
+                    StatUpgrades[Upgrade] = True
+                    player["Intelligence"] += 15
+            if Upgrade is "CritPower1":
+                if CheckResearchUpgrade(150000):
+                    StatUpgrades[Upgrade] = True
+                    player["CritPower"] += 30
+            if Upgrade is "CritChance1":
+                if CheckResearchUpgrade(600000):
+                    StatUpgrades[Upgrade] = True
+                    player["CritChance"] += 5
+
+            if Upgrade is "Dexterity1":
+                if CheckResearchUpgrade(75000):
+                    StatUpgrades[Upgrade] = True
+                    player["Dexterity"] += 15
+            if Upgrade is "Dexterity2":
+                if CheckResearchUpgrade(2000000):
+                    StatUpgrades[Upgrade] = True
+                    player["Dexterity"] += 15
+            if Upgrade is "CastingSpeed1":
+                if CheckResearchUpgrade(75000):
+                    StatUpgrades[Upgrade] = True
+                    player["CastingSpeed"] += 15
+            if Upgrade is "CastingSpeed2":
+                if CheckResearchUpgrade(2000000):
+                    StatUpgrades[Upgrade] = True
+                    player["CastingSpeed"] += 15
+            if Upgrade is "Regen1":
+                if CheckResearchUpgrade(1000):
+                    StatUpgrades[Upgrade] = True
+                    player["Regen"] += 3
+            if Upgrade is "Regen2":
+                if CheckResearchUpgrade(1000000):
+                    StatUpgrades[Upgrade] = True
+                    player["Regen"] += 3
+            
+            if Upgrade is "Mana1":
+                if CheckResearchUpgrade(1500):
+                    StatUpgrades[Upgrade] = True
+                    player["Mana"] += 20
+            if Upgrade is "Mana2":
+                if CheckResearchUpgrade(750000):
+                    StatUpgrades[Upgrade] = True
+                    player["Mana"] += 20
+            if Upgrade is "Energy1":
+                if CheckResearchUpgrade(1500):
+                    StatUpgrades[Upgrade] = True
+                    player["Energy"] += 20
+            if Upgrade is "Energy2":
+                if CheckResearchUpgrade(750000):
+                    StatUpgrades[Upgrade] = True
+                    player["Energy"] += 20
+            if Upgrade is "ManaRegen1":
+                if CheckResearchUpgrade(2000000):
+                    StatUpgrades[Upgrade] = True
+                    player["ManaRegen"] += 10
+            if Upgrade is "EnergyRegen1":
+                if CheckResearchUpgrade(2000000):
+                    StatUpgrades[Upgrade] = True
+                    player["EnergyRegen"] += 10
+            
+            if Upgrade is "TrueAttack1":
+                if CheckResearchUpgrade(999000):
+                    StatUpgrades[Upgrade] = True
+                    player["TrueAttack"] += 5
+            if Upgrade is "TrueDefence1":
+                if CheckResearchUpgrade(999000):
+                    StatUpgrades[Upgrade] = True
+                    player["TrueDefence"] += 5
+
+            if Upgrade is "Powerful":
+                if CheckResearchUpgrade(2000000):
+                    StatUpgrades[Upgrade] = True
+            if Upgrade is "Tank":
+                if CheckResearchUpgrade(2000000):
+                    StatUpgrades[Upgrade] = True
+            if Upgrade is "Wisdom":
+                if CheckResearchUpgrade(100000):
+                    StatUpgrades[Upgrade] = True
+            if Upgrade is "Efficient":
+                if CheckResearchUpgrade(100000):
+                    StatUpgrades[Upgrade] = True
+            if Upgrade is "Stamina":
+                if CheckResearchUpgrade(500000):
+                    StatUpgrades[Upgrade] = True
+                    player["Energy"] += 30
+                    player["Mana"] += 30
+                    player["EnergyRegen"] += 15
+                    player["ManaRegen"] += 15
+            if Upgrade is "Truth":
+                if CheckResearchUpgrade(20000000):
+                    StatUpgrades[Upgrade] = True
+
+def CheckResearchUpgrade(Number: int):
+    global research
+    if research < Number:
+        return False
+    research -= Number
+    return True
+
+battles = 0
+enemiesKilled = 0
+highestHierarchy = 0
 
 
 
@@ -1038,7 +1349,9 @@ while True:
             max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(45 ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/((level - 35) ** 1.75 + 1.1 ** (level - 40)))) + 0.798935) * 100)
         LevelUp = True
     light = len(ClearedRooms)
-
+    for i in ClearedRooms:
+        if highestHierarchy < i[0]:
+            highestHierarchy = i[0]
 
     if phase.lower() == "title":
         Ui = False
@@ -1354,7 +1667,7 @@ while True:
 
         # itemObjects["RoomSize"]["animation frames"][0] = pyterm.addBorder("".join("".join(" " for i2 in range(round((room_size[0] - 1)/2 + 1))) + "\n" for i3 in range(round((room_size[1] - 1)/2 + 1))), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})
         if RoomData[EnteredRoom]["Type"] == "Home":
-            room_size = [130, 25]
+            room_size = [100, 25]
             RoomException = True
         else:
             RoomException = False
@@ -1366,31 +1679,132 @@ while True:
 
         if RoomData[EnteredRoom]["Type"] is "Home":
             room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#", "\\", "/", "O", "◉", ">", "<", ".", "[", "]", "{", "}", "="]
-            pyterm.renderItem("HomeEnchant")
-            pyterm.renderItem("HomeCraft")
-            pyterm.renderItem("HomeShop")
             pyterm.renderItem("RoomUi")
+
+            if MechanicUpgrades["Enchanting"]:
+                pyterm.renderItem("HomeEnchant")
+                if (pyterm.getTopLeft("HomeEnchant")[0] + 3 <= pyterm.getCenter("PlayerMove")[0]+round(player_x) <= pyterm.getTopLeft("HomeEnchant")[0] + 11) and (pyterm.getTopLeft("HomeEnchant")[1] + 1 <= pyterm.getCenter("PlayerMove")[1]+round(player_y) <= pyterm.getTopLeft("HomeEnchant")[1] + 5):
+                    pyterm.renderItem("RoomInteract")
+                    if keyboard.is_pressed("e"):
+                        RiseEnchantBool = True
+                        Enchants = True
+                        DisableOther = True
+                        EnchantHelp = False
+            else:
+                pyterm.renderItem("HomeEnchantRuin")
+
+            if MechanicUpgrades["Crafting"]:
+                pyterm.renderItem("HomeCraft")
+            else:
+                pyterm.renderItem("HomeCraftRuin")
+
+            if MechanicUpgrades["Shop"]:
+                pyterm.renderItem("HomeShop")
+            else:
+                pyterm.renderItem("HomeShopRuin")
+
             pyterm.renderItem("HomeResearch")
-            pyterm.renderItem("Altar")
+            if (pyterm.getTopLeft("HomeResearch")[0] - 1 <= pyterm.getCenter("PlayerMove")[0]+round(player_x) <= pyterm.getTopRight("HomeResearch")[0] + 1) and (pyterm.getTopLeft("HomeResearch")[1] - 1 <= pyterm.getCenter("PlayerMove")[1]+round(player_y) <= pyterm.getBottomLeft("HomeResearch")[1] + 1):
+                pyterm.renderItem("RoomInteract")
+                if keyboard.is_pressed("e"):
+                    ResearchUps = True
+                    DisableOther = True
+            # pyterm.renderItem("Altar")
 
         pyterm.renderItem("PlayerMove", xBias = round(player_x), yBias = round(player_y))
 
-        if keyboard.is_pressed("w"):
-            if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y - 1) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
-                player_y -= 0.15
-        if keyboard.is_pressed("s"):
-            if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y + 1) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
-                player_y += 0.15
-        if keyboard.is_pressed("a"):
-            if pyterm.getLetter((round(player_x - 1) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
-                player_x -= 0.3
-        if keyboard.is_pressed("d"):
-            if pyterm.getLetter((round(player_x + 1) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
-                player_x += 0.3
-        if not (keyboard.is_pressed("w") or keyboard.is_pressed("a") or keyboard.is_pressed("s") or keyboard.is_pressed("d")):
-            player_x = round(player_x)
-            player_y = round(player_y)
+        if not DisableOther:
+            if keyboard.is_pressed("w"):
+                if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y - 1) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
+                    if (round(player_x), round(player_y - 1)) in [i["Location"] for i in room_push]:
+                        pushed = 0
+                        moved_pushed = []
+                        while True:
+                            pushed += 1
+                            if (round(player_x), round(player_y - pushed)) in [i["Location"] for i in room_push]:
+                                moved_pushed.append((round(player_x), round(player_y - pushed)))
+                                continue
+                            elif pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y - pushed) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
+                                break
+                            else:
+                                if round(player_y - 1) == round(player_y - 0.15):
+                                    for box in room_push:
+                                        if box["Location"] in moved_pushed:
+                                            box["Location"] = (box["Location"][0], box["Location"][1] - 1)
+                                player_y -= 0.15
+                                break
+                    else:
+                        player_y -= 0.15
+            if keyboard.is_pressed("s"):
+                if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y + 1) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
+                    if (round(player_x), round(player_y + 1)) in [i["Location"] for i in room_push]:
+                        pushed = 0
+                        moved_pushed = []
+                        while True:
+                            pushed += 1
+                            if (round(player_x), round(player_y + pushed)) in [i["Location"] for i in room_push]:
+                                moved_pushed.append((round(player_x), round(player_y + pushed)))
+                                continue
+                            elif pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y + pushed) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
+                                break
+                            else:
+                                if round(player_y + 1) == round(player_y + 0.15):
+                                    for box in room_push:
+                                        if box["Location"] in moved_pushed:
+                                            box["Location"] = (box["Location"][0], box["Location"][1] + 1)
+                                player_y += 0.15
+                                break
+                    else:
+                        player_y += 0.15
+            if keyboard.is_pressed("a"):
+                if pyterm.getLetter((round(player_x - 1) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
+                    if (round(player_x - 1), round(player_y)) in [i["Location"] for i in room_push]:
+                        pushed = 0
+                        moved_pushed = []
+                        while True:
+                            pushed += 1
+                            if (round(player_x - pushed), round(player_y)) in [i["Location"] for i in room_push]:
+                                moved_pushed.append((round(player_x - pushed), round(player_y)))
+                                continue
+                            elif pyterm.getLetter((round(player_x - pushed) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
+                                break
+                            else:
+                                if round(player_x - 1) == round(player_x - 0.3):
+                                    for box in room_push:
+                                        if box["Location"] in moved_pushed:
+                                            box["Location"] = (box["Location"][0] - 1, box["Location"][1])
+                                player_x -= 0.3
+                                break
+                    else:
+                        player_x -= 0.3
+            if keyboard.is_pressed("d"):
+                if pyterm.getLetter((round(player_x + 1) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
+                    if (round(player_x + 1), round(player_y)) in [i["Location"] for i in room_push]:
+                        pushed = 0
+                        moved_pushed = []
+                        while True:
+                            pushed += 1
+                            if (round(player_x + pushed), round(player_y)) in [i["Location"] for i in room_push]:
+                                moved_pushed.append((round(player_x + pushed), round(player_y)))
+                                continue
+                            elif pyterm.getLetter((round(player_x + pushed) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
+                                break
+                            else:
+                                if round(player_x + 1) == round(player_x + 0.3):
+                                    for box in room_push:
+                                        if box["Location"] in moved_pushed:
+                                            box["Location"] = (box["Location"][0] + 1, box["Location"][1])
+                                player_x += 0.3
+                                break
+                    else:
+                        player_x += 0.3
+            if not (keyboard.is_pressed("w") or keyboard.is_pressed("a") or keyboard.is_pressed("s") or keyboard.is_pressed("d")):
+                player_x = round(player_x)
+                player_y = round(player_y)
         
+        for push in room_push:
+            pyterm.changeItemFrameContent("Pushable", push["Character"], 0)
+            pyterm.renderItem("Pushable", xBias = push["Location"][0], yBias = push["Location"][1])
 
     elif phase.lower() == "battle":
         Ui = False
@@ -1627,6 +2041,11 @@ while True:
     if keyboard.is_pressed("x"):
         ResearchUps = True
         DisableOther = True
+    if keyboard.is_pressed("c"):
+        # research += 1
+        # research *= 2
+        research += AddResearch(1)
+        research *= 2
 
     #Ui
     if Ui:
@@ -1894,7 +2313,7 @@ while True:
                     BestSpellPower = SpellPower
                     BestSpell = Cast
 
-            if BestSpellPower <= 8 + max(len(SpellCast) - 5, 0)/1.5:
+            if (BestSpellPower <= 8 + max(len(SpellCast) - 5, 0)/1.5) and (MechanicUpgrades["PerfectEnchants"]):
                 for types in Inventory.keys():
                     if FocusEnchant in Inventory[types]:
                         Inventory[types][Inventory[types].index(FocusEnchant)]["Enchant"] = BestSpell + "+"
@@ -2083,7 +2502,64 @@ while True:
 
     #ResearchUpgrades
     if ResearchUps:
+        LeftClick = LeftClickCopy
+        RightClick = RightClickCopy
+        if ResearchScreen["Type"] == "Research":
+            pyterm.changeCurrentItemFrame("ResearchUps", 0)
+        elif ResearchScreen["Type"] == "Mechanic":
+            pyterm.changeCurrentItemFrame("ResearchUps", 1)
+        else:
+            pyterm.changeCurrentItemFrame("ResearchUps", 2)
         pyterm.renderItem("ResearchUps")
+
+        if (pyterm.getTopRight("ResearchUps")[0] >= location[0] >= pyterm.getTopRight("ResearchUps")[0] - 8) and (pyterm.getTopRight("ResearchUps")[1] + 1 <= location[1] <= pyterm.getTopRight("ResearchUps")[1] + 3) and LeftClick:
+            ResearchScreen["Type"] = "Research"
+            ResearchScreen["Screen"] = 0
+        elif (pyterm.getTopRight("ResearchUps")[0] >= location[0] >= pyterm.getTopRight("ResearchUps")[0] - 8) and (pyterm.getTopRight("ResearchUps")[1] + 4 <= location[1] <= pyterm.getTopRight("ResearchUps")[1] + 6) and LeftClick:
+            ResearchScreen["Type"] = "Mechanic"
+            ResearchScreen["Screen"] = 0
+        elif (pyterm.getTopRight("ResearchUps")[0] >= location[0] >= pyterm.getTopRight("ResearchUps")[0] - 8) and (pyterm.getTopRight("ResearchUps")[1] + 7 <= location[1] <= pyterm.getTopRight("ResearchUps")[1] + 9) and LeftClick:
+            ResearchScreen["Type"] = "Stat"
+            ResearchScreen["Screen"] = 0
+        elif (pyterm.getBottomLeft("ResearchUps")[0] + 2 <= location[0] <= pyterm.getBottomLeft("ResearchUps")[0] + 6) and (pyterm.getBottomLeft("ResearchUps")[1] - 1 == round(location[1])) and LeftClick:
+            ResearchScreen["Screen"] -= 1
+            if ResearchScreen["Screen"] < 0:
+                ResearchScreen["Screen"] = int(len(itemObjects[ResearchScreen["Type"]+"Buttons"]["animation frames"])/6 - 1)
+        elif (pyterm.getBottomLeft("ResearchUps")[0] + 35 <= location[0] <= pyterm.getBottomLeft("ResearchUps")[0] + 39) and (pyterm.getBottomLeft("ResearchUps")[1] - 1 == round(location[1])) and LeftClick:
+            ResearchScreen["Screen"] += 1
+            if ResearchScreen["Screen"] > len(itemObjects[ResearchScreen["Type"]+"Buttons"]["animation frames"])/6 - 1:
+                ResearchScreen["Screen"] = 0
+        # print(len(itemObjects[ResearchScreen["Type"]+"Buttons"]["animation frames"])/6 - 1)
+
+        if ResearchScreen["Type"] == "Research":
+            for button in range(6):
+                pyterm.changeCurrentItemFrame("ResearchButtons", 6 * ResearchScreen["Screen"] + button)
+                pyterm.renderItem("ResearchButtons", yBias = button * 3)
+                if ResearchUpgrades[list(ResearchUpgrades.keys())[6 * ResearchScreen["Screen"] + button]] == True:
+                    pyterm.renderItem("BoughtButtons", yBias = button * 3)
+                if (pyterm.getTopLeft("ResearchButtons")[0] <= location[0] <= pyterm.getTopLeft("ResearchButtons")[0] + 12) and (pyterm.getTopLeft("ResearchButtons")[1] + button * 3 <= location[1] <= pyterm.getTopLeft("ResearchButtons")[1] + button * 3 + 2) and LeftClick:
+                    BuyUpgrade(ResearchScreen["Type"], 6 * ResearchScreen["Screen"] + button)
+        elif ResearchScreen["Type"] == "Mechanic":
+            for button in range(6):
+                pyterm.changeCurrentItemFrame("MechanicButtons", 6 * ResearchScreen["Screen"] + button)
+                pyterm.renderItem("MechanicButtons", yBias = button * 3)
+                if MechanicUpgrades[list(MechanicUpgrades.keys())[6 * ResearchScreen["Screen"] + button]] == True:
+                    pyterm.renderItem("BoughtButtons", yBias = button * 3)
+                if (pyterm.getTopLeft("ResearchButtons")[0] <= location[0] <= pyterm.getTopLeft("ResearchButtons")[0] + 12) and (pyterm.getTopLeft("ResearchButtons")[1] + button * 3 <= location[1] <= pyterm.getTopLeft("ResearchButtons")[1] + button * 3 + 2) and LeftClick:
+                    BuyUpgrade(ResearchScreen["Type"], 6 * ResearchScreen["Screen"] + button)
+        elif ResearchScreen["Type"] == "Stat":
+            for button in range(6):
+                pyterm.changeCurrentItemFrame("StatButtons", 6 * ResearchScreen["Screen"] + button)
+                pyterm.renderItem("StatButtons", yBias = button * 3)
+                if StatUpgrades[list(StatUpgrades.keys())[6 * ResearchScreen["Screen"] + button]] == True:
+                    pyterm.renderItem("BoughtButtons", yBias = button * 3)
+                if (pyterm.getTopLeft("ResearchButtons")[0] <= location[0] <= pyterm.getTopLeft("ResearchButtons")[0] + 12) and (pyterm.getTopLeft("ResearchButtons")[1] + button * 3 <= location[1] <= pyterm.getTopLeft("ResearchButtons")[1] + button * 3 + 2) and LeftClick:
+                    BuyUpgrade(ResearchScreen["Type"], 6 * ResearchScreen["Screen"] + button)
+        
+        if (pyterm.getTopLeft("ResearchUps")[1] + 1 == round(location[1])) and (pyterm.getTopLeft("ResearchUps")[0] + 1 <= location[0] <= pyterm.getTopLeft("ResearchUps")[0] + 3) and LeftClick:
+            ResearchUps = False
+            DisableOther = False
+
 
     #Levels
     if LevelUp:
@@ -2098,8 +2574,8 @@ while True:
                 pyterm.changeCurrentItemFrame("LevelUpHover", 0)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
-                    player["Health"] += 5
-                    player["CurrentHealth"] = player["Health"]
+                    player["MaxHealth"] += 5
+                    player["CurrentHealth"] = player["MaxHealth"]
                     player["Defence"] += 10
                     player["MagicDefence"] += 10
                     DisableOther = False
@@ -2109,8 +2585,8 @@ while True:
                 pyterm.changeCurrentItemFrame("LevelUpHover", 1)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
-                    player["Health"] += 5
-                    player["CurrentHealth"] = player["Health"]
+                    player["MaxHealth"] += 5
+                    player["CurrentHealth"] = player["MaxHealth"]
                     player["Strength"] += 15
                     player["MagicPower"] += 15
                     DisableOther = False
@@ -2120,8 +2596,8 @@ while True:
                 pyterm.changeCurrentItemFrame("LevelUpHover", 2)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
-                    player["Health"] += 5
-                    player["CurrentHealth"] = player["Health"]
+                    player["MaxHealth"] += 5
+                    player["CurrentHealth"] = player["MaxHealth"]
                     player["Dexterity"] += 20
                     player["CastingSpeed"] += 20
                     DisableOther = False
@@ -2131,8 +2607,8 @@ while True:
                 pyterm.changeCurrentItemFrame("LevelUpHover", 3)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
-                    player["Health"] += 5
-                    player["CurrentHealth"] = player["Health"]
+                    player["MaxHealth"] += 5
+                    player["CurrentHealth"] = player["MaxHealth"]
                     player["Skill"] += 15
                     player["Intelligence"] += 15
                     DisableOther = False
@@ -2142,8 +2618,8 @@ while True:
                 pyterm.changeCurrentItemFrame("LevelUpHover", 4)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
-                    player["Health"] += 5
-                    player["CurrentHealth"] = player["Health"]
+                    player["MaxHealth"] += 5
+                    player["CurrentHealth"] = player["MaxHealth"]
                     player["CritChance"] += 5
                     player["CritPower"] += 12.5
                     DisableOther = False
@@ -2153,8 +2629,8 @@ while True:
                 pyterm.changeCurrentItemFrame("LevelUpHover", 5)
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
-                    player["Health"] += 5
-                    player["CurrentHealth"] = player["Health"]
+                    player["MaxHealth"] += 5
+                    player["CurrentHealth"] = player["MaxHealth"]
                     player["Mana"] += 18
                     player["Energy"] += 18
                     player["CurrentMana"] = player["Mana"]

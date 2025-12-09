@@ -248,7 +248,9 @@ def removeLetter(coords: tuple) -> None:
 
 
 def getLetter(coords: tuple) -> str:
-    return lettersToRender[coords]
+    if coords in lettersToRender.keys():
+        return lettersToRender[coords]
+    return False
 
 
 # Functions: Items Sudo-objects

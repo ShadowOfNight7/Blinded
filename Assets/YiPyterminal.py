@@ -618,9 +618,13 @@ def changeItemFrameContent(
             )
 
 
-def moveItem(item: str, x: int = 0, y: int = 0) -> None:
-    itemObjects[item]["x bias"] += x
-    itemObjects[item]["y bias"] += y
+def moveItem(item: str, x: int = 0, y: int = 0, absoluteBias: bool = False) -> None:
+    if absoluteBias == False:
+        itemObjects[item]["x bias"] += x
+        itemObjects[item]["y bias"] += y
+    else:
+        itemObjects[item]["x bias"] = x
+        itemObjects[item]["y bias"] = y
     updateItemLocation(item)
 
 
@@ -1061,3 +1065,21 @@ def style(
         end = len(text)
     processedString.insert(end, endEscapeCode)
     return "".join(processedString)
+
+
+def replaceNthLetterInStr(string: str, newCharacter: str, n: int) -> str:
+    if len(string) == n:
+        string = string[:-1]
+    return string[:n] + newCharacter + string[n + 1 :]
+
+
+def replaceNthInstanceOfStr(text: str, old: str, new: str, n: int) -> str:
+    index = -1
+    count = 0
+    while True:
+        index = text.find(old, index + 1)
+        if index == -1:
+            return text
+        count += 1
+        if count == n:
+            return text[:index] + new + text[index + len(old) :]

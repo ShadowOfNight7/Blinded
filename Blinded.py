@@ -187,7 +187,17 @@ def PhaseChange(Phase: str):
                     "attack option 1",
                     [
                         "".center(30, "š"),
-                        "š>šššššššššššššššššššššššššš<š",
+                        (
+                            ">" + "š" * (len(EquippedAttacks["Attack0"]) + 2) + "<"
+                        ).center(30, "š"),
+                        "š╠"
+                        + ("š" * (len(EquippedAttacks["Attack0"]) + 2)).center(26, "š")
+                        + "╣š",
+                        "š╠"
+                        + (
+                            ">" + "š" * (len(EquippedAttacks["Attack0"]) + 2) + "<"
+                        ).center(26, "š")
+                        + "╣š",
                     ],
                     parentObject="fight box",
                     parentAnchor="center",
@@ -200,7 +210,17 @@ def PhaseChange(Phase: str):
                     "attack option 2",
                     [
                         "".center(30, "š"),
-                        "š>šššššššššššššššššššššššššš<š",
+                        (
+                            ">" + "š" * (len(EquippedAttacks["Attack1"]) + 2) + "<"
+                        ).center(30, "š"),
+                        "š╠"
+                        + ("š" * (len(EquippedAttacks["Attack1"]) + 2)).center(26, "š")
+                        + "╣š",
+                        "š╠"
+                        + (
+                            ">" + "š" * (len(EquippedAttacks["Attack1"]) + 2) + "<"
+                        ).center(26, "š")
+                        + "╣š",
                     ],
                     parentObject="fight box",
                     parentAnchor="center",
@@ -213,7 +233,17 @@ def PhaseChange(Phase: str):
                     "attack option 3",
                     [
                         "".center(30, "š"),
-                        "š>šššššššššššššššššššššššššš<š",
+                        (
+                            ">" + "š" * (len(EquippedAttacks["Attack2"]) + 2) + "<"
+                        ).center(30, "š"),
+                        "š╠"
+                        + ("š" * (len(EquippedAttacks["Attack2"]) + 2)).center(26, "š")
+                        + "╣š",
+                        "š╠"
+                        + (
+                            ">" + "š" * (len(EquippedAttacks["Attack2"]) + 2) + "<"
+                        ).center(26, "š")
+                        + "╣š",
                     ],
                     parentObject="fight box",
                     parentAnchor="center",
@@ -226,7 +256,17 @@ def PhaseChange(Phase: str):
                     "attack option 4",
                     [
                         "".center(30, "š"),
-                        "š>šššššššššššššššššššššššššš<š",
+                        (
+                            ">" + "š" * (len(EquippedAttacks["Attack3"]) + 2) + "<"
+                        ).center(30, "š"),
+                        "š╠"
+                        + ("š" * (len(EquippedAttacks["Attack3"]) + 2)).center(26, "š")
+                        + "╣š",
+                        "š╠"
+                        + (
+                            ">" + "š" * (len(EquippedAttacks["Attack3"]) + 2) + "<"
+                        ).center(26, "š")
+                        + "╣š",
                     ],
                     parentObject="fight box",
                     parentAnchor="center",
@@ -239,7 +279,17 @@ def PhaseChange(Phase: str):
                     "attack option 5",
                     [
                         "".center(30, "š"),
-                        "š>šššššššššššššššššššššššššš<š",
+                        (
+                            ">" + "š" * (len(EquippedAttacks["Attack4"]) + 2) + "<"
+                        ).center(30, "š"),
+                        "š╠"
+                        + ("š" * (len(EquippedAttacks["Attack4"]) + 2)).center(26, "š")
+                        + "╣š",
+                        "š╠"
+                        + (
+                            ">" + "š" * (len(EquippedAttacks["Attack4"]) + 2) + "<"
+                        ).center(26, "š")
+                        + "╣š",
                     ],
                     parentObject="fight box",
                     parentAnchor="center",
@@ -252,7 +302,17 @@ def PhaseChange(Phase: str):
                     "attack option 6",
                     [
                         "".center(30, "š"),
-                        "š>šššššššššššššššššššššššššš<š",
+                        (
+                            ">" + "š" * (len(EquippedAttacks["Attack5"]) + 2) + "<"
+                        ).center(30, "š"),
+                        "š╠"
+                        + ("š" * (len(EquippedAttacks["Attack5"]) + 2)).center(26, "š")
+                        + "╣š",
+                        "š╠"
+                        + (
+                            ">" + "š" * (len(EquippedAttacks["Attack5"]) + 2) + "<"
+                        ).center(26, "š")
+                        + "╣š",
                     ],
                     parentObject="fight box",
                     parentAnchor="center",
@@ -265,7 +325,17 @@ def PhaseChange(Phase: str):
                     "attack option 7",
                     [
                         "".center(30, "š"),
-                        "š>šššššššššššššššššššššššššš<š",
+                        (
+                            ">" + "š" * (len(EquippedAttacks["Attack6"]) + 2) + "<"
+                        ).center(30, "š"),
+                        "š╠"
+                        + ("š" * (len(EquippedAttacks["Attack6"]) + 2)).center(26, "š")
+                        + "╣š",
+                        "š╠"
+                        + (
+                            ">" + "š" * (len(EquippedAttacks["Attack6"]) + 2) + "<"
+                        ).center(26, "š")
+                        + "╣š",
                     ],
                     parentObject="fight box",
                     parentAnchor="center",
@@ -278,7 +348,17 @@ def PhaseChange(Phase: str):
                     "attack option 8",
                     [
                         "".center(30, "š"),
-                        "š>šššššššššššššššššššššššššš<š",
+                        (
+                            ">" + "š" * (len(EquippedAttacks["Attack7"]) + 2) + "<"
+                        ).center(30, "š"),
+                        "š╠"
+                        + ("š" * (len(EquippedAttacks["Attack7"]) + 2)).center(26, "š")
+                        + "╣š",
+                        "š╠"
+                        + (
+                            ">" + "š" * (len(EquippedAttacks["Attack7"]) + 2) + "<"
+                        ).center(26, "š")
+                        + "╣š",
                     ],
                     parentObject="fight box",
                     parentAnchor="center",
@@ -793,8 +873,8 @@ def EnemyAttack(Attack):
 timed = 9
 AimTarget = []
 # character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PCS
-# character_size = (12, 23) #LAPTOP
+# character_size = (9, 19) #PCS
+character_size = (12, 23) #LAPTOP
 # character_size = Cursor.initialize(10)
 score = 0
 MainClock = 1000
@@ -900,7 +980,7 @@ Inventory = {"Armor":
 #sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
 #apple = {"Name": "Apple", "Type": Consumable", "Asset": "", "Effects": [{"Type": Strength, "Time": 3, "Potency": 1, "Apply": "Player"},{"Type": "Damage", "Potency": 999, "Apply": "AllEnemy"}], "Description": "Could be used to make pie", "Id": None}
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
-EquippedAttacks = {"Attack0": "Slime Leap", "Attack1": None, "Attack2": None, "Attack3": None, "Attack4": None, "Attack5": None,"Attack6": None,"Attack7": None,}
+EquippedAttacks = {"Attack0": "Slime Leap", "Attack1": "Acidify", "Attack2": None, "Attack3": None, "Attack4": None, "Attack5": None,"Attack6": None,"Attack7": None,}
 LockedAttacks = {"Attack0": False, "Attack1": False, "Attack2": False, "Attack3": False, "Attack4": True, "Attack5": True,"Attack6": True,"Attack7": True,}
 EquippedUltimate = "Slime Heat-Seeking Missile"
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
@@ -1597,11 +1677,18 @@ while True:
         if YiPyterminal.getBottomCenter("fight box")[1]+1==YiPyterminal.getTopCenter("center barrier")[1] and isUltimateSelected==False:
             for optionNum in range(len(attackOptions)):
                 if LockedAttacks["Attack"+str(optionNum)]==False and EquippedAttacks["Attack"+str(optionNum)]!=None:
-                    if YiPyterminal.checkItemIsHovered(attackOptions[optionNum]) == True:
-                        if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] == 0:
+                    if selectedAttack== EquippedAttacks["Attack"+str(optionNum)]:
+                        if YiPyterminal.checkItemIsHovered(attackOptions[optionNum]) == True:
+                            if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] != 3:
+                                YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 3)
+                        else:
+                            if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] != 2:
+                                YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 2)
+                    elif YiPyterminal.checkItemIsHovered(attackOptions[optionNum]) == True:
+                        if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] != 1:
                             YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 1)
                     else:
-                        if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] == 1:
+                        if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] != 0:
                             YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 0)
                     if YiPyterminal.checkItemIsClicked(attackOptions[optionNum],onlyCheckRelease=True) == True:
                         selectedAttack = EquippedAttacks["Attack"+str(optionNum)]

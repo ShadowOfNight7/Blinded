@@ -1063,6 +1063,7 @@ pyterm.createItem("HomeResearch", [assets.get("ResearchHome")], "screen", "cente
 pyterm.createItem("Altar", [assets.get("Altar")], "screen", "center", "center", 0, 0, 0)
 
 pyterm.createItem("RoomInteract", ["Press [E] into Interact"], "RoomUi", "center", "center", 0, 0, 0)
+pyterm.createItem("LeaveRoom", [assets.get("LeaveRoom")], "screen", "center", "center", 0, 0, -16)
 
 
 ## ResearchUpgrades
@@ -1333,7 +1334,7 @@ highestHierarchy = 0
 
 
 
-PhaseChange("battle")
+PhaseChange("map")
 
 YiPyterminal.initializeTerminal(1, character_size) 
 YiPyterminal.startAsynchronousMouseListener()
@@ -1534,13 +1535,13 @@ while True:
             for tier in hierarchyLocations:
                 for rooms in tier:
                     if rooms["id"][0] > 0:
-                        RoomData[rooms["id"]] = {"Type": random.choice(["Puzzle", "Puzzle", "Puzzle", "Treasure", "Battle", "Battle", "Battle", "Battle", "Battle", "Battle"]), "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
+                        RoomData[rooms["id"]] = {"Type": random.choice(["Puzzle", "Puzzle", "Battle", "Treasure", "Battle", "Battle", "Battle", "Battle", "Battle", "Battle"]), "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
                         if rooms["id"] == (3, 1):
-                            RoomData[rooms["id"]] = {"Type": "BossBattle1", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3)}
+                            RoomData[rooms["id"]] = {"Type": "BossBattle1", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
                         elif rooms["id"] == (5, 1):
-                            RoomData[rooms["id"]] = {"Type": "BossBattle2", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3)}
+                            RoomData[rooms["id"]] = {"Type": "BossBattle2", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
                         elif rooms["id"] == (7, 1):
-                            RoomData[rooms["id"]] = {"Type": "BossBattle3", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3)}
+                            RoomData[rooms["id"]] = {"Type": "BossBattle3", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
                         leastDistanceRoom = 10**100
                         ClosestPastRoom = ""
                         for pastrooms in hierarchyLocations[rooms["id"][0] - 1]: 
@@ -1637,6 +1638,7 @@ while True:
                     itemObjects["RoomHierarchy"]["animation frames"][0] = "Hierarchy: ???"
                     itemObjects["RoomNo."]["animation frames"][0] = "Room Number: ???"
                     pyterm.changeCurrentItemFrame("RoomSidebar", 3)
+                pyterm.changeItemFrameContent("RoomType", "Type: " + str(RoomData[FocusRoom["id"]]["Type"]))
                 pyterm.renderItem("RoomSidebar", yBias = NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomHierarchy", xBias = -11, yBias = 6 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomNo.", xBias = -11, yBias = 7 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
@@ -1648,7 +1650,20 @@ while True:
         if AnimateRoomEntry:
             if itemObjects["RoomEntryAnimation"]["current frame"] + 1 >= 15:
                 pyterm.changeCurrentItemFrame("RoomEntryAnimation", 0)
-                PhaseChange("room")
+                if RoomData[AnimateRoomEntry["id"]]["Type"] == "Puzzle":
+                    PhaseChange("room")
+                elif RoomData[AnimateRoomEntry["id"]]["Type"] == "Battle":
+                    PhaseChange("battle")
+                elif RoomData[AnimateRoomEntry["id"]]["Type"] == "Treasure":
+                    PhaseChange("room")
+                elif RoomData[AnimateRoomEntry["id"]]["Type"] == "BossBattle1":
+                    PhaseChange("battle")
+                elif RoomData[AnimateRoomEntry["id"]]["Type"] == "BossBattle2":
+                    PhaseChange("battle")
+                elif RoomData[AnimateRoomEntry["id"]]["Type"] == "BossBattle3":
+                    PhaseChange("battle")
+                else:
+                    pass
                 # ClearedRooms.append(AnimateRoomEntry["id"])
                 AnimateRoomEntry = False
                 FocusRoom = False
@@ -1707,9 +1722,13 @@ while True:
         pyterm.updateItemSize("RoomSize")
         pyterm.renderItem("RoomSize", screenLimits= (999, 999))
 
+        pyterm.renderItem("RoomUi")
+        pyterm.renderItem("LeaveRoom")
+        if (pyterm.getTopLeft("LeaveRoom")[0] <= location[0] <= pyterm.getBottomRight("LeaveRoom")[0]) and (pyterm.getTopLeft("LeaveRoom")[1] <= location[1] <= pyterm.getBottomRight("LeaveRoom")[1]) and LeftClick:
+            PhaseChange("map")
+
         if RoomData[EnteredRoom]["Type"] is "Home":
             room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#", "\\", "/", "O", "◉", ">", "<", ".", "[", "]", "{", "}", "="]
-            pyterm.renderItem("RoomUi")
 
             if MechanicUpgrades["Enchanting"]:
                 pyterm.renderItem("HomeEnchant")
@@ -1725,11 +1744,19 @@ while True:
 
             if MechanicUpgrades["Crafting"]:
                 pyterm.renderItem("HomeCraft")
+                if (pyterm.getTopLeft("HomeCraft")[0] <= pyterm.getCenter("PlayerMove")[0]+round(player_x) <= pyterm.getBottomRight("HomeCraft")[0]) and (pyterm.getTopLeft("HomeCraft")[1] <= pyterm.getCenter("PlayerMove")[1]+round(player_y) <= pyterm.getBottomRight("HomeCraft")[1]):
+                    pyterm.renderItem("RoomInteract")
+                    if keyboard.is_pressed("e"):
+                        ""
             else:
                 pyterm.renderItem("HomeCraftRuin")
 
             if MechanicUpgrades["Shop"]:
                 pyterm.renderItem("HomeShop")
+                if (pyterm.getTopLeft("HomeShop")[0] - 1 <= pyterm.getCenter("PlayerMove")[0]+round(player_x) <= pyterm.getBottomRight("HomeShop")[0] + 1) and (pyterm.getTopLeft("HomeShop")[1] - 1 <= pyterm.getCenter("PlayerMove")[1]+round(player_y) <= pyterm.getBottomRight("HomeShop")[1] + 1):
+                    pyterm.renderItem("RoomInteract")
+                    if keyboard.is_pressed("e"):
+                        ""
             else:
                 pyterm.renderItem("HomeShopRuin")
 

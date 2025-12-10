@@ -145,7 +145,7 @@ def addLetter(coords: tuple, letter: str, overwrite: bool = True) -> None:
     if overwrite == False:
         if coords in lettersToRender:
             pass
-            addDebugMessage("You are trying to overwrite something")
+            # addDebugMessage("You are trying to overwrite something")
     lettersToRender[coords] = letter
 
 
@@ -191,11 +191,16 @@ def renderScreen(
     backgroundCharacter: str = " ",
     constantlyCheckScreenSize: bool = False,
     displayDebugMessages: bool = True,
+    debugDisplayMessageLimit: int = 5,
+    debugIsdisplayMessageLimit: bool = True,
 ) -> None:
     if constantlyCheckScreenSize == True:
         updateScreenSize()
     if displayDebugMessages == True:
-        renderDebugMessages()
+        renderDebugMessages(
+            displayMessageLimit=debugDisplayMessageLimit,
+            isdisplayMessageLimit=debugIsdisplayMessageLimit,
+        )
     global screenRender
     screenRender = [
         [backgroundCharacter for _ in range(screenWidth)] for _ in range(screenHeight)
@@ -393,20 +398,22 @@ def checkItemIsClicked(
                             )
                         ]
                     else:
-                        addDebugMessage("Invalid button input in checkItemIsClicked()")
+                        # addDebugMessage("Invalid button input in checkItemIsClicked()")
+                        pass
                 else:
                     return False
             except Exception as e:
-                addDebugMessage(
-                    str(e)
-                    + " "
-                    + str(itemFrame)
-                    + " "
-                    + str(mouseCoords[0])
-                    + " "
-                    + str(itemTopLeftX)
-                )
-                exit()
+                # addDebugMessage(
+                #     str(e)
+                #     + " "
+                #     + str(itemFrame)
+                #     + " "
+                #     + str(mouseCoords[0])
+                #     + " "
+                #     + str(itemTopLeftX)
+                # )
+                # exit()
+                return
         if button == "left":
             return mouseStatusCopy[
                 "left button" if onlyCheckRelease == False else "left button release"
@@ -481,9 +488,9 @@ def getAnchorPosition(
         elif parentAnchor == "right center" or parentAnchor == "right centre":
             anchorX, anchorY = screenWidth - 1, math.ceil((screenHeight - 1) / 2)
         else:
-            addDebugMessage(
-                "".join(["Invalid input for parentAnchor in addItem():", parentAnchor])
-            )
+            # addDebugMessage(
+            #     "".join(["Invalid input for parentAnchor in addItem():", parentAnchor])
+            # )
             return
     elif parentObject in itemObjects:
         if parentAnchor == "top left":
@@ -505,15 +512,15 @@ def getAnchorPosition(
         elif parentAnchor == "right center" or parentAnchor == "right centre":
             anchorX, anchorY = getRightCenter(parentObject)
         else:
-            addDebugMessage(
-                "".join(["Invalid input for parentAnchor in addItem():", parentAnchor])
-            )
+            # addDebugMessage(
+            #     "".join(["Invalid input for parentAnchor in addItem():", parentAnchor])
+            # )
             return
     else:
 
-        addDebugMessage(
-            "".join(["Invalid input for parentObject in addItem():", parentObject])
-        )
+        # addDebugMessage(
+        #     "".join(["Invalid input for parentObject in addItem():", parentObject])
+        # )
         return
     if isChildObjectLiteralStr == False:
         if width == None:
@@ -550,9 +557,9 @@ def getAnchorPosition(
         anchorX -= width - 1
         anchorY -= math.ceil((height - 1) / 2)
     else:
-        addDebugMessage(
-            "".join(["Invalid input for childAnchor in addItem():", childAnchor])
-        )
+        # addDebugMessage(
+        #     "".join(["Invalid input for childAnchor in addItem():", childAnchor])
+        # )
         return
     if childObject != None and isChildObjectLiteralStr == False:
         anchorX += itemObjects[childObject]["x bias"]
@@ -604,20 +611,22 @@ def changeItemFrameContent(
                 newFrameContents
             )
         else:
-            addDebugMessage(
-                "changeItemFrameContent() received incorrect type for variable newFrameContents. Type should be: str, but received type:"
-                + str(type(newFrameContents))
-                + ". "
-            )
+            # addDebugMessage(
+            #     "changeItemFrameContent() received incorrect type for variable newFrameContents. Type should be: str, but received type:"
+            #     + str(type(newFrameContents))
+            #     + ". "
+            # )
+            pass
     elif specificFrame == False:
         if isinstance(newFrameContents, list):
             itemObjects[item]["animation frames"] = copy.deepcopy(newFrameContents)
         else:
-            addDebugMessage(
-                "changeItemFrameContent() received incorrect type for variable newFrameContents. Type should be: list, but received type:"
-                + str(type(newFrameContents))
-                + ". "
-            )
+            # addDebugMessage(
+            #     "changeItemFrameContent() received incorrect type for variable newFrameContents. Type should be: list, but received type:"
+            #     + str(type(newFrameContents))
+            #     + ". "
+            # )
+            pass
 
 
 def moveItem(item: str, x: int = 0, y: int = 0, absoluteBias: bool = False) -> None:
@@ -650,7 +659,8 @@ def getAnchor(item: str, anchor: str) -> tuple:
     elif anchor == "right center" or anchor == "right centre":
         return getRightCenter(item)
     else:
-        addDebugMessage("".join(["Invalid input for anchor in getAnchor():", anchor]))
+        # addDebugMessage("".join(["Invalid input for anchor in getAnchor():", anchor]))
+        pass
 
 
 def getTopLeft(item: str) -> tuple:
@@ -862,12 +872,15 @@ def getRelativeMouseCoords(
 
 
 # Functions: Debug Messages
-def addDebugMessage(message: any) -> None:
-    debugMessages.append(
-        "".join(
-            ["> ", time.strftime("%H:%M:%S", time.localtime()), " | ", str(message)]
+def addDebugMessage(message: any, isAddTime: bool = True) -> None:
+    if isAddTime == True:
+        debugMessages.append(
+            "".join(
+                ["> ", time.strftime("%H:%M:%S", time.localtime()), " | ", str(message)]
+            )
         )
-    )
+    else:
+        debugMessages.append(str(message))
 
 
 def clearDebugMessages() -> None:
@@ -882,7 +895,9 @@ def removeDebugMessage(position: int, firstAdded: bool = True) -> None:
         debugMessages[len(debugMessages) - position].pop()
 
 
-def renderDebugMessages(displayMessageLimit: int = 5) -> None:
+def renderDebugMessages(
+    displayMessageLimit: int = 5, isdisplayMessageLimit: bool = True
+) -> None:
     if debugMode == True:
         for row in range(min(displayMessageLimit, len(debugMessages))):
             renderLiteralItem(
@@ -891,30 +906,33 @@ def renderDebugMessages(displayMessageLimit: int = 5) -> None:
                 itemAnchor="bottom right",
                 screenAnchor="bottom right",
             )
+
         if len(debugMessages) - displayMessageLimit == 1:
-            renderLiteralItem(
-                "".join(
-                    [
-                        "> There is 1 more debug message",
-                    ],
-                ),
-                yBias=-1 * displayMessageLimit,
-                itemAnchor="bottom right",
-                screenAnchor="bottom right",
-            )
+            if isdisplayMessageLimit == True:
+                renderLiteralItem(
+                    "".join(
+                        [
+                            "> There is 1 more debug message",
+                        ],
+                    ),
+                    yBias=-1 * displayMessageLimit,
+                    itemAnchor="bottom right",
+                    screenAnchor="bottom right",
+                )
         elif len(debugMessages) > displayMessageLimit:
-            renderLiteralItem(
-                "".join(
-                    [
-                        "> There are ",
-                        str(len(debugMessages) - displayMessageLimit),
-                        " more debug messages",
-                    ],
-                ),
-                yBias=-1 * displayMessageLimit,
-                itemAnchor="bottom right",
-                screenAnchor="bottom right",
-            )
+            if isdisplayMessageLimit == True:
+                renderLiteralItem(
+                    "".join(
+                        [
+                            "> There are ",
+                            str(len(debugMessages) - displayMessageLimit),
+                            " more debug messages",
+                        ],
+                    ),
+                    yBias=-1 * displayMessageLimit,
+                    itemAnchor="bottom right",
+                    screenAnchor="bottom right",
+                )
 
 
 def setDebugMode(state: bool) -> None:

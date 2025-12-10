@@ -39,6 +39,7 @@ def PhaseChange(Phase: str):
         SevenSins = False
         Ui = False
     elif phase.lower() == "map":
+        global firstFrame
         mapOffset = [0, 0]
         InitialHold = (0, 0)
         locationMapDiff = [0, 0]
@@ -53,6 +54,7 @@ def PhaseChange(Phase: str):
         FocusRoom = False
         AnimateRoomEntry = False
         Ui = True
+        firstFrame = copy.deepcopy(MainClock)
     elif phase.lower() == "room":
         player_x, player_y = RoomData[EnteredRoom]["SpawnLocation"]
         Ui = True
@@ -77,7 +79,7 @@ def PhaseChange(Phase: str):
         battleMessages = ["Nothing has happened yet...", "", "", ""]
         isInfoBarInMessageMode = False
         for mobNum in range(len(mobsStatus)):
-            mobsStatus[mobNum] = enemies[mobsStatus[mobNum]]
+            mobsStatus[mobNum] = copy.deepcopy(enemies[mobsStatus[mobNum]])
         YiPyterminal.createItem(
             "center barrier",
             YiPyterminal.ASSETS["center barrier"],
@@ -1031,6 +1033,11 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
         player["CurrentHp"] += round(Heal*10)/10
         score = 0
         AttackTest.score = 0
+        mobsStatus[Enemy]["Stats"]["CurrentHp"]=max(mobsStatus[Enemy]["Stats"]["CurrentHp"],0)
+        if mobsStatus[Enemy]["Stats"]["CurrentHp"] <=0:
+            MobDrops(Enemy)
+            enemiesKilled+=1
+            battleMessages.append("You killed the "+mobsStatus[Enemy]["Name"]+" You see its soul flying off as you loot what is left of it.")
         return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10)
 
 
@@ -1294,7 +1301,7 @@ max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(level 
 #1 -> 999, 1.1 -> 10k, 10k -> 999k, 1.1mil -> ...
 player = {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
           "Defence": 0, "MagicDefence": 0, 
-          "Strength": 0, "MagicPower": 0, 
+          "Strength": 10000, "MagicPower": 0, 
           "Dexterity": 100, "CastingSpeed": 100, 
           "Skill": 0, "Intelligence": 0, 
           "CritChance": 5, "CritPower": 60, 
@@ -1932,7 +1939,8 @@ while True:
 
 
     elif phase.lower() == "map":
-        
+        if MainClock- firstFrame>=100:
+            YiPyterminal.clearDebugMessages() 
         if not GetRoomLoc:
             for Line in LinesRooms:
                 # pyterm.renderItem(Line["Line"], xBias = round(Line["Pos"][0]) + mapOffset[0], yBias = round(Line["Pos"][1]) + mapOffset[1])
@@ -1943,7 +1951,8 @@ while True:
             hierarchyLocations.append([{"Location": (0, 0), "id": (0, 1), "Connections": [], "Movements": []}])
         pyterm.renderItem(str((0, 1)), xBias = mapOffset[0], yBias = mapOffset[1], screenLimits=(999, 999))
         if (os.get_terminal_size().columns/2 + mapOffset[0] - 8 <= location[0] <= os.get_terminal_size().columns/2 + mapOffset[0] + 8 - 1) and (os.get_terminal_size().lines/2 + mapOffset[1] - 4 <= location[1] <= os.get_terminal_size().lines/2 + mapOffset[1] + 4):
-            pyterm.renderLiteralItem("AAA", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
+            # pyterm.renderLiteralItem("AAA", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
+            pyterm.renderLiteralItem("X", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
         else:
             pyterm.renderLiteralItem("x", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
         for i in range(Hierarchy):
@@ -2333,6 +2342,8 @@ while True:
                 if selectedButton == "run button":
                     YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
                     PhaseChange("map")
+                    YiPyterminal.addDebugMessage("You fled from the battle...",isAddTime=False)
+                    continue
             if YiPyterminal.checkItemIsHovered(button) == True and selectedButton == button:
                 YiPyterminal.changeCurrentItemFrame(button, 3)
             elif selectedButton == button:
@@ -2547,7 +2558,7 @@ while True:
                 "enemy information box",
                 YiPyterminal.ASSETS["enemy information box"][1]
                 .replace(">      PLACEHOLDERNAME       <",str(mobsStatus[selectedViewMobOption]["Name"]).center(30))
-                .replace("[hp]",str(mobsStatus[selectedViewMobOption]["Stats"]["CurrentHp"]))
+                .replace("[hp]",str(round(mobsStatus[selectedViewMobOption]["Stats"]["CurrentHp"],2)))
                 .replace("[max hp]",str(mobsStatus[selectedViewMobOption]["Stats"]["MaxHealth"]))
                 .replace("[hp regen]",str(mobsStatus[selectedViewMobOption]["Stats"]["Regen"]))
                 .replace("[def]",str(mobsStatus[selectedViewMobOption]["Stats"]["Defence"]))
@@ -2561,7 +2572,7 @@ while True:
                 ,1)
             YiPyterminal.changeCurrentItemFrame("enemy information box",1)
         if selectedAttack != None and selectedAttack != "" and selectedMobNum != None:
-            if player["CurrentMana"]>=attacks[selectedAttack]["Mana"] and player["CurrentEnergy"]>= attacks[selectedAttack]["Energy"]:
+            if player["CurrentMana"]>=attacks[selectedAttack]["Mana"] and player["CurrentEnergy"]>= attacks[selectedAttack]["Energy"] and mobsStatus[selectedMobNum]["Stats"]["CurrentHp"]>0:
                 player["CurrentMana"]-=attacks[selectedAttack]["Mana"]
                 player["CurrentEnergy"]-= attacks[selectedAttack]["Energy"]
                 # mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] -= (
@@ -2582,6 +2593,10 @@ while True:
                     PlayerAttack(selectedMobNum, selectedAttack, True)
                 else:
                     PlayerAttack(selectedMobNum, selectedAttack, False)
+                # mobsStatus[selectedMobNum]["Stats"]["CurrentHp"]=max(mobsStatus[selectedMobNum]["Stats"]["CurrentHp"],0)
+                # if mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] <=0:
+                #     MobDrops(selectedMobNum)
+                #     battleMessages.append("You killed the "+mobsStatus[selectedMobNum]["Name"]+" You see its soul flying off as you loot what is left of it.")
                 FocusPlayerAttack = [selectedMobNum, selectedAttack]
                 UltimateCharge+=15
                 UltimateCharge=min(UltimateCharge,100)
@@ -2592,39 +2607,45 @@ while True:
                     YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
                 selectedAttack = None
                 for mobNum in range(len(mobsStatus)):
-                    selectedMobAttack = random.choices(
-                        population=[attack["AttackType"] for attack in mobsStatus[mobNum]["Attacks"]],
-                        weights=[attack["Weight"] for attack in mobsStatus[mobNum]["Attacks"]],
-                        k=1,
-                    )[0]
-                    # player["CurrentHp"] -= (
-                    #     attacks[selectedMobAttack]["BasePowerMelee"]
-                    #     * (1 + mobsStatus[selectedMobNum]["Stats"]["Strength"] / 100)
-                    #     / (1 + player["Defence"] / 100)
-                    #     + attacks[selectedMobAttack]["BasePowerMagic"]
-                    #     * (1 + mobsStatus[selectedMobNum]["Stats"]["MagicPower"] / 100)
-                    #     / (1 + player["MagicDefence"] / 100)
-                    #     + (1 + mobsStatus[selectedMobNum]["Stats"]["TrueAttack"] / 100)
-                    #     / (1 + player["TrueDefence"] / 100)
-                    # ) * (
-                    #     1
-                    #     + (
-                    #         mobsStatus[selectedMobNum]["Stats"]["CritPower"]
-                    #         if random.randint(1, 100)
-                    #         <= mobsStatus[selectedMobNum]["Stats"]["CritChance"]
-                    #         else 0
-                    #     )
-                    #     / 100
-                    # )
-                    EnemyAttack(selectedMobAttack, mobNum)
+                    if mobsStatus[mobNum]["Stats"]["CurrentHp"]>0:
+                        selectedMobAttack = random.choices(
+                            population=[attack["AttackType"] for attack in mobsStatus[mobNum]["Attacks"]],
+                            weights=[attack["Weight"] for attack in mobsStatus[mobNum]["Attacks"]],
+                            k=1,
+                        )[0]
+                        # player["CurrentHp"] -= (
+                        #     attacks[selectedMobAttack]["BasePowerMelee"]
+                        #     * (1 + mobsStatus[selectedMobNum]["Stats"]["Strength"] / 100)
+                        #     / (1 + player["Defence"] / 100)
+                        #     + attacks[selectedMobAttack]["BasePowerMagic"]
+                        #     * (1 + mobsStatus[selectedMobNum]["Stats"]["MagicPower"] / 100)
+                        #     / (1 + player["MagicDefence"] / 100)
+                        #     + (1 + mobsStatus[selectedMobNum]["Stats"]["TrueAttack"] / 100)
+                        #     / (1 + player["TrueDefence"] / 100)
+                        # ) * (
+                        #     1
+                        #     + (
+                        #         mobsStatus[selectedMobNum]["Stats"]["CritPower"]
+                        #         if random.randint(1, 100)
+                        #         <= mobsStatus[selectedMobNum]["Stats"]["CritChance"]
+                        #         else 0
+                        #     )
+                        #     / 100
+                        # )
+                        EnemyAttack(selectedMobAttack, mobNum)
             else:
-                if player["CurrentMana"]<attacks[selectedAttack]["Mana"] and player["CurrentEnergy"]<attacks[selectedAttack]["Energy"]:
+                if mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] <=0:
+                    battleMessages.append("The "+mobsStatus[selectedMobNum]["Name"]+"'s soul is long gone... Its in a better place now...")
+                    selectedMobNum=None
+                elif player["CurrentMana"]<attacks[selectedAttack]["Mana"] and player["CurrentEnergy"]<attacks[selectedAttack]["Energy"]:
                     battleMessages.append("You feel tired and your mana weak. You do not have enough energy nor mana to use "+selectedAttack+".")
+                    selectedAttack=None
                 elif player["CurrentMana"]<attacks[selectedAttack]["Mana"]:
                     battleMessages.append("You feel dizzy and your mana weak. You do not have enough mana to use "+selectedAttack+".")
+                    selectedAttack=None
                 elif player["CurrentEnergy"]<attacks[selectedAttack]["Energy"]:
                     battleMessages.append("You feel tired. You should rest. You do not have energy mana to use "+selectedAttack+".")
-                selectedAttack=None
+                    selectedAttack=None
                 isInfoBarInMessageMode = True
         try:
             if YiPyterminal.checkItemIsClicked("info bar",onlyCheckRelease = True):
@@ -2643,7 +2664,21 @@ while True:
                 YiPyterminal.changeItemFrameContent("info bar",copy.deepcopy(YiPyterminal.ASSETS["info bar"][1]).replace("                                                                         1                                                                         ",battleMessages[len(battleMessages)-4].center(147)).replace("                                                                        2                                                                        ",battleMessages[len(battleMessages)-3].center(145)).replace("                                                                       3                                                                       ",battleMessages[len(battleMessages)-2].center(143)).replace("                                                                      4                                                                      ",battleMessages[len(battleMessages)-1].center(141)),1)
         except:
             pass
-        player["CurrentMana"]=0
+        amountOfMobsDead = 0
+        for mobNum in range(len(mobsStatus)):
+            mobsStatus[mobNum]["CurrentHp"]=max(mobsStatus[mobNum]["Stats"]["CurrentHp"],0)
+            if mobsStatus[mobNum]["CurrentHp"] == 0:
+                amountOfMobsDead += 1
+        player["CurrentHp"]=max(player["CurrentHp"],0)
+        if len(mobsStatus) ==amountOfMobsDead:
+            battles+=1
+            PhaseChange("map")
+            YiPyterminal.addDebugMessage("You have vanquished all of the evil!",isAddTime=False)
+            continue
+        if player["CurrentHp"]==0:
+            PhaseChange("map")
+            YiPyterminal.addDebugMessage("You perished...",isAddTime=False)
+            continue
         for item in [
             "enemy selection box",
             "enemy selection option 1",
@@ -2681,7 +2716,7 @@ while True:
             "info bar"
         ]:
             YiPyterminal.renderItem(item, screenLimits=None)
-        YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"])+" | "+str(UltimateCharge))
+        # YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"])+" | "+str(UltimateCharge))
 
     if keyboard.is_pressed("c"):
         # research += 1
@@ -3397,13 +3432,13 @@ while True:
             
 
 
-    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(player["Effects"]), 0, 0, "bottom left", "bottom left")
-    pyterm.renderLiteralItem("1", 78, 21, "center", "center")
-    pyterm.renderLiteralItem("2", -78, -20, "center", "center")
+    # pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(player["Effects"]), 0, 0, "bottom left", "bottom left")
+    # pyterm.renderLiteralItem("1", 78, 21, "center", "center")
+    # pyterm.renderLiteralItem("2", -78, -20, "center", "center")
 
     # pyterm.renderLiteralItem("#", location[0], location[1])
 #34, 3
-    pyterm.renderScreen(displayDebugMessages=False)
+    pyterm.renderScreen(displayDebugMessages=True,debugDisplayMessageLimit=1,debugIsdisplayMessageLimit=False)
     elapsedTime = time.perf_counter() - startTime
     if elapsedTime < (1 / pyterm.FPS):
         time.sleep((1 / pyterm.FPS) - elapsedTime)

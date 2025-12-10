@@ -1,5 +1,5 @@
 import keyboard, random, math, time, sys, os, mouse, ctypes, copy
-from Testing.YiPyterminal import Pyterminal, assets
+from Testing.YiPyterminal import assets
 import Testing.Cursor as Cursor
 import Testing.MouseDetect as MouseDetect
 import Testing.AttackTest as AttackTest

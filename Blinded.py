@@ -924,7 +924,7 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
 
     if Attack != None:
         if minigame:
-            if attacks[Attack]["Minigames"] != None:
+            if attacks[Attack]["Minigames"][0] != None:
                 attacks[Attack]["Minigames"][0]["Arg"]["location"] = copy.deepcopy(location)
                 argsAttack = copy.deepcopy(attacks[Attack]["Minigames"][0]["Arg"])
                 if SpeedMode:
@@ -1285,13 +1285,13 @@ player = {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
           "Effects": [],
           "Passives": []} #{"Stat": "Strength", "Potency": 10, "Time": 10} or {"Stat": "Strength", "Potency": 10, "Time": -2} or {"Stat": "Health", "Potency": -2, "Time": 5, "Special": "Poison"}
 
-attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [], "Special": None},
+attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
             #Slime (Reg) + (Large) + (Giga) + (Corrupted) + (Defensive) + (Attack)
             "Slime Leap": {"BasePowerMelee": 15, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 10 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #15 * 1.3 = 19.5dmg * 80% acc = 15.6dmg avg
             "Slime Shot": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 10 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #25 * 1.3 = 32.5dmg * 50% acc = 16.25dmg avg
             "Acidify": {"BasePowerMelee": 0, "BasePowerMagic": 10, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (10, 70), "Time": 20 * pyterm.FPS, "SpawnRate": 0.025 * pyterm.FPS, "InverseBias": 4, "ScoreMulti": 1}}], "Effects": [], "Special": None},
             "Tackle": {"BasePowerMelee": 10, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 8 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 1.25}}], "Effects": [], "Special": None}, #10 * 1.3 = 13dmg avg
-            "Slime Heat-Seeking Missile": {"BasePowerMelee": 150, "BasePowerMagic": 150, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1}], "Effects": [], "Special": None}, #150 * 1.3 = 195dmg avg
+            "Slime Heat-Seeking Missile": {"BasePowerMelee": 150, "BasePowerMagic": 150, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 10 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 0.5 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #150 * 1.3 = 195dmg avg
             #Slime (Large) + (Giga) + (Defensive) + (Attack)
             "Crush": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 15 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 0.7}}], "Effects": [], "Special": None}, #20 * 1.5 = 30dmg * 80% acc = 24dmg avg (Low Weight)
             #Slime (Giga)
@@ -1300,11 +1300,11 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             "Corrode": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (30, 65), "Time": 10 * pyterm.FPS, "SpawnRate": 0.025 * pyterm.FPS, "InverseBias": 4, "ScoreMulti": 2}}], "Effects": [], "Special": None}, #
             "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1, "Arg": {"Character": "O", "SpawnRate": 0.025 * pyterm.FPS, "SpeedRange": (15, 25), "DespawnRate": 4 * pyterm.FPS, "Time": 20 * pyterm.FPS}}], "Effects": [], "Special": None}, #10 * 1.5 = 15 dmg * 65% acc = 9.75dmg, 
             #Slime (Defensive)
-            "Reinforce": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [{"Stat": "Defense", "Potency": 15, "Target": "Self", "Time": 3},{"Stat": "MagicDefense", "Potency": 15, "Target": "Self", "Time": 3}], "Special": None},
-            "Intimidate": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [{"Stat": "MagicPower", "Potency": -20, "Target": "Enemy", "Time": 5}], "Special": None},
+            "Reinforce": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defense", "Potency": 15, "Target": "Self", "Time": 3},{"Stat": "MagicDefense", "Potency": 15, "Target": "Self", "Time": 3}], "Special": None},
+            "Intimidate": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": -20, "Target": "Enemy", "Time": 5}], "Special": None},
             #Slime (Attack)
             "Piercing Slime": {"BasePowerMelee": 12, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Reaction", "Weight": 1, "Arg": {"TimeRange": (1 * pyterm.FPS, 3 * pyterm.FPS), "Repetitions": 3, "ScoreMulti": 1}}], "Effects": [], "Special": ["Pierce100"]}, #15 * 2.5 = 30dmg avg
-            "Enlarge": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [], "Effects": [{"Stat": "Strength", "Potency": 50, "Target": "Self", "Time": 3}], "Special": None},
+            "Enlarge": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 50, "Target": "Self", "Time": 3}], "Special": None},
             "Slime Rollout": {"BasePowerMelee": 30, "BasePowerMagic": 0, "Accuracy": 95, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 20 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 0.5}}], "Effects": [], "Special": None}, #30 * 2.5 = 70 dmg * 95% acc = 66.5dmg avg (Lower Weight)
 
 
@@ -2516,9 +2516,12 @@ while True:
             #     + (player["CritPower"] if random.randint(1, 100) <= player["CritChance"] else 0)
             #     / 100
             # )
-            PlayerAttack(selectedMobNum, selectedAttack, True)
+            if not ((attacks[selectedAttack]["Minigames"][0] == None) or (selectedAttack == EquippedUltimate)):
+                PlayerAttack(selectedMobNum, selectedAttack, True)
+            else:
+                PlayerAttack(selectedMobNum, selectedAttack, False)
             FocusPlayerAttack = [selectedMobNum, selectedAttack]
-            UltimateCharge+=10
+            UltimateCharge+=15
             UltimateCharge=min(UltimateCharge,100)
             if selectedAttack == EquippedUltimate:
                 UltimateCharge=0

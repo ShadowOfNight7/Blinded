@@ -7,6 +7,7 @@ import Assets.YiPyterminal as pyterm
 from Assets.YiPyterminal import itemObjects
 import Assets.YiPyterminal as YiPyterminal
 
+os.system("cls")
 # fmt: off
 def colourText(rgb: list, text: str, transparency = 1, background = False):
     returntext = ""
@@ -56,11 +57,11 @@ def PhaseChange(Phase: str):
         player_x, player_y = RoomData[EnteredRoom]["SpawnLocation"]
         Ui = True
     elif phase.lower() == "puzzlemove":
-        """"""
+        pass
     elif phase.lower() == "puzzletext":
         pass
     elif phase.lower() == "battle":
-        global mobsStatus, currentMob, selectedButton, clickedMobOption, hoveredMobOption, selectedAttack, selectedMobNum, isUltimateSelected, UltimateAnimationFrame, UltimateCharge, whisperOfTheUltimate, isUltimateClicked
+        global mobsStatus, currentMob, selectedButton, clickedMobOption, hoveredMobOption, selectedAttack, selectedMobNum, isUltimateSelected, UltimateAnimationFrame, UltimateCharge, whisperOfTheUltimate, isUltimateClicked, battleMessages, isInfoBarInMessageMode
         selectedButton = None
         clickedMobOption = None
         hoveredMobOption = None
@@ -73,6 +74,8 @@ def PhaseChange(Phase: str):
         UltimateCharge = 0
         mobsStatus = ["Slime", "Slime2"]
         currentMob = 0
+        battleMessages = ["Nothing has happened yet...", "", "", ""]
+        isInfoBarInMessageMode = False
         for mobNum in range(len(mobsStatus)):
             mobsStatus[mobNum] = enemies[mobsStatus[mobNum]]
         YiPyterminal.createItem(
@@ -800,6 +803,13 @@ def PhaseChange(Phase: str):
             parentAnchor="right center",
             childAnchor="right center",
         )
+        YiPyterminal.createItem(
+            "info bar",
+            copy.deepcopy(YiPyterminal.ASSETS["info bar"]),
+            parentAnchor="top center",
+            childAnchor="top center",
+            yBias=1,
+        )
 
 
 # fmt: off
@@ -1126,13 +1136,12 @@ def MobDrops(MobNum):
                     AddInvItem(drop["Item"])
 
 
-
 score = 0
 timed = 9
 AimTarget = []
-character_size = (19, 37) #NORMAL
-character_size = (9, 19) #PCS
-# character_size = (12, 23) #LAPTOP
+# character_size = (19, 37) #NORMAL
+# character_size = (9, 19) #PCS
+character_size = (12, 23) #LAPTOP
 # character_size = Cursor.initialize(10)
 score = 0
 MainClock = 1000
@@ -1287,7 +1296,7 @@ player = {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
 
 attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
             #Slime (Reg) + (Large) + (Giga) + (Corrupted) + (Defensive) + (Attack)
-            "Slime Leap": {"BasePowerMelee": 15, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 10 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #15 * 1.3 = 19.5dmg * 80% acc = 15.6dmg avg
+            "Slime Leap": {"BasePowerMelee": 15, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 10, "Mana": 10, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 10 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #15 * 1.3 = 19.5dmg * 80% acc = 15.6dmg avg
             "Slime Shot": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 10 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #25 * 1.3 = 32.5dmg * 50% acc = 16.25dmg avg
             "Acidify": {"BasePowerMelee": 0, "BasePowerMagic": 10, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (10, 70), "Time": 20 * pyterm.FPS, "SpawnRate": 0.025 * pyterm.FPS, "InverseBias": 4, "ScoreMulti": 1}}], "Effects": [], "Special": None},
             "Tackle": {"BasePowerMelee": 10, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 8 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 1.25}}], "Effects": [], "Special": None}, #10 * 1.3 = 13dmg avg
@@ -2272,8 +2281,8 @@ while True:
                     isUltimateSelected=False
                     isUltimateClicked=False
                 if selectedButton == "run button":
-                    PhaseChange("map")
                     YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
+                    PhaseChange("map")
             if YiPyterminal.checkItemIsHovered(button) == True and selectedButton == button:
                 YiPyterminal.changeCurrentItemFrame(button, 3)
             elif selectedButton == button:
@@ -2501,61 +2510,100 @@ while True:
                 .replace("[true def]",str(mobsStatus[selectedViewMobOption]["Stats"]["TrueDefence"]))
                 ,1)
             YiPyterminal.changeCurrentItemFrame("enemy information box",1)
-        if (selectedAttack != None) and (selectedAttack != "") and selectedMobNum != None:
-            # mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] -= (
-            #     attacks[selectedAttack]["BasePowerMelee"]
-            #     * (1 + player["Strength"] / 100)
-            #     / (1 + mobsStatus[selectedMobNum]["Stats"]["Defence"] / 100)
-            #     + attacks[selectedAttack]["BasePowerMagic"]
-            #     * (1 + player["MagicPower"] / 100)
-            #     / (1 + mobsStatus[selectedMobNum]["Stats"]["MagicDefence"] / 100)
-            #     + (1 + player["TrueAttack"] / 100)
-            #     / (1 + mobsStatus[selectedMobNum]["Stats"]["TrueDefence"] / 100)
-            # ) * (
-            #     1
-            #     + (player["CritPower"] if random.randint(1, 100) <= player["CritChance"] else 0)
-            #     / 100
-            # )
-            if not ((attacks[selectedAttack]["Minigames"][0] == None) or (selectedAttack == EquippedUltimate)):
-                PlayerAttack(selectedMobNum, selectedAttack, True)
-            else:
-                PlayerAttack(selectedMobNum, selectedAttack, False)
-            FocusPlayerAttack = [selectedMobNum, selectedAttack]
-            UltimateCharge+=15
-            UltimateCharge=min(UltimateCharge,100)
-            if selectedAttack == EquippedUltimate:
-                UltimateCharge=0
-                isUltimateClicked=False
-                isUltimateSelected=False
-                YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
-            selectedAttack = None
-            for mobNum in range(len(mobsStatus)):
-                selectedMobAttack = random.choices(
-                    population=[attack["AttackType"] for attack in mobsStatus[mobNum]["Attacks"]],
-                    weights=[attack["Weight"] for attack in mobsStatus[mobNum]["Attacks"]],
-                    k=1,
-                )[0]
-                # player["CurrentHp"] -= (
-                #     attacks[selectedMobAttack]["BasePowerMelee"]
-                #     * (1 + mobsStatus[selectedMobNum]["Stats"]["Strength"] / 100)
-                #     / (1 + player["Defence"] / 100)
-                #     + attacks[selectedMobAttack]["BasePowerMagic"]
-                #     * (1 + mobsStatus[selectedMobNum]["Stats"]["MagicPower"] / 100)
-                #     / (1 + player["MagicDefence"] / 100)
-                #     + (1 + mobsStatus[selectedMobNum]["Stats"]["TrueAttack"] / 100)
-                #     / (1 + player["TrueDefence"] / 100)
+        if selectedAttack != None and selectedAttack != "" and selectedMobNum != None:
+            if player["CurrentMana"]>=attacks[selectedAttack]["Mana"] and player["CurrentEnergy"]>= attacks[selectedAttack]["Energy"]:
+                player["CurrentMana"]-=attacks[selectedAttack]["Mana"]
+                player["CurrentEnergy"]-= attacks[selectedAttack]["Energy"]
+                # mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] -= (
+                #     attacks[selectedAttack]["BasePowerMelee"]
+                #     * (1 + player["Strength"] / 100)
+                #     / (1 + mobsStatus[selectedMobNum]["Stats"]["Defence"] / 100)
+                #     + attacks[selectedAttack]["BasePowerMagic"]
+                #     * (1 + player["MagicPower"] / 100)
+                #     / (1 + mobsStatus[selectedMobNum]["Stats"]["MagicDefence"] / 100)
+                #     + (1 + player["TrueAttack"] / 100)
+                #     / (1 + mobsStatus[selectedMobNum]["Stats"]["TrueDefence"] / 100)
                 # ) * (
                 #     1
-                #     + (
-                #         mobsStatus[selectedMobNum]["Stats"]["CritPower"]
-                #         if random.randint(1, 100)
-                #         <= mobsStatus[selectedMobNum]["Stats"]["CritChance"]
-                #         else 0
-                #     )
+                #     + (player["CritPower"] if random.randint(1, 100) <= player["CritChance"] else 0)
                 #     / 100
                 # )
-                EnemyAttack(selectedMobAttack, mobNum)
+                if not ((attacks[selectedAttack]["Minigames"][0] == None) or (selectedAttack == EquippedUltimate)):
+                    PlayerAttack(selectedMobNum, selectedAttack, True)
+                else:
+                    PlayerAttack(selectedMobNum, selectedAttack, False)
+                FocusPlayerAttack = [selectedMobNum, selectedAttack]
+                UltimateCharge+=15
+                UltimateCharge=min(UltimateCharge,100)
+                if selectedAttack == EquippedUltimate:
+                    UltimateCharge=0
+                    isUltimateClicked=False
+                    isUltimateSelected=False
+                    YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
+                selectedAttack = None
+                for mobNum in range(len(mobsStatus)):
+                    selectedMobAttack = random.choices(
+                        population=[attack["AttackType"] for attack in mobsStatus[mobNum]["Attacks"]],
+                        weights=[attack["Weight"] for attack in mobsStatus[mobNum]["Attacks"]],
+                        k=1,
+                    )[0]
+                    # player["CurrentHp"] -= (
+                    #     attacks[selectedMobAttack]["BasePowerMelee"]
+                    #     * (1 + mobsStatus[selectedMobNum]["Stats"]["Strength"] / 100)
+                    #     / (1 + player["Defence"] / 100)
+                    #     + attacks[selectedMobAttack]["BasePowerMagic"]
+                    #     * (1 + mobsStatus[selectedMobNum]["Stats"]["MagicPower"] / 100)
+                    #     / (1 + player["MagicDefence"] / 100)
+                    #     + (1 + mobsStatus[selectedMobNum]["Stats"]["TrueAttack"] / 100)
+                    #     / (1 + player["TrueDefence"] / 100)
+                    # ) * (
+                    #     1
+                    #     + (
+                    #         mobsStatus[selectedMobNum]["Stats"]["CritPower"]
+                    #         if random.randint(1, 100)
+                    #         <= mobsStatus[selectedMobNum]["Stats"]["CritChance"]
+                    #         else 0
+                    #     )
+                    #     / 100
+                    # )
+                    EnemyAttack(selectedMobAttack, mobNum)
+            else:
+                if player["CurrentMana"]<attacks[selectedAttack]["Mana"] and player["CurrentEnergy"]<attacks[selectedAttack]["Energy"]:
+                    battleMessages.append("You feel tired and your mana weak. You do not have enough energy nor mana to use "+selectedAttack+".")
+                elif player["CurrentMana"]<attacks[selectedAttack]["Mana"]:
+                    battleMessages.append("You feel dizzy and your mana weak. You do not have enough mana to use "+selectedAttack+".")
+                elif player["CurrentEnergy"]<attacks[selectedAttack]["Energy"]:
+                    battleMessages.append("You feel tired. You should rest. You do not have energy mana to use "+selectedAttack+".")
+                selectedAttack=None
+                isInfoBarInMessageMode = True
+        try:
+            if YiPyterminal.checkItemIsClicked("info bar",onlyCheckRelease = True):
+                isInfoBarInMessageMode = not isInfoBarInMessageMode
+            if isInfoBarInMessageMode ==False:
+                bar = ("─"*(61-math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)))+"●"+(math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)*"─")
+                bar2 = (math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)*"─")+"●"+("─"*(61-math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)))
+                bar3 = ((49-math.ceil(max(player["CurrentEnergy"]/player["Energy"],0)*49))*"◇")+(math.ceil(max(player["CurrentEnergy"]/player["Energy"],0)*49)*"◆")
+                bar4 = (math.ceil(max(player["CurrentMana"]/player["Mana"],0)*49)*"◆")+((49-math.ceil(max(player["CurrentMana"]/player["Mana"],0)*49))*"◇")
+                if YiPyterminal.itemObjects["info bar"]["current frame"]!=0:
+                    YiPyterminal.changeCurrentItemFrame("info bar",0)
+                YiPyterminal.changeItemFrameContent("info bar",copy.deepcopy(YiPyterminal.ASSETS["info bar"][0]).replace("[bar]",bar).replace("[bar2]",bar2).replace("[hp]",str(round(player["CurrentHp"],2)).rjust(8)).replace("[maxhp]",str(round(player["MaxHealth"],2)).ljust(8)).replace("[bar3]",bar3).replace("[bar4]",bar4).replace("[energy]",str(player["CurrentEnergy"]).rjust(4)).replace("[maxenergy]",str(player["Energy"]).ljust(4)).replace("[mana]",str(player["CurrentMana"]).rjust(4)).replace("[maxmana]",str(player["Mana"]).ljust(4)))
+            if isInfoBarInMessageMode == True:
+                if YiPyterminal.itemObjects["info bar"]["current frame"]!=1:
+                    YiPyterminal.changeCurrentItemFrame("info bar",1)
+                YiPyterminal.changeItemFrameContent("info bar",copy.deepcopy(YiPyterminal.ASSETS["info bar"][1]).replace("                                                                         1                                                                         ",battleMessages[len(battleMessages)-4].center(147)).replace("                                                                        2                                                                        ",battleMessages[len(battleMessages)-3].center(145)).replace("                                                                       3                                                                       ",battleMessages[len(battleMessages)-2].center(143)).replace("                                                                      4                                                                      ",battleMessages[len(battleMessages)-1].center(141)),1)
+        except:
+            pass
+        player["CurrentMana"]=0
         for item in [
+            "enemy selection box",
+            "enemy selection option 1",
+            "enemy selection option 2",
+            "enemy selection option 3",
+            "enemy selection option 4",
+            "enemy selection option 5",
+            "enemy selection option 6",
+            "enemy selection option 7",
+            # "enemy selection option 8",
             "ultimate bar",
             "fight box",
             "attack option 1",
@@ -2579,16 +2627,8 @@ while True:
             "left barrier",
             "right barrier",
             "ultimate button",
-            "enemy selection box",
-            "enemy selection option 1",
-            "enemy selection option 2",
-            "enemy selection option 3",
-            "enemy selection option 4",
-            "enemy selection option 5",
-            "enemy selection option 6",
-            "enemy selection option 7",
-            # "enemy selection option 8",
             "enemy information box",
+            "info bar"
         ]:
             YiPyterminal.renderItem(item, screenLimits=None)
         YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"])+" | "+str(UltimateCharge))
@@ -3311,9 +3351,9 @@ while True:
     pyterm.renderLiteralItem("1", 78, 21, "center", "center")
     pyterm.renderLiteralItem("2", -78, -20, "center", "center")
 
-    pyterm.renderLiteralItem("#", location[0], location[1])
+    # pyterm.renderLiteralItem("#", location[0], location[1])
 #34, 3
-    pyterm.renderScreen()
+    pyterm.renderScreen(displayDebugMessages=False)
     elapsedTime = time.perf_counter() - startTime
     if elapsedTime < (1 / pyterm.FPS):
         time.sleep((1 / pyterm.FPS) - elapsedTime)

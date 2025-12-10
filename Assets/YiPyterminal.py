@@ -397,7 +397,7 @@ def checkItemIsClicked(
                 else:
                     return False
             except Exception as e:
-                print(
+                addDebugMessage(
                     str(e)
                     + " "
                     + str(itemFrame)

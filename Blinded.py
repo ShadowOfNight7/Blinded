@@ -914,7 +914,14 @@ def RenderSpell(Spell):
 
 
 def PlayerAttack(Attack, Enemy: int):
-    global player, mobsStatus, attacks, StatUpgrades
+    global player, mobsStatus, attacks, StatUpgrades, score
+
+    if not Minigame(Attack["Minigames"]["Name"], Attack["Minigames"]["Arg"]):
+        return False
+    if Attack["Minigames"]["Name"] in ["BlackHole", "Reaction", "Shielded", "CircleDefend", "DodgeGrid", "Rain"]:
+        score = (20 - score)
+    score = max(min(score, 20), 0)
+
     mob = mobsStatus[Enemy]
     playercopy = copy.deepcopy(player)
     if StatUpgrades["Wisdom"]:
@@ -935,71 +942,78 @@ def PlayerAttack(Attack, Enemy: int):
         playercopy[passive["Stat"]] += passive["Potency"]
     #Math
     crit = (playercopy["CritPower"] if random.randint(1, 100) <= playercopy["CritChance"] else 0)
-    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100)
-    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100)
-    TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100)
+    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (score / 10)
+    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10)
+    TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10)
     #After Specials - Lifesteal, Etc
     if attacks[Attack]["Special"] != None:
         for special in attacks[Attack]["Special"]:
             if "Pierce" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] * (1 - int(special.replace("Pierce", ""))/100) / 100) * (1 + crit / 100)
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] * (1 - int(special.replace("Pierce", ""))/100)  / 100) * (1 + crit / 100)
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] * (1 - int(special.replace("Pierce", ""))/100) / 100) * (1 + crit / 100) * (score / 10)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] * (1 - int(special.replace("Pierce", ""))/100)  / 100) * (1 + crit / 100) * (score / 10)
             elif "Lifesteal" in special:
                 Heal = min(player["Health"] - player["CurrentHealth"], (MagicDamage + MeleeDamage) * int(special.replace("Lifesteal", ""))/100)
             elif "Critical" in special:
                 crit = (playercopy["CritPower"] if random.randint(1, 100) * (1 - int(special.replace("Critical", ""))/100) <= playercopy["CritChance"] else 0)
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100)
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100)
-                TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100)
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (score / 10)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10)
+                TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10)
             elif "Percent" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100)
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100)
-                TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) + mob["Stats"]["CurrentHealth"] * int(special.replace("Percent", ""))/100
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (score / 10)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10)
+                TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10) + mob["Stats"]["CurrentHealth"] * int(special.replace("Percent", ""))/100
             elif "Status" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
-                TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+                TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
     if StatUpgrades["Powerful"]:
         mob["CurrentHealth"] -= (MeleeDamage + MagicDamage + TrueDamage) * 1.25
     else:
         mob["CurrentHealth"] -= (MeleeDamage + MagicDamage + TrueDamage)
     mob["CurrentHealth"] += Heal
+    score = 0
     return (MeleeDamage, MagicDamage, TrueDamage, Heal)
 
 
-
 def EnemyAttack(Attack, Enemy: int):
-    global player, mobsStatus, attacks, StatUpgrades
+    global player, mobsStatus, attacks, StatUpgrades, score
+
+    if not Minigame(Attack["Minigames"]["Name"], Attack["Minigames"]["Arg"]):
+        return False
+    if not (Attack["Minigames"]["Name"] in ["BlackHole", "Reaction", "Shielded", "CircleDefend", "DodgeGrid", "Rain"]):
+        score = (20 - score)
+    score = max(min(score, 20), 0)
+
     mob = mobsStatus[Enemy]
     mobcopy = copy.deepcopy(mob)
     for effect in mob["Effects"]:
         mob[effect["Stat"]] += effect["Potency"]
     #Math
     crit = (mobcopy["Stats"]["CritPower"] if random.randint(1, 100) <= mobcopy["Stats"]["CritChance"] else 0)
-    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100)
-    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100)
-    TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100)
+    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * (score / 10)
+    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10)
+    TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10)
     #After Specials - Lifesteal, Etc
     if attacks[Attack]["Special"] != None:
         for special in attacks[Attack]["Special"]:
             if "Pierce" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] * (1 - int(special.replace("Pierce", ""))/100) / 100) * (1 + crit / 100)
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] * (1 - int(special.replace("Pierce", ""))/100)  / 100) * (1 + crit / 100)
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] * (1 - int(special.replace("Pierce", ""))/100) / 100) * (1 + crit / 100) * (score / 10)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] * (1 - int(special.replace("Pierce", ""))/100)  / 100) * (1 + crit / 100) * (score / 10)
             elif "Lifesteal" in special:
                 Heal = min(mob["Stats"]["Health"] - mob["Stats"]["CurrentHealth"], (MagicDamage + MeleeDamage) * int(special.replace("Lifesteal", ""))/100)
             elif "Critical" in special:
                 crit = (mobcopy["Stats"]["CritPower"] if random.randint(1, 100) * (1 - int(special.replace("Critical", ""))/100) <= mobcopy["Stats"]["CritChance"] else 0)
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100)
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100)
-                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100)
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * (score / 10)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10)
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10)
             elif "Percent" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100)
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100)
-                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) + player["CurrentHealth"] * int(special.replace("Percent", ""))/100
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * (score / 10)
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10)
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10) + player["CurrentHealth"] * int(special.replace("Percent", ""))/100
             elif "Status" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
-                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
     if StatUpgrades["Tank"]:
         mob["CurrentHealth"] -= (MeleeDamage + MagicDamage + TrueDamage) * 0.8
     else:
@@ -1008,11 +1022,71 @@ def EnemyAttack(Attack, Enemy: int):
     return (MeleeDamage, MagicDamage, TrueDamage, Heal)
 
 
+def Minigame(Name: str, Args: dict):
+    global score
+    if Name == "Targets":
+        if AttackTest.Targets(**Args):
+            return score
+    elif Name == "CircleStay":
+        if AttackTest.CircleStay(**Args):
+            return score
+    elif Name == "Aim":
+        if AttackTest.AimMinigame(**Args):
+            return score
+    elif Name == "Keyboard":
+        if AttackTest.KeyboardMinigame(**Args):
+            return score
+    elif Name == "Spam":
+        if AttackTest.Spam(**Args):
+            return score
+    elif Name == "SimonSays":
+        if AttackTest.SimonSays(**Args):
+            return score
+    elif Name == "BlackHole":
+        if AttackTest.BlackHole(**Args):
+            return score
+    elif Name == "Reaction":
+        if AttackTest.Reaction(**Args):
+            return score
+    elif Name == "Shielded":
+        if AttackTest.Shielded(**Args):
+            return score
+    elif Name == "CircleDefend":
+        if AttackTest.CircleDefend(**Args):
+            return score
+    elif Name == "DodgeGrid":
+        if AttackTest.DodgeGrid(**Args):
+            return score
+    elif Name == "Rain":
+        if AttackTest.TrackingMinigame(**Args):
+            return score
+    else:
+        return False
+    
+
+def MobDrops(MobNum):
+    global player, mobsStatus, research, enemiesKilled
+    mob = mobsStatus[MobNum]["Drops"]
+    weight = 0
+    for drop in mob:
+        if drop["Item"] == "Research":
+            research += AddResearch(random.randint(drop["Min"], drop["Max"]) * (math.log(enemiesKilled/3, 3) if SevenBuff == "Desire" else 1))
+        else:
+            weight += drop["Weight"]
+    for i in range(round(math.log10(enemiesKilled/2) + 1) if SevenBuff == "Desire" else 1):
+        for drop in mob:
+            if (drop["Item"] != "Research") and (drop["Item"] != None):
+                if random.randint(1, 1000000) <= round(drop["Weight"]/weight)*1000000:
+                    AddInvItem(drop["Item"])
+
+
+
+score = 0
 timed = 9
 AimTarget = []
-# character_size = (19, 37) #NORMAL
+character_size = (19, 37) #NORMAL
 # character_size = (9, 19) #PCS
-character_size = (12, 23) #LAPTOP
+# character_size = (12, 23) #LAPTOP
 # character_size = Cursor.initialize(10)
 score = 0
 MainClock = 1000
@@ -1176,10 +1250,10 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
 
 enemies = {"Slime": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
           "Defence": 0, "MagicDefence": 0, 
-          "Strength": 0, "MagicPower": 0, "CritChance": 5, "CritPower": 100, "TrueAttack": 0, "TrueDefence": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Effects": [], "Special": None}
+          "Strength": 0, "MagicPower": 0, "CritChance": 5, "CritPower": 100, "TrueAttack": 0, "TrueDefence": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 100}], "Effects": [], "Special": None}
 ,"Slime2": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
           "Defence": 1, "MagicDefence": 1, 
-          "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Effects": [], "Special": None}
+          "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 100}], "Effects": [], "Special": None}
 }
 for dictionary in [attacks,enemies]:
     for key in dictionary:
@@ -1231,7 +1305,7 @@ pyterm.createItem("HomeResearch", [assets.get("ResearchHome")], "screen", "cente
 pyterm.createItem("Altar", [assets.get("Altar")], "screen", "center", "center", 0, 0, 0)
 
 pyterm.createItem("RoomInteract", ["Press [E] into Interact"], "RoomUi", "center", "center", 0, 0, 0)
-pyterm.createItem("LeaveRoom", [assets.get("LeaveRoom")], "screen", "center", "center", 0, 0, -16)
+pyterm.createItem("LeaveRoom", [assets.get("LeaveRoom")], "screen", "center", "center", 0, 0, 0)
 
 
 ## ResearchUpgrades
@@ -1499,6 +1573,8 @@ def CheckResearchUpgrade(Number: int):
 battles = 0
 enemiesKilled = 0
 highestHierarchy = 0
+SevenBuff = None
+pyterm.createItem("Passives", [assets.get("WrathPassive"), assets.get("GluttonyPassive"), assets.get("DesirePassive"), assets.get("SlothPassive"), assets.get("EnvyPassive"), assets.get("PridePassive"), assets.get("GreedPassive")])
 
 
 
@@ -1608,8 +1684,6 @@ while True:
         
         #7Sins Overlay
         if SevenSins:
-            if keyboard.is_pressed("v"):
-                PhaseChange("map")
             GreedLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), 60, -73 + min(riseTitle, 64), "center", "center")
             PrideLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), 40, -76 + min(riseTitle, 61), "center", "center")
             EnvyLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), 20, -67 + min(riseTitle, 58), "center", "center")
@@ -1619,31 +1693,66 @@ while True:
             WrathLoc = pyterm.renderLiteralItem(assets.get("TitleHexagon"), -60, -55 + min(riseTitle, 46), "center", "center")
             #7sins buttondetect
             if (math.hypot((WrathLoc[0] - location[0]), 2 * (WrathLoc[1] + 14.5 - location[1])) <= 11.5) and (riseTitle == 70):
-                pyterm.renderLiteralItem("X", -60, -55 + min(riseTitle, 46) + 15, "center", "center")
+                pyterm.renderLiteralItem("UNYIELDING", -60, -55 + min(riseTitle, 46) + 15, "center", "center")
+                pyterm.changeCurrentItemFrame("Passives", 0)
+                pyterm.renderItem("Passives", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    PhaseChange("map")
+                    SevenBuff = "Wrath"
             else:
                 pyterm.renderLiteralItem("UNYIELDING", -60, -55 + min(riseTitle, 46) + 15, "center", "center")
             if (math.hypot((GluttonyLoc[0] - location[0]), 2 * (GluttonyLoc[1] + 14.5 - location[1])) <= 11.5) and (riseTitle == 70):
-                pyterm.renderLiteralItem("X", -40, -64 + min(riseTitle, 49) + 15, "center", "center")
+                pyterm.renderLiteralItem("SWEET TOOTH", -40, -64 + min(riseTitle, 49) + 15, "center", "center")
+                pyterm.changeCurrentItemFrame("Passives", 1)
+                pyterm.renderItem("Passives", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    PhaseChange("map")
+                    SevenBuff = "Gluttony"
             else:
                 pyterm.renderLiteralItem("SWEET TOOTH", -40, -64 + min(riseTitle, 49) + 15, "center", "center")
             if (math.hypot((DesireLoc[0] - location[0]), 2 * (DesireLoc[1] + 14.5 - location[1])) <= 11.5) and (riseTitle == 70):
-                pyterm.renderLiteralItem("X", -20, -61 + min(riseTitle, 51) + 15, "center", "center")
+                pyterm.renderLiteralItem("CHARISMATIC", -20, -61 + min(riseTitle, 51) + 15, "center", "center")
+                pyterm.changeCurrentItemFrame("Passives", 2)
+                pyterm.renderItem("Passives", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    PhaseChange("map")
+                    SevenBuff = "Desire"
             else:
                 pyterm.renderLiteralItem("CHARISMATIC", -20, -61 + min(riseTitle, 51) + 15, "center", "center")
             if (math.hypot((SlothLoc[0] - location[0]), 2 * (SlothLoc[1] + 14.5 - location[1])) <= 11.5) and (riseTitle == 70):
-                pyterm.renderLiteralItem("X", 0, -70 + min(riseTitle, 55) + 15, "center", "center")
+                pyterm.renderLiteralItem("LAID BACK", 0, -70 + min(riseTitle, 55) + 15, "center", "center")
+                pyterm.changeCurrentItemFrame("Passives", 3)
+                pyterm.renderItem("Passives", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    PhaseChange("map")
+                    SevenBuff = "Sloth"
             else:
                 pyterm.renderLiteralItem("LAID BACK", 0, -70 + min(riseTitle, 55) + 15, "center", "center")
             if (math.hypot((EnvyLoc[0] - location[0]), 2 * (EnvyLoc[1] + 14.5 - location[1])) <= 11.5) and (riseTitle == 70):
-                pyterm.renderLiteralItem("X", 20, -67 + min(riseTitle, 58) + 15, "center", "center")
+                pyterm.renderLiteralItem("ATTENTIVE", 20, -67 + min(riseTitle, 58) + 15, "center", "center")
+                pyterm.changeCurrentItemFrame("Passives", 4)
+                pyterm.renderItem("Passives", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    PhaseChange("map")
+                    SevenBuff = "Envy"
             else:
                 pyterm.renderLiteralItem("ATTENTIVE", 20, -67 + min(riseTitle, 58) + 15, "center", "center")
             if (math.hypot((PrideLoc[0] - location[0]), 2 * (PrideLoc[1] + 14.5 - location[1])) <= 11.5) and (riseTitle == 70):
-                pyterm.renderLiteralItem("X", 40, -76 + min(riseTitle, 61) + 15, "center", "center")
+                pyterm.renderLiteralItem("PERFECTIONISM", 40, -76 + min(riseTitle, 61) + 15, "center", "center")
+                pyterm.changeCurrentItemFrame("Passives", 5)
+                pyterm.renderItem("Passives", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    PhaseChange("map")
+                    SevenBuff = "Pride"
             else:
                 pyterm.renderLiteralItem("PERFECTIONISM", 40, -76 + min(riseTitle, 61) + 15, "center", "center")
             if (math.hypot((GreedLoc[0] - location[0]), 2 * (GreedLoc[1] + 14.5 - location[1])) <= 11.5) and (riseTitle == 70):
-                pyterm.renderLiteralItem("X", 60, -73 + min(riseTitle, 64) + 15, "center", "center")
+                pyterm.renderLiteralItem("LUCKY", 60, -73 + min(riseTitle, 64) + 15, "center", "center")
+                pyterm.changeCurrentItemFrame("Passives", 6)
+                pyterm.renderItem("Passives", xBias = location[0], yBias = location[1])
+                if LeftClick:
+                    PhaseChange("map")
+                    SevenBuff = "Greed"
             else:
                 pyterm.renderLiteralItem("LUCKY", 60, -73 + min(riseTitle, 64) + 15, "center", "center")
 
@@ -1830,8 +1939,8 @@ while True:
                     PhaseChange("battle")
                 elif RoomData[AnimateRoomEntry["id"]]["Type"] == "BossBattle3":
                     PhaseChange("battle")
-                else:
-                    pass
+                elif RoomData[AnimateRoomEntry["id"]]["Type"] == "Home":
+                    PhaseChange("room")
                 # ClearedRooms.append(AnimateRoomEntry["id"])
                 AnimateRoomEntry = False
                 FocusRoom = False
@@ -1891,8 +2000,8 @@ while True:
         pyterm.renderItem("RoomSize", screenLimits= (999, 999))
 
         pyterm.renderItem("RoomUi")
-        pyterm.renderItem("LeaveRoom")
-        if (pyterm.getTopLeft("LeaveRoom")[0] <= location[0] <= pyterm.getBottomRight("LeaveRoom")[0]) and (pyterm.getTopLeft("LeaveRoom")[1] <= location[1] <= pyterm.getBottomRight("LeaveRoom")[1]) and LeftClick:
+        pyterm.renderItem("LeaveRoom", xBias = -round(room_size[0]/2) - 4)
+        if (pyterm.getTopLeft("LeaveRoom")[0]-round(room_size[0]/2) - 4 <= location[0] <= pyterm.getBottomRight("LeaveRoom")[0]-round(room_size[0]/2) - 4) and (pyterm.getTopLeft("LeaveRoom")[1] <= location[1] <= pyterm.getBottomRight("LeaveRoom")[1]) and LeftClick:
             PhaseChange("map")
 
         if RoomData[EnteredRoom]["Type"] is "Home":

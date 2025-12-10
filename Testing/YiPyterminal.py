@@ -1631,9 +1631,41 @@ assets = {
 "S-U37": """┌-----------┐
 |Buy - 20.0m| Truth Passive
 └-----------┘                           """,
-"LeaveRoom": """┌-------------┐
-|    Leave    |
-└-------------┘"""
+"LeaveRoom": """┌---┐
+| L |
+| E |
+| A |
+| V |
+| E |
+└---┘""",
+"WrathPassive": """┌--------------------------┐
+| Deal more damage if your |
+| Hp becomes too low.      |
+└--------------------------┘""",
+"GluttonyPassive": """┌--------------------------┐
+| Items are 20% more       |
+| potent.                  |
+└--------------------------┘""",
+"DesirePassive": """┌--------------------------┐
+| Gain more loot every     |
+| defeated enemy.          |
+└--------------------------┘""",
+"SlothPassive": """┌--------------------------┐
+| Passing/Guarding gives   |
+| additional buffs.        |
+└--------------------------┘""",
+"EnvyPassive": """┌--------------------------┐
+| Makes minigames give     |
+| additional score.        |
+└--------------------------┘""",
+"PridePassive": """┌--------------------------┐
+| Perfecting a minigame    |
+| grants more buffs.       |
+└--------------------------┘""",
+"GreedPassive": """┌--------------------------┐
+| Chance to additional     |
+| research upon hit.       |
+└--------------------------┘"""
 }
 
 # 156 x 41

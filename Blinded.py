@@ -122,8 +122,8 @@ def PhaseChange(Phase: str):
             xBias=-1,
         )
         YiPyterminal.createItem(
-            "mercy button",
-            YiPyterminal.ASSETS["mercy button"],
+            "run button",
+            YiPyterminal.ASSETS["run button"],
             parentObject="right center barrier",
             parentAnchor="right center",
             childAnchor="left center",
@@ -140,12 +140,12 @@ def PhaseChange(Phase: str):
         YiPyterminal.createItem(
             "right barrier",
             YiPyterminal.ASSETS["right barrier"],
-            parentObject="mercy button",
+            parentObject="run button",
             parentAnchor="right center",
             childAnchor="left center",
             xBias=1,
         )
-        for box in ["fight box", "items box", "information box", "mercy box"]:
+        for box in ["fight box", "items box", "information box", "run box"]:
             if box == "fight box":
                 _attacks = []
                 for attackNum in range(8):
@@ -185,20 +185,31 @@ def PhaseChange(Phase: str):
                 )
                 YiPyterminal.createItem(
                     "attack option 1",
-                    [
-                        "".center(30, "š"),
-                        (
-                            ">" + "š" * (len(EquippedAttacks["Attack0"]) + 2) + "<"
-                        ).center(30, "š"),
-                        "š╠"
-                        + ("š" * (len(EquippedAttacks["Attack0"]) + 2)).center(26, "š")
-                        + "╣š",
-                        "š╠"
-                        + (
-                            ">" + "š" * (len(EquippedAttacks["Attack0"]) + 2) + "<"
-                        ).center(26, "š")
-                        + "╣š",
-                    ],
+                    (
+                        [
+                            "".center(30, "š"),
+                            (
+                                ">" + "š" * (len(EquippedAttacks["Attack0"]) + 2) + "<"
+                            ).center(30, "š"),
+                            "š╠"
+                            + ("š" * (len(EquippedAttacks["Attack0"]) + 2)).center(
+                                26, "š"
+                            )
+                            + "╣š",
+                            "š╠"
+                            + (
+                                ">" + "š" * (len(EquippedAttacks["Attack0"]) + 2) + "<"
+                            ).center(26, "š")
+                            + "╣š",
+                        ]
+                        if EquippedAttacks["Attack0"] != None
+                        else [
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                        ]
+                    ),
                     parentObject="fight box",
                     parentAnchor="center",
                     childAnchor="bottom right",
@@ -208,20 +219,31 @@ def PhaseChange(Phase: str):
                 )
                 YiPyterminal.createItem(
                     "attack option 2",
-                    [
-                        "".center(30, "š"),
-                        (
-                            ">" + "š" * (len(EquippedAttacks["Attack1"]) + 2) + "<"
-                        ).center(30, "š"),
-                        "š╠"
-                        + ("š" * (len(EquippedAttacks["Attack1"]) + 2)).center(26, "š")
-                        + "╣š",
-                        "š╠"
-                        + (
-                            ">" + "š" * (len(EquippedAttacks["Attack1"]) + 2) + "<"
-                        ).center(26, "š")
-                        + "╣š",
-                    ],
+                    (
+                        [
+                            "".center(30, "š"),
+                            (
+                                ">" + "š" * (len(EquippedAttacks["Attack1"]) + 2) + "<"
+                            ).center(30, "š"),
+                            "š╠"
+                            + ("š" * (len(EquippedAttacks["Attack1"]) + 2)).center(
+                                26, "š"
+                            )
+                            + "╣š",
+                            "š╠"
+                            + (
+                                ">" + "š" * (len(EquippedAttacks["Attack1"]) + 2) + "<"
+                            ).center(26, "š")
+                            + "╣š",
+                        ]
+                        if EquippedAttacks["Attack1"] != None
+                        else [
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                        ]
+                    ),
                     parentObject="fight box",
                     parentAnchor="center",
                     childAnchor="bottom right",
@@ -231,20 +253,31 @@ def PhaseChange(Phase: str):
                 )
                 YiPyterminal.createItem(
                     "attack option 3",
-                    [
-                        "".center(30, "š"),
-                        (
-                            ">" + "š" * (len(EquippedAttacks["Attack2"]) + 2) + "<"
-                        ).center(30, "š"),
-                        "š╠"
-                        + ("š" * (len(EquippedAttacks["Attack2"]) + 2)).center(26, "š")
-                        + "╣š",
-                        "š╠"
-                        + (
-                            ">" + "š" * (len(EquippedAttacks["Attack2"]) + 2) + "<"
-                        ).center(26, "š")
-                        + "╣š",
-                    ],
+                    (
+                        [
+                            "".center(30, "š"),
+                            (
+                                ">" + "š" * (len(EquippedAttacks["Attack2"]) + 2) + "<"
+                            ).center(30, "š"),
+                            "š╠"
+                            + ("š" * (len(EquippedAttacks["Attack2"]) + 2)).center(
+                                26, "š"
+                            )
+                            + "╣š",
+                            "š╠"
+                            + (
+                                ">" + "š" * (len(EquippedAttacks["Attack2"]) + 2) + "<"
+                            ).center(26, "š")
+                            + "╣š",
+                        ]
+                        if EquippedAttacks["Attack2"] != None
+                        else [
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                        ]
+                    ),
                     parentObject="fight box",
                     parentAnchor="center",
                     childAnchor="bottom left",
@@ -254,20 +287,31 @@ def PhaseChange(Phase: str):
                 )
                 YiPyterminal.createItem(
                     "attack option 4",
-                    [
-                        "".center(30, "š"),
-                        (
-                            ">" + "š" * (len(EquippedAttacks["Attack3"]) + 2) + "<"
-                        ).center(30, "š"),
-                        "š╠"
-                        + ("š" * (len(EquippedAttacks["Attack3"]) + 2)).center(26, "š")
-                        + "╣š",
-                        "š╠"
-                        + (
-                            ">" + "š" * (len(EquippedAttacks["Attack3"]) + 2) + "<"
-                        ).center(26, "š")
-                        + "╣š",
-                    ],
+                    (
+                        [
+                            "".center(30, "š"),
+                            (
+                                ">" + "š" * (len(EquippedAttacks["Attack3"]) + 2) + "<"
+                            ).center(30, "š"),
+                            "š╠"
+                            + ("š" * (len(EquippedAttacks["Attack3"]) + 2)).center(
+                                26, "š"
+                            )
+                            + "╣š",
+                            "š╠"
+                            + (
+                                ">" + "š" * (len(EquippedAttacks["Attack3"]) + 2) + "<"
+                            ).center(26, "š")
+                            + "╣š",
+                        ]
+                        if EquippedAttacks["Attack3"] != None
+                        else [
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                        ]
+                    ),
                     parentObject="fight box",
                     parentAnchor="center",
                     childAnchor="bottom left",
@@ -277,20 +321,31 @@ def PhaseChange(Phase: str):
                 )
                 YiPyterminal.createItem(
                     "attack option 5",
-                    [
-                        "".center(30, "š"),
-                        (
-                            ">" + "š" * (len(EquippedAttacks["Attack4"]) + 2) + "<"
-                        ).center(30, "š"),
-                        "š╠"
-                        + ("š" * (len(EquippedAttacks["Attack4"]) + 2)).center(26, "š")
-                        + "╣š",
-                        "š╠"
-                        + (
-                            ">" + "š" * (len(EquippedAttacks["Attack4"]) + 2) + "<"
-                        ).center(26, "š")
-                        + "╣š",
-                    ],
+                    (
+                        [
+                            "".center(30, "š"),
+                            (
+                                ">" + "š" * (len(EquippedAttacks["Attack4"]) + 2) + "<"
+                            ).center(30, "š"),
+                            "š╠"
+                            + ("š" * (len(EquippedAttacks["Attack4"]) + 2)).center(
+                                26, "š"
+                            )
+                            + "╣š",
+                            "š╠"
+                            + (
+                                ">" + "š" * (len(EquippedAttacks["Attack4"]) + 2) + "<"
+                            ).center(26, "š")
+                            + "╣š",
+                        ]
+                        if EquippedAttacks["Attack4"] != None
+                        else [
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                        ]
+                    ),
                     parentObject="fight box",
                     parentAnchor="center",
                     childAnchor="top right",
@@ -300,20 +355,31 @@ def PhaseChange(Phase: str):
                 )
                 YiPyterminal.createItem(
                     "attack option 6",
-                    [
-                        "".center(30, "š"),
-                        (
-                            ">" + "š" * (len(EquippedAttacks["Attack5"]) + 2) + "<"
-                        ).center(30, "š"),
-                        "š╠"
-                        + ("š" * (len(EquippedAttacks["Attack5"]) + 2)).center(26, "š")
-                        + "╣š",
-                        "š╠"
-                        + (
-                            ">" + "š" * (len(EquippedAttacks["Attack5"]) + 2) + "<"
-                        ).center(26, "š")
-                        + "╣š",
-                    ],
+                    (
+                        [
+                            "".center(30, "š"),
+                            (
+                                ">" + "š" * (len(EquippedAttacks["Attack5"]) + 2) + "<"
+                            ).center(30, "š"),
+                            "š╠"
+                            + ("š" * (len(EquippedAttacks["Attack5"]) + 2)).center(
+                                26, "š"
+                            )
+                            + "╣š",
+                            "š╠"
+                            + (
+                                ">" + "š" * (len(EquippedAttacks["Attack5"]) + 2) + "<"
+                            ).center(26, "š")
+                            + "╣š",
+                        ]
+                        if EquippedAttacks["Attack5"] != None
+                        else [
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                        ]
+                    ),
                     parentObject="fight box",
                     parentAnchor="center",
                     childAnchor="top right",
@@ -323,20 +389,31 @@ def PhaseChange(Phase: str):
                 )
                 YiPyterminal.createItem(
                     "attack option 7",
-                    [
-                        "".center(30, "š"),
-                        (
-                            ">" + "š" * (len(EquippedAttacks["Attack6"]) + 2) + "<"
-                        ).center(30, "š"),
-                        "š╠"
-                        + ("š" * (len(EquippedAttacks["Attack6"]) + 2)).center(26, "š")
-                        + "╣š",
-                        "š╠"
-                        + (
-                            ">" + "š" * (len(EquippedAttacks["Attack6"]) + 2) + "<"
-                        ).center(26, "š")
-                        + "╣š",
-                    ],
+                    (
+                        [
+                            "".center(30, "š"),
+                            (
+                                ">" + "š" * (len(EquippedAttacks["Attack6"]) + 2) + "<"
+                            ).center(30, "š"),
+                            "š╠"
+                            + ("š" * (len(EquippedAttacks["Attack6"]) + 2)).center(
+                                26, "š"
+                            )
+                            + "╣š",
+                            "š╠"
+                            + (
+                                ">" + "š" * (len(EquippedAttacks["Attack6"]) + 2) + "<"
+                            ).center(26, "š")
+                            + "╣š",
+                        ]
+                        if EquippedAttacks["Attack6"] != None
+                        else [
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                        ]
+                    ),
                     parentObject="fight box",
                     parentAnchor="center",
                     childAnchor="top left",
@@ -346,20 +423,31 @@ def PhaseChange(Phase: str):
                 )
                 YiPyterminal.createItem(
                     "attack option 8",
-                    [
-                        "".center(30, "š"),
-                        (
-                            ">" + "š" * (len(EquippedAttacks["Attack7"]) + 2) + "<"
-                        ).center(30, "š"),
-                        "š╠"
-                        + ("š" * (len(EquippedAttacks["Attack7"]) + 2)).center(26, "š")
-                        + "╣š",
-                        "š╠"
-                        + (
-                            ">" + "š" * (len(EquippedAttacks["Attack7"]) + 2) + "<"
-                        ).center(26, "š")
-                        + "╣š",
-                    ],
+                    (
+                        [
+                            "".center(30, "š"),
+                            (
+                                ">" + "š" * (len(EquippedAttacks["Attack7"]) + 2) + "<"
+                            ).center(30, "š"),
+                            "š╠"
+                            + ("š" * (len(EquippedAttacks["Attack7"]) + 2)).center(
+                                26, "š"
+                            )
+                            + "╣š",
+                            "š╠"
+                            + (
+                                ">" + "š" * (len(EquippedAttacks["Attack7"]) + 2) + "<"
+                            ).center(26, "š")
+                            + "╣š",
+                        ]
+                        if EquippedAttacks["Attack7"] != None
+                        else [
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                            "".center(30, "š"),
+                        ]
+                    ),
                     parentObject="fight box",
                     parentAnchor="center",
                     childAnchor="top left",
@@ -2131,7 +2219,7 @@ while True:
             "items button",
             "information button",
             "fight button",
-            "mercy button",
+            "run button",
         ]:
             if (
                 YiPyterminal.checkItemIsClicked(
@@ -2144,9 +2232,12 @@ while True:
                     selectedButton = None
                 else:
                     selectedButton = button
-                # if selectedButton != "fight button":
-                    # isUltimateSelected==False
-                    # YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
+                if selectedButton != "fight button":
+                    isUltimateSelected=False
+                    isUltimateClicked=False
+                if selectedButton == "run button":
+                    PhaseChange("map")
+                    YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
             if YiPyterminal.checkItemIsHovered(button) == True and selectedButton == button:
                 YiPyterminal.changeCurrentItemFrame(button, 3)
             elif selectedButton == button:
@@ -2275,7 +2366,7 @@ while True:
             "fight box": "fight button",
             "items box": "items button",
             "information box": "information button",
-            "mercy box": "mercy button",
+            "run box": "run button",
         }
         for box in boxesToButtons:
             if boxesToButtons[box] == selectedButton:
@@ -2435,14 +2526,14 @@ while True:
             "attack option 8",
             "items box",
             "information box",
-            "mercy box",
+            "run box",
             "center barrier",
             "items button",
             "information button",
             "left center barrier",
             "right center barrier",
             "fight button",
-            "mercy button",
+            "run button",
             "left barrier",
             "right barrier",
             "ultimate button",

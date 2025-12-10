@@ -887,7 +887,6 @@ def PlayerAttack(Attack, Enemy: int):
     return (MeleeDamage, MagicDamage, TrueDamage, Heal)
 
 
-
 def EnemyAttack(Attack, Enemy: int):
     global player, mobsStatus, attacks, StatUpgrades, score
 
@@ -977,7 +976,22 @@ def Minigame(Name: str, Args: dict):
         return False
     
 
-    
+def MobDrops(MobNum):
+    global player, mobsStatus, research, enemiesKilled
+    mob = mobsStatus[MobNum]["Drops"]
+    weight = 0
+    for drop in mob:
+        if drop["Item"] == "Research":
+            research += AddResearch(random.randint(drop["Min"], drop["Max"]) * (math.log(enemiesKilled/3, 3) if SevenBuff == "Desire" else 1))
+        else:
+            weight += drop["Weight"]
+    for i in range(round(math.log10(enemiesKilled/2) + 1) if SevenBuff == "Desire" else 1):
+        for drop in mob:
+            if (drop["Item"] != "Research") and (drop["Item"] != None):
+                if random.randint(1, 1000000) <= round(drop["Weight"]/weight)*1000000:
+                    AddInvItem(drop["Item"])
+
+
 
 score = 0
 timed = 9
@@ -1148,10 +1162,10 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
 
 enemies = {"Slime": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
           "Defence": 0, "MagicDefence": 0, 
-          "Strength": 0, "MagicPower": 0, "CritChance": 5, "CritPower": 100, "TrueAttack": 0, "TrueDefence": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Effects": [], "Special": None}
+          "Strength": 0, "MagicPower": 0, "CritChance": 5, "CritPower": 100, "TrueAttack": 0, "TrueDefence": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 100}], "Effects": [], "Special": None}
 ,"Slime2": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
           "Defence": 1, "MagicDefence": 1, 
-          "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}], "Effects": [], "Special": None}
+          "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 100}], "Effects": [], "Special": None}
 }
 for dictionary in [attacks,enemies]:
     for key in dictionary:

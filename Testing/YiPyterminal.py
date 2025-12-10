@@ -1647,8 +1647,8 @@ assets = {
 | potent.                  |
 └--------------------------┘""",
 "DesirePassive": """┌--------------------------┐
-| Gain more loot against   |
-| already-defeated foes.   |
+| Gain more loot every     |
+| defeated enemy.          |
 └--------------------------┘""",
 "SlothPassive": """┌--------------------------┐
 | Passing/Guarding gives   |

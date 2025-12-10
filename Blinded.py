@@ -1155,7 +1155,7 @@ def MobDrops(MobNum):
             weight += drop["Weight"]
     for i in range(round(math.log10(enemiesKilled/2) + 1) if SevenBuff == "Desire" else 1):
         for drop in mob:
-            if (drop["Item"] != "Research") and (drop["Item"] != None)and (drop["Exp"] != None):
+            if (drop["Item"] != "Research") and (drop["Item"] != None)and (drop["Item"] != "Exp"):
                 if random.randint(1, 1000000) <= round(drop["Weight"]/weight)*1000000:
                     AddInvItem(Items[drop["Item"]])
 
@@ -2670,7 +2670,6 @@ while True:
                 YiPyterminal.changeItemFrameContent("info bar",copy.deepcopy(YiPyterminal.ASSETS["info bar"][1]).replace("                                                                         1                                                                         ",battleMessages[len(battleMessages)-4].center(147)).replace("                                                                        2                                                                        ",battleMessages[len(battleMessages)-3].center(145)).replace("                                                                       3                                                                       ",battleMessages[len(battleMessages)-2].center(143)).replace("                                                                      4                                                                      ",battleMessages[len(battleMessages)-1].center(141)),1)
         except:
             pass
-        player["CurrentMana"]=0
         for item in [
             "enemy selection box",
             "enemy selection option 1",

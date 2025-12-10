@@ -71,7 +71,7 @@ def PhaseChange(Phase: str):
         whisperOfTheUltimate = None
         UltimateAnimationFrame = 1
         UltimateCharge = 0
-        mobsStatus = ["Slime", "Slime2"]
+        # mobsStatus = ["Slimea", "Slime2"]
         currentMob = 0
         for mobNum in range(len(mobsStatus)):
             mobsStatus[mobNum] = enemies[mobsStatus[mobNum]]
@@ -982,6 +982,11 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
 
     #Math
     if Attack != None:
+        for effect in attacks[Attack]["Effects"]:
+            if effect["Target"] == "Self":
+                player["Effects"].append(effect)
+            elif effect["Target"] == "Enemy":
+                mob["Effects"].append(effect)
         Heal = 0
         score *= (1 + playercopy["Skill"]/250)
         crit = (playercopy["CritPower"] if random.randint(1, 100) <= playercopy["CritChance"] else 0)
@@ -1033,32 +1038,37 @@ def EnemyAttack(Attack, Enemy: int):
     for effect in mob["Effects"]:
         mob[effect["Stat"]] += effect["Potency"]
     #Math
+    for effect in attacks[Attack]["Effects"]:
+            if effect["Target"] == "Self":
+                mob["Effects"].append(effect)
+            elif effect["Target"] == "Enemy":
+                player["Effects"].append(effect)
     Heal = 0
     crit = (mobcopy["Stats"]["CritPower"] if random.randint(1, 100) <= mobcopy["Stats"]["CritChance"] else 0)
-    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100)
-    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100)
-    TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100)
+    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.2
+    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.2
+    TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.2
     #After Specials - Lifesteal, Etc
     if attacks[Attack]["Special"] != None:
         for special in attacks[Attack]["Special"]:
             if "Pierce" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] * (1 - int(special.replace("Pierce", ""))/100) / 100) * (1 + crit / 100)
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] * (1 - int(special.replace("Pierce", ""))/100)  / 100) * (1 + crit / 100)
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] * (1 - int(special.replace("Pierce", ""))/100) / 100) * (1 + crit / 100) * 0.2
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] * (1 - int(special.replace("Pierce", ""))/100)  / 100) * (1 + crit / 100) * 0.2
             elif "Lifesteal" in special:
                 Heal = min(mob["Stats"]["Health"] - mob["Stats"]["CurrentHp"], (MagicDamage + MeleeDamage) * int(special.replace("Lifesteal", ""))/100)
             elif "Critical" in special:
                 crit = (mobcopy["Stats"]["CritPower"] if random.randint(1, 100) * (1 - int(special.replace("Critical", ""))/100) <= mobcopy["Stats"]["CritChance"] else 0)
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100)
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100)
-                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100)
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.2
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.2
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.2
             elif "Percent" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100)
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100)
-                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) + player["CurrentHp"] * int(special.replace("Percent", ""))/100
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.2
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.2
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.2 + player["CurrentHp"] * int(special.replace("Percent", ""))/100
             elif "Status" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
-                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.2 * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.2 * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.2 * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
     if StatUpgrades["Tank"]:
         player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.8 * 10)/10
     else:
@@ -1109,7 +1119,7 @@ def Minigame(Name: str, Args: dict):
     
 
 def MobDrops(MobNum):
-    global player, mobsStatus, research, enemiesKilled, experience
+    global player, mobsStatus, research, enemiesKilled, experience, Items
     mob = mobsStatus[MobNum]["Drops"]
     weight = 0
     for drop in mob:
@@ -1123,7 +1133,7 @@ def MobDrops(MobNum):
         for drop in mob:
             if (drop["Item"] != "Research") and (drop["Item"] != None)and (drop["Exp"] != None):
                 if random.randint(1, 1000000) <= round(drop["Weight"]/weight)*1000000:
-                    AddInvItem(drop["Item"])
+                    AddInvItem(Items[drop["Item"]])
 
 
 
@@ -1142,6 +1152,7 @@ transparency = 1
 phase = "title"
 NonCenterOffset = 0
 
+mobsStatus = ["Slimea", "Slime2"]
 #Oddly Specific Variables
 riseTitle = 0
 rise = False
@@ -1246,7 +1257,7 @@ Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("s
          "Miracle Gem": {"Name": "Miracle Gem", "Type": "Extra", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Description": "A gem that feels like it’s pulsating attached to a thin string of pure mana. Once on, it almost feels draining, yet replenishing? -1 hp +5 mana per turn", "Id": None},
          "Slime Leap Scroll": {"Name": "Slime Leap Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Slime Leap", "Description": "N/A", "Id": None},
          "Flame": {"Name": "Flame", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Burning", "Description": "A flame scroll.", "Id": None},
-         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
+         "Acidify Scroll": {"Name": "Acidify Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Acidify", "Description": "A scroll of acidification", "Id": None},
          "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
          "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
          "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None}}
@@ -1254,7 +1265,7 @@ Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("s
 #sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
 #apple = {"Name": "Apple", "Type": Consumable", "Asset": "", "Effects": [{"Type": Strength, "Time": 3, "Potency": 1, "Apply": "Player"},{"Type": "Damage", "Potency": 999, "Apply": "AllEnemy"}], "Description": "Could be used to make pie", "Id": None}
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
-EquippedAttacks = {"Attack0": "Slime Leap", "Attack1": "Acidify", "Attack2": "", "Attack3": "", "Attack4": "", "Attack5": "","Attack6": "","Attack7": "",}
+EquippedAttacks = {"Attack0": "Slime Leap", "Attack1": "", "Attack2": "", "Attack3": "", "Attack4": "", "Attack5": "","Attack6": "","Attack7": "",}
 LockedAttacks = {"Attack0": False, "Attack1": False, "Attack2": False, "Attack3": False, "Attack4": True, "Attack5": True,"Attack6": True,"Attack7": True,}
 EquippedUltimate = "Slime Heat-Seeking Missile"
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
@@ -1306,7 +1317,18 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             "Piercing Slime": {"BasePowerMelee": 12, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Reaction", "Weight": 1, "Arg": {"TimeRange": (1 * pyterm.FPS, 3 * pyterm.FPS), "Repetitions": 3, "ScoreMulti": 1}}], "Effects": [], "Special": ["Pierce100"]}, #15 * 2.5 = 30dmg avg
             "Enlarge": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 50, "Target": "Self", "Time": 3}], "Special": None},
             "Slime Rollout": {"BasePowerMelee": 30, "BasePowerMagic": 0, "Accuracy": 95, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 20 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 0.5}}], "Effects": [], "Special": None}, #30 * 2.5 = 70 dmg * 95% acc = 66.5dmg avg (Lower Weight)
-
+            
+            #Player Attacks
+            "BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
 
 
 
@@ -1314,12 +1336,39 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             "Blade of Glory": {"BasePowerMelee": 35, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 20, "Time": 3}], "Special": ["Pierce50"]}
             }
 
-enemies = {"Slime": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
+enemies = {"Slimea": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
           "Defence": 0, "MagicDefence": 0, 
           "Strength": 0, "MagicPower": 0, "CritChance": 5, "CritPower": 100, "TrueAttack": 0, "TrueDefence": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 100}, {"Item": "Exp", "Min": 100, "Max": 150}], "Effects": [], "Special": None}
 ,"Slime2": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
           "Defence": 1, "MagicDefence": 1, 
           "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 100}, {"Item": "Exp", "Min": 100, "Max": 150}], "Effects": [], "Special": None}
+
+,"Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Slime Heat-Seeking Missile", "Weight": 1}], "Stats": {"MaxHealth": 150, "CurrentHp": 150, "Regen": 0,
+          "Defence": 10, "MagicDefence": 40, 
+          "Strength": 25, "MagicPower": 10, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": "Research", "Min": 10, "Max": 100}, {"Item": "Exp", "Min": 100, "Max": 150}, {"Item": "Acidify Scroll", "Weight": 10}, {"Item": "Slime Leap Scroll", "Weight": 10}, {"Item": None, "Weight": 10}], "Effects": [], "Special": None}
+,"Large Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Crush", "Weight": 30}, {"AttackType": "Slime Heat-Seeking Missile", "Weight": 1}], "Stats": {"MaxHealth": 300, "CurrentHp": 300, "Regen": 0,
+          "Defence": 30, "MagicDefence": 100, 
+          "Strength": 45, "MagicPower": 15, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 80, "Max": 300}, {"Item": "Exp", "Min": 200, "Max": 300}], "Effects": [], "Special": None}
+,"Corrosive Slime": {"Attacks": [{"AttackType": "Dissolve", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Corrode", "Weight": 100}, {"AttackType": "Slime Heat-Seeking Missile", "Weight": 1}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 0,
+          "Defence": 200, "MagicDefence": 10, 
+          "Strength": 35, "MagicPower": 30, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 150, "Max": 400}, {"Item": "Exp", "Min": 150, "Max": 225}], "Effects": [], "Special": None}
+,"Defensive Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Crush", "Weight": 50}, {"AttackType": "Reinforce", "Weight": 150}, {"AttackType": "Intimidate", "Weight": 150}], "Stats": {"MaxHealth": 500, "CurrentHp": 500, "Regen": 5,
+          "Defence": 100, "MagicDefence": 30, 
+          "Strength": 20, "MagicPower": 10, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 5}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1000, "Max": 1500}, {"Item": "Exp", "Min": 700, "Max": 1000}], "Effects": [], "Special": None}
+,"Offensive Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Slime Rollout", "Weight": 150}, {"AttackType": "Piercing Shot", "Weight": 150}, {"AttackType": "Enlarge", "Weight": 150}], "Stats": {"MaxHealth": 300, "CurrentHp": 300, "Regen": 0,
+          "Defence": 10, "MagicDefence": 50, 
+          "Strength": 100, "MagicPower": 75, "CritChance": 5, "CritPower": 100, "TrueAttack": 5, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1000, "Max": 1500}, {"Item": "Exp", "Min": 700, "Max": 1000}], "Effects": [], "Special": None}
+,"Giga Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Crush", "Weight": 100}, {"AttackType": "Devour", "Weight": 100}], "Stats": {"MaxHealth": 400, "CurrentHp": 400, "Regen": 0,
+          "Defence": 20, "MagicDefence": 70, 
+          "Strength": 55, "MagicPower": 20, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500}, {"Item": "Exp", "Min": 300, "Max": 400}], "Effects": [], "Special": None}
+        
+,"Slime2": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
+          "Defence": 1, "MagicDefence": 1, 
+          "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 100}, {"Item": "Exp", "Min": 100, "Max": 150}], "Effects": [], "Special": None}
+,"Slime2": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
+          "Defence": 1, "MagicDefence": 1, 
+          "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 100}, {"Item": "Exp", "Min": 100, "Max": 150}], "Effects": [], "Special": None}
+
 }
 for dictionary in [attacks,enemies]:
     for key in dictionary:
@@ -1678,7 +1727,7 @@ pyterm.createItem("MinigameDesc", ["          "], "MinigameUi", "center", "cente
 
 
 PhaseChange("battle")
-# PhaseChange("title")
+PhaseChange("title")
 
 YiPyterminal.initializeTerminal(1, character_size) 
 YiPyterminal.startAsynchronousMouseListener()
@@ -2039,6 +2088,7 @@ while True:
                 if RoomData[AnimateRoomEntry["id"]]["Type"] == "Puzzle":
                     PhaseChange("room")
                 elif RoomData[AnimateRoomEntry["id"]]["Type"] == "Battle":
+                    mobsStatus = [random.choice(["Slime", "Slime", "Slime", "Large Slime", "Large Slime", "Corrosive Slime", "Corrosive Slime", "Giga Slime"]), random.choice(["Slime", "Slime", "Slime", "Large Slime", "Large Slime", "Corrosive Slime", "Corrosive Slime", "Giga Slime"])]
                     PhaseChange("battle")
                 elif RoomData[AnimateRoomEntry["id"]]["Type"] == "Treasure":
                     PhaseChange("room")

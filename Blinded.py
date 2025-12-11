@@ -1167,9 +1167,9 @@ def MobDrops(MobNum):
 score = 0
 timed = 9
 AimTarget = []
-# character_size = (19, 37) #NORMAL
+character_size = (19, 37) #NORMAL
 # character_size = (9, 19) #PCS
-character_size = (12, 23) #LAPTOP
+# character_size = (12, 23) #LAPTOP
 # character_size = Cursor.initialize(10)
 score = 0
 MainClock = 1000
@@ -1757,7 +1757,7 @@ PhaseChange("title")
 
 YiPyterminal.initializeTerminal(1, character_size) 
 YiPyterminal.startAsynchronousMouseListener()
-CopyPaste = False
+CopyPaste = True
 while True:
     startTime = time.perf_counter()
     YiPyterminal.updateScreenSize()
@@ -1776,7 +1776,7 @@ while True:
         NonCenterOffset = 3
     else:
         NonCenterOffset = 0
-    # keyboard.block_key("ctrl")
+    keyboard.block_key("ctrl")
     location = Cursor.get_mouse_coords(character_size, True)
     LeftClick = MouseDetect.ClickDetect("Left", "On")
     RightClick = MouseDetect.ClickDetect("Right", "On")

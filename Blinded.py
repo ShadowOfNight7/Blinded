@@ -27,6 +27,10 @@ def colourText(rgb: list, text: str, transparency = 1, background = False):
             returntext += "\n"
     return returntext
 
+battles = 0
+enemiesKilled = 0
+highestHierarchy = 0
+
 
 # fmt: on
 def PhaseChange(Phase: str):
@@ -1155,7 +1159,7 @@ def MobDrops(MobNum):
             weight += drop["Weight"]
     for i in range(round(math.log10(enemiesKilled/2) + 1) if SevenBuff == "Desire" else 1):
         for drop in mob:
-            if (drop["Item"] != "Research") and (drop["Item"] != None)and (drop["Exp"] != None):
+            if (drop["Item"] != "Research") and (drop["Item"] != None)and (drop["Item"] != "Exp"):
                 if random.randint(1, 1000000) <= round(drop["Weight"]/weight)*1000000:
                     AddInvItem(Items[drop["Item"]])
 
@@ -1708,9 +1712,6 @@ def CheckResearchUpgrade(Number: int):
     research -= Number
     return True
 
-battles = 0
-enemiesKilled = 0
-highestHierarchy = 0
 SevenBuff = None
 pyterm.createItem("Passives", [assets.get("WrathPassive"), assets.get("GluttonyPassive"), assets.get("DesirePassive"), assets.get("SlothPassive"), assets.get("EnvyPassive"), assets.get("PridePassive"), assets.get("GreedPassive")])
 
@@ -3427,10 +3428,10 @@ while True:
 
 
     pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(player["Effects"]), 0, 0, "bottom left", "bottom left")
-    pyterm.renderLiteralItem("1", 78, 21, "center", "center")
-    pyterm.renderLiteralItem("2", -78, -20, "center", "center")
+    # pyterm.renderLiteralItem("1", 78, 21, "center", "center")
+    # pyterm.renderLiteralItem("2", -78, -20, "center", "center")
 
-    # pyterm.renderLiteralItem("#", location[0], location[1])
+    pyterm.renderLiteralItem("#", location[0], location[1])
 #34, 3
     pyterm.renderScreen(displayDebugMessages=True,debugDisplayMessageLimit=1,debugIsdisplayMessageLimit=False)
     elapsedTime = time.perf_counter() - startTime

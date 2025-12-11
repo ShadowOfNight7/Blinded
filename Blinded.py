@@ -960,9 +960,9 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
                     player["Effects"].append({"Stat": "Intelligence", "Potency": 30, "Time": 2})
                 score = max(min(score, 30), 0)
             else:
-                score = 10 * (1.2 if SevenBuff == "Envy" else 1)
+                score = 20 * (1.2 if SevenBuff == "Envy" else 1)
         else:
-            score = 10 * (1.2 if SevenBuff == "Envy" else 1)
+            score = 20 * (1.2 if SevenBuff == "Envy" else 1)
 
     mob = mobsStatus[Enemy]
     playercopy = copy.deepcopy(player)
@@ -996,9 +996,9 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
                 playercopy["Effects"].remove(effect)
     player["Effects"] = copy.deepcopy(playercopy["Effects"])
 
-    player["CurrentHp"] += min(playercopy["Regen"], playercopy["MaxHealth"])
-    player["CurrentMana"] += min(playercopy["ManaRegen"], playercopy["Mana"])
-    player["CurrentEnergy"] += min(playercopy["EnergyRegen"], playercopy["Energy"])
+    player["CurrentHp"] = min(player["CurrentHp"] + playercopy["Regen"], playercopy["MaxHealth"])
+    player["CurrentMana"] = min(player["CurrentMana"] + playercopy["ManaRegen"], playercopy["Mana"])
+    player["CurrentEnergy"] = min(player["CurrentEnergy"] + playercopy["EnergyRegen"], playercopy["Energy"])
 
     #Math
     if Attack != None:
@@ -1047,6 +1047,7 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
             enemiesKilled+=1
             MobDrops(Enemy)
             battleMessages.append("You killed the "+mobsStatus[Enemy]["Name"]+" You see its soul flying off as you loot what is left of it.")
+            # del mobsStatus[selectedMobNum]
         return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10)
 
 
@@ -1069,7 +1070,7 @@ def EnemyAttack(Attack, Enemy: int):
                 mob["Effects"].append(effect)
             elif effect["Target"] == "Enemy":
                 player["Effects"].append(effect)
-    mob["Stats"]["CurrentHp"] += min(mobcopy["Stats"]["Regen"], mobcopy["Stats"]["MaxHealth"])
+    mob["Stats"]["CurrentHp"] = min(mob["Stats"]["CurrentHp"] + mobcopy["Stats"]["Regen"], mobcopy["Stats"]["MaxHealth"])
     missed = not bool(random.randint(1, 10000) <= attacks[Attack]["Accuracy"] * 100)
     Heal = 0
     crit = (mobcopy["Stats"]["CritPower"] if random.randint(1, 100) <= mobcopy["Stats"]["CritChance"] else 0)
@@ -1102,6 +1103,8 @@ def EnemyAttack(Attack, Enemy: int):
     else:
         player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10 * (1 if not missed else 0)
     mob["Stats"]["CurrentHp"] += round(Heal*10)/10
+    if not missed:
+        battleMessages.append(mob["Name"] + " used " + str(attacks[Attack]["Name"]) + " to deal " + str(round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10) + " damage and healed " + str(Heal) + " health.")
     return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10, missed)
 
 
@@ -1294,7 +1297,7 @@ Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("s
 #sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
 #apple = {"Name": "Apple", "Type": Consumable", "Asset": "", "Effects": [{"Type": Strength, "Time": 3, "Potency": 1, "Apply": "Player"},{"Type": "Damage", "Potency": 999, "Apply": "AllEnemy"}], "Description": "Could be used to make pie", "Id": None}
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
-EquippedAttacks = {"Attack0": "Slime Leap", "Attack1": "", "Attack2": "", "Attack3": "", "Attack4": "", "Attack5": "","Attack6": "","Attack7": "",}
+EquippedAttacks = {"Attack0": "Blade of Glory", "Attack1": "", "Attack2": "", "Attack3": "", "Attack4": "", "Attack5": "","Attack6": "","Attack7": "",}
 LockedAttacks = {"Attack0": False, "Attack1": False, "Attack2": False, "Attack3": False, "Attack4": True, "Attack5": True,"Attack6": True,"Attack7": True,}
 EquippedUltimate = "Slime Heat-Seeking Missile"
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
@@ -1362,7 +1365,7 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
 
 
 
-            "Blade of Glory": {"BasePowerMelee": 160, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 20, "Time": 3}], "Special": ["Pierce50"]}
+            "Blade of Glory": {"BasePowerMelee": 160, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 20, "Time": 3, "Target": "Self"}], "Special": ["Pierce50"]}
             }
 
 enemies = {"Slimea": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
@@ -1802,6 +1805,10 @@ while True:
     for i in ClearedRooms:
         if highestHierarchy < i[0]:
             highestHierarchy = i[0]
+    player["CurrentHp"] = min(player["CurrentHp"], player["MaxHealth"])
+    player["CurrentMana"] = min(player["CurrentMana"], player["Mana"])
+    player["CurrentEnergy"] = min(player["CurrentEnergy"], player["Energy"])
+
 
     if phase.lower() == "title":
         Ui = False
@@ -2351,6 +2358,12 @@ while True:
                     isUltimateClicked=False
                 if selectedButton == "run button":
                     YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
+                    UltimateCharge = 0
+                    selectedAttack = None
+                    selectedMobNum = None
+                    player["CurrentHp"] = player["MaxHealth"]
+                    player["CurrentMana"] = player["Mana"]
+                    player["CurrentEnergy"] = player["Energy"]
                     PhaseChange("map")
                     YiPyterminal.addDebugMessage("You fled from the battle...",isAddTime=False)
                     continue
@@ -2602,7 +2615,10 @@ while True:
                 if not ((attacks[selectedAttack]["Minigames"][0] == None) or (selectedAttack == EquippedUltimate)):
                     PlayerBattleResults = PlayerAttack(selectedMobNum, selectedAttack, True)
                 else:
-                    PlayerAttack(selectedMobNum, selectedAttack, False)
+                    PlayerBattleResults = PlayerAttack(selectedMobNum, selectedAttack, False)
+                    battleMessages.append("You dealt " + str(PlayerBattleResults[0] + PlayerBattleResults[1] + PlayerBattleResults[2]) + " damage, and healed " + str(PlayerBattleResults[3]) + " health.")
+                    isInfoBarInMessageMode = True
+
                 # mobsStatus[selectedMobNum]["Stats"]["CurrentHp"]=max(mobsStatus[selectedMobNum]["Stats"]["CurrentHp"],0)
                 # if mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] <=0:
                 #     MobDrops(selectedMobNum)
@@ -2617,31 +2633,32 @@ while True:
                     YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
                 selectedAttack = None
                 for mobNum in range(len(mobsStatus)):
-                    selectedMobAttack = random.choices(
-                        population=[attack["AttackType"] for attack in mobsStatus[mobNum]["Attacks"]],
-                        weights=[attack["Weight"] for attack in mobsStatus[mobNum]["Attacks"]],
-                        k=1,
-                    )[0]
-                    # player["CurrentHp"] -= (
-                    #     attacks[selectedMobAttack]["BasePowerMelee"]
-                    #     * (1 + mobsStatus[selectedMobNum]["Stats"]["Strength"] / 100)
-                    #     / (1 + player["Defence"] / 100)
-                    #     + attacks[selectedMobAttack]["BasePowerMagic"]
-                    #     * (1 + mobsStatus[selectedMobNum]["Stats"]["MagicPower"] / 100)
-                    #     / (1 + player["MagicDefence"] / 100)
-                    #     + (1 + mobsStatus[selectedMobNum]["Stats"]["TrueAttack"] / 100)
-                    #     / (1 + player["TrueDefence"] / 100)
-                    # ) * (
-                    #     1
-                    #     + (
-                    #         mobsStatus[selectedMobNum]["Stats"]["CritPower"]
-                    #         if random.randint(1, 100)
-                    #         <= mobsStatus[selectedMobNum]["Stats"]["CritChance"]
-                    #         else 0
-                    #     )
-                    #     / 100
-                    # )
-                    EnemyAttack(selectedMobAttack, mobNum)
+                    if mobsStatus[mobNum]["Stats"]["CurrentHp"] > 0:
+                        selectedMobAttack = random.choices(
+                            population=[attack["AttackType"] for attack in mobsStatus[mobNum]["Attacks"]],
+                            weights=[attack["Weight"] for attack in mobsStatus[mobNum]["Attacks"]],
+                            k=1,
+                        )[0]
+                        # player["CurrentHp"] -= (
+                        #     attacks[selectedMobAttack]["BasePowerMelee"]
+                        #     * (1 + mobsStatus[selectedMobNum]["Stats"]["Strength"] / 100)
+                        #     / (1 + player["Defence"] / 100)
+                        #     + attacks[selectedMobAttack]["BasePowerMagic"]
+                        #     * (1 + mobsStatus[selectedMobNum]["Stats"]["MagicPower"] / 100)
+                        #     / (1 + player["MagicDefence"] / 100)
+                        #     + (1 + mobsStatus[selectedMobNum]["Stats"]["TrueAttack"] / 100)
+                        #     / (1 + player["TrueDefence"] / 100)
+                        # ) * (
+                        #     1
+                        #     + (
+                        #         mobsStatus[selectedMobNum]["Stats"]["CritPower"]
+                        #         if random.randint(1, 100)
+                        #         <= mobsStatus[selectedMobNum]["Stats"]["CritChance"]
+                        #         else 0
+                        #     )
+                        #     / 100
+                        # )
+                        EnemyAttack(selectedMobAttack, mobNum)
             else:
                 if mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] <=0:
                     battleMessages.append("The "+mobsStatus[selectedMobNum]["Name"]+"'s soul is long gone... Its in a better place now...")
@@ -2660,10 +2677,10 @@ while True:
             if YiPyterminal.checkItemIsClicked("info bar",onlyCheckRelease = True):
                 isInfoBarInMessageMode = not isInfoBarInMessageMode
             if isInfoBarInMessageMode ==False:
-                bar = ("─"*(61-math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)))+"●"+(math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)*"─")
-                bar2 = (math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)*"─")+"●"+("─"*(61-math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)))
-                bar3 = ((49-math.ceil(max(player["CurrentEnergy"]/player["Energy"],0)*49))*"◇")+(math.ceil(max(player["CurrentEnergy"]/player["Energy"],0)*49)*"◆")
-                bar4 = (math.ceil(max(player["CurrentMana"]/player["Mana"],0)*49)*"◆")+((49-math.ceil(max(player["CurrentMana"]/player["Mana"],0)*49))*"◇")
+                bar = ("─"*(61-math.floor(max(player["CurrentHp"]/player["MaxHealth"],0)*61)))+"●"+(math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)*"─")
+                bar2 = (math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)*"─")+"●"+("─"*(61-math.floor(max(player["CurrentHp"]/player["MaxHealth"],0)*61)))
+                bar3 = str(((49-math.floor(max(player["CurrentEnergy"]/player["Energy"],0)*49))*"◇")+(math.ceil(max(player["CurrentEnergy"]/player["Energy"],0)*49)*"◆"))[:49]
+                bar4 = str((math.ceil(max(player["CurrentMana"]/player["Mana"],0)*49)*"◆")+((49-math.floor(max(player["CurrentMana"]/player["Mana"],0)*49))*"◇"))[:49]
                 if YiPyterminal.itemObjects["info bar"]["current frame"]!=0:
                     YiPyterminal.changeCurrentItemFrame("info bar",0)
                 YiPyterminal.changeItemFrameContent("info bar",copy.deepcopy(YiPyterminal.ASSETS["info bar"][0]).replace("[bar]",bar).replace("[bar2]",bar2).replace("[hp]",str(round(player["CurrentHp"],2)).rjust(8)).replace("[maxhp]",str(round(player["MaxHealth"],2)).ljust(8)).replace("[bar3]",bar3).replace("[bar4]",bar4).replace("[energy]",str(player["CurrentEnergy"]).rjust(4)).replace("[maxenergy]",str(player["Energy"]).ljust(4)).replace("[mana]",str(player["CurrentMana"]).rjust(4)).replace("[maxmana]",str(player["Mana"]).ljust(4)))
@@ -2722,7 +2739,7 @@ while True:
         Ui = False
         pyterm.renderItem("MinigameUi")
         if attacks[FocusPlayerAttack[1]]["Minigames"][0]["Name"] in ["BlackHole", "Reaction", "Shielded", "CircleDefend", "DodgeGrid", "Rain"]:
-            pyterm.changeItemFrameContent("MinigameScore", "Score: " + str(20-round(AttackTest.score*10)/10))
+            pyterm.changeItemFrameContent("MinigameScore", "Score: " + str(30-round(AttackTest.score*10)/10))
         else:
             pyterm.changeItemFrameContent("MinigameScore", "Score: " + str(round(AttackTest.score*10)/10))
         pyterm.updateItemSize("MinigameScore")
@@ -2934,7 +2951,7 @@ while True:
 
             if FocusInv:
                 itemObjects["ItemImg"]["animation frames"][0] = str(FocusInv["Asset"])
-                itemObjects["ItemDesc"]["animation frames"][0] = str(FocusInv["Name"])
+                itemObjects["ItemDesc"]["animation frames"][0] = str(FocusInv["Name"])[:16]
                 pyterm.updateItemSize("ItemImg")
                 pyterm.updateItemLocation("ItemImg")
                 pyterm.renderItem("ItemImg", screenLimits=(999,999))
@@ -3435,7 +3452,7 @@ while True:
     # pyterm.renderLiteralItem("1", 78, 21, "center", "center")
     # pyterm.renderLiteralItem("2", -78, -20, "center", "center")
 
-    # pyterm.renderLiteralItem("#", location[0], location[1])
+    pyterm.renderLiteralItem("#", location[0], location[1])
 #34, 3
     pyterm.renderScreen(displayDebugMessages=True,debugDisplayMessageLimit=1,debugIsdisplayMessageLimit=False)
     elapsedTime = time.perf_counter() - startTime

@@ -1044,8 +1044,8 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
         AttackTest.score = 0
         mobsStatus[Enemy]["Stats"]["CurrentHp"]=max(mobsStatus[Enemy]["Stats"]["CurrentHp"],0)
         if mobsStatus[Enemy]["Stats"]["CurrentHp"] <=0:
+            enemiesKilled+=1
             MobDrops(Enemy)
-            enemiesKilled += 1
             battleMessages.append("You killed the "+mobsStatus[Enemy]["Name"]+" You see its soul flying off as you loot what is left of it.")
         return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10)
 
@@ -1167,9 +1167,9 @@ def MobDrops(MobNum):
 score = 0
 timed = 9
 AimTarget = []
-character_size = (19, 37) #NORMAL
+# character_size = (19, 37) #NORMAL
 # character_size = (9, 19) #PCS
-# character_size = (12, 23) #LAPTOP
+character_size = (12, 23) #LAPTOP
 # character_size = Cursor.initialize(10)
 score = 0
 MainClock = 1000

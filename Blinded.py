@@ -3427,11 +3427,11 @@ while True:
             
 
 
-    pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(player["Effects"]), 0, 0, "bottom left", "bottom left")
+    # pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(player["Effects"]), 0, 0, "bottom left", "bottom left")
     # pyterm.renderLiteralItem("1", 78, 21, "center", "center")
     # pyterm.renderLiteralItem("2", -78, -20, "center", "center")
 
-    pyterm.renderLiteralItem("#", location[0], location[1])
+    # pyterm.renderLiteralItem("#", location[0], location[1])
 #34, 3
     pyterm.renderScreen(displayDebugMessages=True,debugDisplayMessageLimit=1,debugIsdisplayMessageLimit=False)
     elapsedTime = time.perf_counter() - startTime

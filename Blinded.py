@@ -936,7 +936,7 @@ def RenderSpell(Spell):
 
 
 def PlayerAttack(Enemy: int, Attack = None, minigame = False):
-    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode,enemiesKilled
+    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode, enemiesKilled, battles
 
     if Attack != None:
         if minigame:
@@ -996,9 +996,9 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
                 playercopy["Effects"].remove(effect)
     player["Effects"] = copy.deepcopy(playercopy["Effects"])
 
-    player["CurrentHp"] += playercopy["Regen"]
-    player["CurrentMana"] += playercopy["ManaRegen"]
-    player["CurrentEnergy"] += playercopy["EnergyRegen"]
+    player["CurrentHp"] += min(playercopy["Regen"], playercopy["MaxHealth"])
+    player["CurrentMana"] += min(playercopy["ManaRegen"], playercopy["Mana"])
+    player["CurrentEnergy"] += min(playercopy["EnergyRegen"], playercopy["Energy"])
 
     #Math
     if Attack != None:
@@ -1069,7 +1069,7 @@ def EnemyAttack(Attack, Enemy: int):
                 mob["Effects"].append(effect)
             elif effect["Target"] == "Enemy":
                 player["Effects"].append(effect)
-    mob["Stats"]["CurrentHp"] += mobcopy["Stats"]["Regen"]
+    mob["Stats"]["CurrentHp"] += min(mobcopy["Stats"]["Regen"], mobcopy["Stats"]["MaxHealth"])
     missed = not bool(random.randint(1, 10000) <= attacks[Attack]["Accuracy"] * 100)
     Heal = 0
     crit = (mobcopy["Stats"]["CritPower"] if random.randint(1, 100) <= mobcopy["Stats"]["CritChance"] else 0)
@@ -1276,7 +1276,8 @@ Inventory = {"Armor":
               {"Name": "Defensive", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Defensive", "Description": "A defensive scroll.", "Id": 9},
               {"Name": "Sharpened", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Sharpened", "Description": "A sharpened scroll.", "Id": 9},
               {"Name": "Dev", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Dev", "Description": "dev.", "Id": 10},
-              {"Name": "Slime Leap Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Meteoric Strike", "Description": "N/A", "Id": None}]}
+              {"Name": "Meteoric Strike Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Meteoric Strike", "Description": "N/A", "Id": None},
+              {"Name": "Acidify Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Acidify", "Description": "N/A", "Id": None}]}
 
 Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("sword"), "Effects": [{"Stat": "CurrentHp", "Potency": 30, "Time": 1}], "Description": "Yum, an apple!", "Id": None},
          "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "A powerful sword", "Id": None},
@@ -1310,9 +1311,9 @@ level = 1
 experience = 0
 max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(level ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/level ** 3)) + 0.798935) * 100)
 #1 -> 999, 1.1 -> 10k, 10k -> 999k, 1.1mil -> ...
-player = {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
+player = {"MaxHealth": 100, "CurrentHp": 100, "Regen": 0,
           "Defence": 0, "MagicDefence": 0, 
-          "Strength": 10000, "MagicPower": 0, 
+          "Strength": 0, "MagicPower": 0, 
           "Dexterity": 100, "CastingSpeed": 100, 
           "Skill": 0, "Intelligence": 0, 
           "CritChance": 5, "CritPower": 60, 
@@ -2114,7 +2115,7 @@ while True:
                 if RoomData[AnimateRoomEntry["id"]]["Type"] == "Puzzle":
                     PhaseChange("room")
                 elif RoomData[AnimateRoomEntry["id"]]["Type"] == "Battle":
-                    mobsStatus = [random.choice(["Slime", "Slime", "Slime", "Large Slime", "Large Slime", "Corrosive Slime", "Corrosive Slime", "Giga Slime"]), random.choice(["Slime", "Slime", "Slime", "Large Slime", "Large Slime", "Corrosive Slime", "Corrosive Slime", "Giga Slime"])]
+                    mobsStatus = [random.choice(["Slime", "Slime", "Slime", "Large Slime", "Large Slime", "Corrosive Slime", "Corrosive Slime", "Giga Slime"]) for i in range(3)]
                     PhaseChange("battle")
                 elif RoomData[AnimateRoomEntry["id"]]["Type"] == "Treasure":
                     PhaseChange("room")
@@ -3348,6 +3349,8 @@ while True:
     #Levels
     if LevelUp:
         DisableOther = True
+        LeftClick = LeftClickCopy
+        RightClick = RightClickCopy
         pyterm.renderItem("LevelUpStats", screenLimits=(itemObjects["LevelUpTransition"]["current frame"] * 6 ,999))
         pyterm.renderItem("LevelUpText", screenLimits=(itemObjects["LevelUpTransition"]["current frame"] * 6 ,999))
         if itemObjects["LevelUpTransition"]["current frame"] <= len(itemObjects["LevelUpTransition"]["animation frames"]) - 1:

@@ -1277,6 +1277,7 @@ Inventory = {"Armor":
               {"Name": "Sharpened", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Sharpened", "Description": "A sharpened scroll.", "Id": 9},
               {"Name": "Dev", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Dev", "Description": "dev.", "Id": 10},
               {"Name": "Meteoric Strike Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Meteoric Strike", "Description": "N/A", "Id": None},
+              {"Name": "Slash Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Slash", "Description": "N/A", "Id": None},
               {"Name": "Acidify Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Acidify", "Description": "N/A", "Id": None}]}
 
 Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("sword"), "Effects": [{"Stat": "CurrentHp", "Potency": 30, "Time": 1}], "Description": "Yum, an apple!", "Id": None},

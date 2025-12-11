@@ -932,7 +932,7 @@ def RenderSpell(Spell):
 
 
 def PlayerAttack(Enemy: int, Attack = None, minigame = False):
-    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode
+    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode,enemiesKilled
 
     if Attack != None:
         if minigame:
@@ -1040,8 +1040,8 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
         AttackTest.score = 0
         mobsStatus[Enemy]["Stats"]["CurrentHp"]=max(mobsStatus[Enemy]["Stats"]["CurrentHp"],0)
         if mobsStatus[Enemy]["Stats"]["CurrentHp"] <=0:
-            MobDrops(Enemy)
             enemiesKilled+=1
+            MobDrops(Enemy)
             battleMessages.append("You killed the "+mobsStatus[Enemy]["Name"]+" You see its soul flying off as you loot what is left of it.")
         return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10)
 
@@ -1163,9 +1163,9 @@ def MobDrops(MobNum):
 score = 0
 timed = 9
 AimTarget = []
-character_size = (19, 37) #NORMAL
+# character_size = (19, 37) #NORMAL
 # character_size = (9, 19) #PCS
-# character_size = (12, 23) #LAPTOP
+character_size = (12, 23) #LAPTOP
 # character_size = Cursor.initialize(10)
 score = 0
 MainClock = 1000
@@ -2670,7 +2670,6 @@ while True:
                 YiPyterminal.changeItemFrameContent("info bar",copy.deepcopy(YiPyterminal.ASSETS["info bar"][1]).replace("                                                                         1                                                                         ",battleMessages[len(battleMessages)-4].center(147)).replace("                                                                        2                                                                        ",battleMessages[len(battleMessages)-3].center(145)).replace("                                                                       3                                                                       ",battleMessages[len(battleMessages)-2].center(143)).replace("                                                                      4                                                                      ",battleMessages[len(battleMessages)-1].center(141)),1)
         except:
             pass
-        player["CurrentMana"]=0
         for item in [
             "enemy selection box",
             "enemy selection option 1",

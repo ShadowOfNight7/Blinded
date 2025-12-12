@@ -911,7 +911,7 @@ def RenderSpell(Spell):
 
 
 def PlayerAttack(Enemy: int, Attack = None, minigame = False):
-    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode, enemiesKilled, battles, selectedViewMobOption
+    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode, enemiesKilled, battles, selectedViewMobOption, hoveredMobOption, clickedMobOption
 
     if Attack != None:
         if minigame:
@@ -1024,6 +1024,8 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
             battleMessages.append("You killed the "+mobsStatus[Enemy]["Name"]+" You see its soul flying off as you loot what is left of it.")
             del mobsStatus[selectedMobNum]
             selectedViewMobOption = None
+            hoveredMobOption = None
+            clickedMobOption = None
             ChangeEnemySelection()
         return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10)
 
@@ -1132,9 +1134,9 @@ def MobDrops(MobNum):
     weight = 0
     for drop in mob:
         if drop["Item"] == "Research":
-            research += AddResearch(random.randint(drop["Min"], drop["Max"]) * (math.log(enemiesKilled/3, 3) if SevenBuff == "Desire" else 1))
+            research += AddResearch(random.randint(round(drop["Min"]), round(drop["Max"])) * (math.log(enemiesKilled/3, 3) if SevenBuff == "Desire" else 1))
         if drop["Item"] == "Exp":
-            experience += random.randint(drop["Min"], drop["Max"] * (math.log(enemiesKilled/3 + 1, 3) if SevenBuff == "Desire" else 1))
+            experience += random.randint(round(drop["Min"]), round(drop["Max"]) * (math.log(enemiesKilled/3 + 1, 3) if SevenBuff == "Desire" else 1))
         else:
             weight += drop["Weight"]
     for i in range(round(math.log10(enemiesKilled/2) + 1) if SevenBuff == "Desire" else 1):
@@ -1150,7 +1152,7 @@ AimTarget = []
 character_size = (19, 37) #NORMAL
 # character_size = (9, 19) #PCS
 # character_size = (12, 23) #LAPTOP
-character_size = Cursor.initialize(2)
+# character_size = Cursor.initialize(2)
 score = 0
 MainClock = 1000
 FalseTime = time.time()
@@ -1730,7 +1732,7 @@ pyterm.createItem("MinigameUi", ["""┌-----------------------------------------
 pyterm.createItem("MinigameScore", ["Score: 0"], "MinigameUi", "center", "center", 0, 0, 1)
 pyterm.createItem("MinigameName", ["          "], "MinigameUi", "center", "center", 0, 0, -1)
 pyterm.createItem("MinigameDesc", ["          "], "MinigameUi", "center", "center", 0, 0, 0)
-
+CurrentRoom = None
 
 PhaseChange("battle")
 PhaseChange("title")
@@ -2113,6 +2115,7 @@ while True:
                 elif RoomData[AnimateRoomEntry["id"]]["Type"] == "Home":
                     PhaseChange("room")
                 # ClearedRooms.append(AnimateRoomEntry["id"])
+                CurrentRoom = AnimateRoomEntry["id"]
                 AnimateRoomEntry = False
                 FocusRoom = False
                 # PhaseChange("Battle")
@@ -2571,7 +2574,7 @@ while True:
                 .replace("[true def]",str(mobsStatus[selectedViewMobOption]["Stats"]["TrueDefence"]))
                 ,1)
             YiPyterminal.changeCurrentItemFrame("enemy information box",1)
-        if selectedAttack != None and selectedAttack != "" and selectedMobNum != None:
+        if (selectedAttack != None and selectedAttack != "" and selectedMobNum != None) and (mobsStatus != []):
             if player["CurrentMana"]>=attacks[selectedAttack]["Mana"] and player["CurrentEnergy"]>= attacks[selectedAttack]["Energy"] and mobsStatus[selectedMobNum]["Stats"]["CurrentHp"]>0:
                 player["CurrentMana"]-=attacks[selectedAttack]["Mana"]
                 player["CurrentEnergy"]-= attacks[selectedAttack]["Energy"]
@@ -2616,25 +2619,7 @@ while True:
                             weights=[attack["Weight"] for attack in mobsStatus[mobNum]["Attacks"]],
                             k=1,
                         )[0]
-                        # player["CurrentHp"] -= (
-                        #     attacks[selectedMobAttack]["BasePowerMelee"]
-                        #     * (1 + mobsStatus[selectedMobNum]["Stats"]["Strength"] / 100)
-                        #     / (1 + player["Defence"] / 100)
-                        #     + attacks[selectedMobAttack]["BasePowerMagic"]
-                        #     * (1 + mobsStatus[selectedMobNum]["Stats"]["MagicPower"] / 100)
-                        #     / (1 + player["MagicDefence"] / 100)
-                        #     + (1 + mobsStatus[selectedMobNum]["Stats"]["TrueAttack"] / 100)
-                        #     / (1 + player["TrueDefence"] / 100)
-                        # ) * (
-                        #     1
-                        #     + (
-                        #         mobsStatus[selectedMobNum]["Stats"]["CritPower"]
-                        #         if random.randint(1, 100)
-                        #         <= mobsStatus[selectedMobNum]["Stats"]["CritChance"]
-                        #         else 0
-                        #     )
-                        #     / 100
-                        # )
+
                         EnemyAttack(selectedMobAttack, mobNum)
             else:
                 if mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] <=0:
@@ -2650,6 +2635,14 @@ while True:
                     battleMessages.append("You feel tired. You should rest. You do not have energy mana to use "+selectedAttack+".")
                     selectedAttack=None
                 isInfoBarInMessageMode = True
+        if mobsStatus == []:
+            ClearedRooms.append(CurrentRoom)
+            CurrentRoom = None
+            battles += 1
+            player["CurrentHp"] = player["MaxHealth"]
+            player["CurrentMana"] = player["Mana"]
+            player["CurrentEnergy"] = player["Energy"]
+            PhaseChange("map")
         try:
             if YiPyterminal.checkItemIsClicked("info bar",onlyCheckRelease = True):
                 isInfoBarInMessageMode = not isInfoBarInMessageMode

@@ -494,315 +494,7 @@ def PhaseChange(Phase: str):
             parentAnchor="left center",
             childAnchor="left center",
         )
-        if len(mobsStatus) >= 1:
-            YiPyterminal.createItem(
-                "enemy selection option 1",
-                [
-                    " " * 30
-                    + "\n"
-                    + mobsStatus[0]["Name"].center(30)
-                    + "\n"
-                    + " " * 30,
-                    " " * 30
-                    + "\n"
-                    + ("> " + mobsStatus[0]["Name"] + " <").center(30)
-                    + "\n"
-                    + " " * 30,
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <",
-                        mobsStatus[0]["Name"].center(26),
-                    ),
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <",
-                        ("> " + mobsStatus[0]["Name"] + " <").center(26),
-                    ),
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=1,
-            )
-        else:
-            YiPyterminal.createItem(
-                "enemy selection option 1",
-                [
-                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=1,
-            )
-        if len(mobsStatus) >= 2:
-            YiPyterminal.createItem(
-                "enemy selection option 2",
-                [
-                    " " * 30
-                    + "\n"
-                    + mobsStatus[1]["Name"].center(30)
-                    + "\n"
-                    + " " * 30,
-                    " " * 30
-                    + "\n"
-                    + ("> " + mobsStatus[1]["Name"] + " <").center(30)
-                    + "\n"
-                    + " " * 30,
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <", mobsStatus[1]["Name"].center(26)
-                    ),
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <",
-                        ("> " + mobsStatus[1]["Name"] + " <").center(26),
-                    ),
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=5,
-            )
-        else:
-            YiPyterminal.createItem(
-                "enemy selection option 2",
-                [
-                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=5,
-            )
-        if len(mobsStatus) >= 3:
-            YiPyterminal.createItem(
-                "enemy selection option 3",
-                [
-                    " " * 30
-                    + "\n"
-                    + mobsStatus[2]["Name"].center(30)
-                    + "\n"
-                    + " " * 30,
-                    " " * 30
-                    + "\n"
-                    + ("> " + mobsStatus[2]["Name"] + " <").center(30)
-                    + "\n"
-                    + " " * 30,
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <", mobsStatus[2]["Name"].center(26)
-                    ),
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <",
-                        ("> " + mobsStatus[2]["Name"] + " <").center(26),
-                    ),
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=9,
-            )
-        else:
-            YiPyterminal.createItem(
-                "enemy selection option 3",
-                [
-                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=9,
-            )
-        if len(mobsStatus) >= 4:
-            YiPyterminal.createItem(
-                "enemy selection option 4",
-                [
-                    " " * 30
-                    + "\n"
-                    + mobsStatus[3]["Name"].center(30)
-                    + "\n"
-                    + " " * 30,
-                    " " * 30
-                    + "\n"
-                    + ("> " + mobsStatus[3]["Name"] + " <").center(30)
-                    + "\n"
-                    + " " * 30,
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <", mobsStatus[3]["Name"].center(26)
-                    ),
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <",
-                        ("> " + mobsStatus[3]["Name"] + " <").center(26),
-                    ),
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=13,
-            )
-        else:
-            YiPyterminal.createItem(
-                "enemy selection option 4",
-                [
-                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=13,
-            )
-        if len(mobsStatus) >= 5:
-            YiPyterminal.createItem(
-                "enemy selection option 5",
-                [
-                    " " * 30
-                    + "\n"
-                    + mobsStatus[4]["Name"].center(30)
-                    + "\n"
-                    + " " * 30,
-                    " " * 30
-                    + "\n"
-                    + ("> " + mobsStatus[4]["Name"] + " <").center(30)
-                    + "\n"
-                    + " " * 30,
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <", mobsStatus[4]["Name"].center(26)
-                    ),
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <",
-                        ("> " + mobsStatus[4]["Name"] + " <").center(26),
-                    ),
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=17,
-            )
-        else:
-            YiPyterminal.createItem(
-                "enemy selection option 5",
-                [
-                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=17,
-            )
-        if len(mobsStatus) >= 6:
-            YiPyterminal.createItem(
-                "enemy selection option 6",
-                [
-                    " " * 30
-                    + "\n"
-                    + mobsStatus[5]["Name"].center(30)
-                    + "\n"
-                    + " " * 30,
-                    " " * 30
-                    + "\n"
-                    + ("> " + mobsStatus[5]["Name"] + " <").center(30)
-                    + "\n"
-                    + " " * 30,
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <", mobsStatus[5]["Name"].center(26)
-                    ),
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <",
-                        ("> " + mobsStatus[5]["Name"] + " <").center(26),
-                    ),
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=21,
-            )
-        else:
-            YiPyterminal.createItem(
-                "enemy selection option 6",
-                [
-                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=21,
-            )
-        if len(mobsStatus) >= 7:
-            YiPyterminal.createItem(
-                "enemy selection option 7",
-                [
-                    " " * 30
-                    + "\n"
-                    + mobsStatus[6]["Name"].center(30)
-                    + "\n"
-                    + " " * 30,
-                    " " * 30
-                    + "\n"
-                    + ("> " + mobsStatus[6]["Name"] + " <").center(30)
-                    + "\n"
-                    + " " * 30,
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <", mobsStatus[6]["Name"].center(26)
-                    ),
-                    YiPyterminal.ASSETS["enemy selection option"][0].replace(
-                        ">                        <",
-                        ("> " + mobsStatus[6]["Name"] + " <").center(26),
-                    ),
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=25,
-            )
-        else:
-            YiPyterminal.createItem(
-                "enemy selection option 7",
-                [
-                    " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
-                ],
-                parentObject="enemy selection box",
-                parentAnchor="top center",
-                childAnchor="top center",
-                xBias=-2,
-                yBias=25,
-            )
-
-            # YiPyterminal.createItem("enemy selection option 8",[
-            #         " " * 30 + "\n" + mobsStatus[7]["Name"].center(30) + "\n" + " " * 30,
-            #         " " * 30
-            #         + "\n"
-            #         + ("> " + mobsStatus[7]["Name"] + " <").center(30)
-            #         + "\n"
-            #         + " " * 30,
-            #         YiPyterminal.assets["enemy selection option"][0].replace(
-            #             ">                        <",  mobsStatus[7]["Name"].center(26)
-            #         ),
-            #         YiPyterminal.assets["enemy selection option"][0].replace(
-            #             ">                        <",
-            #             ("> " + mobsStatus[7]["Name"] + " <").center(26),
-            #         ),
-            #     ],parentObject="enemy selection box",parentAnchor="top center",childAnchor="top center",xBias=-2,yBias=29,)
-            # else:
-            # YiPyterminal.createItem(
-            #     "enemy selection option 8",
-            #     [
-            #         " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
-            #     ],
-            #     parentObject="enemy selection box",
-            #     parentAnchor="top center",
-            #     childAnchor="top center",
-            #     xBias=-2,
-            #     yBias=29,
-            # )
+        ChangeEnemySelection()
         YiPyterminal.createItem(
             "enemy information box",
             copy.deepcopy(YiPyterminal.ASSETS["enemy information box"]),
@@ -817,6 +509,289 @@ def PhaseChange(Phase: str):
             yBias=1,
         )
 
+def ChangeEnemySelection():
+    global mobStatus
+    if len(mobsStatus) >= 1:
+        YiPyterminal.createItem(
+            "enemy selection option 1",
+            [
+                " " * 30
+                + "\n"
+                + mobsStatus[0]["Name"].center(30)
+                + "\n"
+                + " " * 30,
+                " " * 30
+                + "\n"
+                + ("> " + mobsStatus[0]["Name"] + " <").center(30)
+                + "\n"
+                + " " * 30,
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <",
+                    mobsStatus[0]["Name"].center(26),
+                ),
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <",
+                    ("> " + mobsStatus[0]["Name"] + " <").center(26),
+                ),
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=1,
+        )
+    else:
+        YiPyterminal.createItem(
+            "enemy selection option 1",
+            [
+                " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=1,
+        )
+    if len(mobsStatus) >= 2:
+        YiPyterminal.createItem(
+            "enemy selection option 2",
+            [
+                " " * 30
+                + "\n"
+                + mobsStatus[1]["Name"].center(30)
+                + "\n"
+                + " " * 30,
+                " " * 30
+                + "\n"
+                + ("> " + mobsStatus[1]["Name"] + " <").center(30)
+                + "\n"
+                + " " * 30,
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <", mobsStatus[1]["Name"].center(26)
+                ),
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <",
+                    ("> " + mobsStatus[1]["Name"] + " <").center(26),
+                ),
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=5,
+        )
+    else:
+        YiPyterminal.createItem(
+            "enemy selection option 2",
+            [
+                " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=5,
+        )
+    if len(mobsStatus) >= 3:
+        YiPyterminal.createItem(
+            "enemy selection option 3",
+            [
+                " " * 30
+                + "\n"
+                + mobsStatus[2]["Name"].center(30)
+                + "\n"
+                + " " * 30,
+                " " * 30
+                + "\n"
+                + ("> " + mobsStatus[2]["Name"] + " <").center(30)
+                + "\n"
+                + " " * 30,
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <", mobsStatus[2]["Name"].center(26)
+                ),
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <",
+                    ("> " + mobsStatus[2]["Name"] + " <").center(26),
+                ),
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=9,
+        )
+    else:
+        YiPyterminal.createItem(
+            "enemy selection option 3",
+            [
+                " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=9,
+        )
+    if len(mobsStatus) >= 4:
+        YiPyterminal.createItem(
+            "enemy selection option 4",
+            [
+                " " * 30
+                + "\n"
+                + mobsStatus[3]["Name"].center(30)
+                + "\n"
+                + " " * 30,
+                " " * 30
+                + "\n"
+                + ("> " + mobsStatus[3]["Name"] + " <").center(30)
+                + "\n"
+                + " " * 30,
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <", mobsStatus[3]["Name"].center(26)
+                ),
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <",
+                    ("> " + mobsStatus[3]["Name"] + " <").center(26),
+                ),
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=13,
+        )
+    else:
+        YiPyterminal.createItem(
+            "enemy selection option 4",
+            [
+                " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=13,
+        )
+    if len(mobsStatus) >= 5:
+        YiPyterminal.createItem(
+            "enemy selection option 5",
+            [
+                " " * 30
+                + "\n"
+                + mobsStatus[4]["Name"].center(30)
+                + "\n"
+                + " " * 30,
+                " " * 30
+                + "\n"
+                + ("> " + mobsStatus[4]["Name"] + " <").center(30)
+                + "\n"
+                + " " * 30,
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <", mobsStatus[4]["Name"].center(26)
+                ),
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <",
+                    ("> " + mobsStatus[4]["Name"] + " <").center(26),
+                ),
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=17,
+        )
+    else:
+        YiPyterminal.createItem(
+            "enemy selection option 5",
+            [
+                " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=17,
+        )
+    if len(mobsStatus) >= 6:
+        YiPyterminal.createItem(
+            "enemy selection option 6",
+            [
+                " " * 30
+                + "\n"
+                + mobsStatus[5]["Name"].center(30)
+                + "\n"
+                + " " * 30,
+                " " * 30
+                + "\n"
+                + ("> " + mobsStatus[5]["Name"] + " <").center(30)
+                + "\n"
+                + " " * 30,
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <", mobsStatus[5]["Name"].center(26)
+                ),
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <",
+                    ("> " + mobsStatus[5]["Name"] + " <").center(26),
+                ),
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=21,
+        )
+    else:
+        YiPyterminal.createItem(
+            "enemy selection option 6",
+            [
+                " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=21,
+        )
+    if len(mobsStatus) >= 7:
+        YiPyterminal.createItem(
+            "enemy selection option 7",
+            [
+                " " * 30
+                + "\n"
+                + mobsStatus[6]["Name"].center(30)
+                + "\n"
+                + " " * 30,
+                " " * 30
+                + "\n"
+                + ("> " + mobsStatus[6]["Name"] + " <").center(30)
+                + "\n"
+                + " " * 30,
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <", mobsStatus[6]["Name"].center(26)
+                ),
+                YiPyterminal.ASSETS["enemy selection option"][0].replace(
+                    ">                        <",
+                    ("> " + mobsStatus[6]["Name"] + " <").center(26),
+                ),
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=25,
+        )
+    else:
+        YiPyterminal.createItem(
+            "enemy selection option 7",
+            [
+                " " * 30 + "\n" + " " * 30 + "\n" + " " * 30,
+            ],
+            parentObject="enemy selection box",
+            parentAnchor="top center",
+            childAnchor="top center",
+            xBias=-2,
+            yBias=25,
+        )
 
 # fmt: off
 
@@ -936,7 +911,7 @@ def RenderSpell(Spell):
 
 
 def PlayerAttack(Enemy: int, Attack = None, minigame = False):
-    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode, enemiesKilled, battles
+    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode, enemiesKilled, battles, selectedViewMobOption
 
     if Attack != None:
         if minigame:
@@ -1047,7 +1022,9 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
             enemiesKilled+=1
             MobDrops(Enemy)
             battleMessages.append("You killed the "+mobsStatus[Enemy]["Name"]+" You see its soul flying off as you loot what is left of it.")
-            # del mobsStatus[selectedMobNum]
+            del mobsStatus[selectedMobNum]
+            selectedViewMobOption = None
+            ChangeEnemySelection()
         return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10)
 
 

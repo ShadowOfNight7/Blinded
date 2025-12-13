@@ -1,0 +1,1 @@
+powershell -NoExit -Command "py '%~dp0Blinded.py'"

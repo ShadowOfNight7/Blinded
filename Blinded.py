@@ -872,14 +872,15 @@ def RemoveInvItem(Item):
             return True
     return False
 
-def UnequipInvItem(Item):
+def UnequipInvItem(Item, KeepItem = True):
     global Inventory, Equipment
     if Item == None:
         return True
     for types in Equipment.keys():
         if Item is Equipment[types]:
             Equipment[types] = None
-            AddInvItem(Item)
+            if KeepItem:
+                AddInvItem(Item)
             return True
     return False
 
@@ -911,7 +912,7 @@ def RenderSpell(Spell):
 
 
 def PlayerAttack(Enemy: int, Attack = None, minigame = False):
-    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode, enemiesKilled, battles, selectedViewMobOption, hoveredMobOption, clickedMobOption
+    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode, enemiesKilled, battles, selectedViewMobOption, hoveredMobOption, clickedMobOption, selectedMobNum
 
     if Attack != None:
         if minigame:
@@ -1022,11 +1023,12 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
             enemiesKilled+=1
             MobDrops(Enemy)
             battleMessages.append("You killed the "+mobsStatus[Enemy]["Name"]+" You see its soul flying off as you loot what is left of it.")
-            del mobsStatus[selectedMobNum]
+            del mobsStatus[Enemy]
             selectedViewMobOption = None
             hoveredMobOption = None
             clickedMobOption = None
             ChangeEnemySelection()
+            selectedMobNum = None
         return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10)
 
 
@@ -1214,7 +1216,8 @@ room_size = [round(120), round(25)]
 # pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(round((room_size[0] - 1)/2 + 1))) + "\n" for i3 in range(round((room_size[1] - 1)/2 + 1))), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
 pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(room_size[0])) + "\n" for i3 in range(room_size[1])), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
 room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#"]
-room_push = [{"Character": "#", "Location": (0, 0)}, {"Character": "%", "Location": (1, 1)}]
+room_push = []
+# room_push = [{"Character": "#", "Location": (0, 0)}, {"Character": "%", "Location": (1, 1)}]
 pyterm.createItem("Pushable", ["#"], "screen", "center", "center", 0)
 
 UiOffset = [0, 0]
@@ -1241,12 +1244,12 @@ InventoryUiState = 1
 pyterm.createItem("Inventory", [assets.get("Inventory1"), assets.get("Inventory2"), assets.get("Inventory3"), assets.get("Inventory4"), assets.get("Inventory5")], "screen", "center", "center", yBias = -11) #-pyterm.getStrWidthAndHeight(assets.get("Inventory1"))[1]/2
 DisableOther = False
 Inventory = {"Armor": 
-             [{"Name": "Death Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 1, "Strength": 1}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 1}], 
+             [], 
              "Weapon": 
-             [{"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "A powerful sword", "Id": None}], 
+             [{"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "A powerful sword", "Id": None},
+              {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "A powerful sword", "Id": None}], 
              "Offhand": 
-             [{"Name": "Deather Star", "Type": "Offhand", "Asset": assets.get("sword"), "Stats": {"Dexterity": 2, "Strength": 2}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 3}, 
-              {"Name": "Deathest Star", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Dexterity": 999, "Strength": 999}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A death star that's deadly and a star.", "Id": 2}], 
+             [], 
              "Accessory": 
              [], 
              "Misc": 
@@ -1267,7 +1270,14 @@ Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("s
          "Iron Chestplate": {"Name": "Iron Chestplate", "Type": "Armor", "Asset": assets.get("sword"), "Stats": {"Defence": 20, "Magic Defence": 5, "Dexterity": -5}, "Enchant": False, "Description": "A tough chestplate", "Id": None},
          "Miracle Gem": {"Name": "Miracle Gem", "Type": "Extra", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Description": "A gem that feels like it’s pulsating attached to a thin string of pure mana. Once on, it almost feels draining, yet replenishing? -1 hp +5 mana per turn", "Id": None},
          "Slime Leap Scroll": {"Name": "Slime Leap Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Slime Leap", "Description": "N/A", "Id": None},
-         "Flame": {"Name": "Flame", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Burning", "Description": "A flame scroll.", "Id": None},
+         "Flame": {"Name": "Flame Scroll", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Burning", "Description": "A flame scroll.", "Id": None},
+         "Poison": {"Name": "Poison Scroll", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Poisoning", "Description": "A scroll embued with the strongest poisons.", "Id": None},
+         "Lifesteal": {"Name": "Lifesteal Scroll", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Lifesteal", "Description": "A scroll which seems to drain your life force.", "Id": None},
+         "Embued": {"Name": "Embued Scroll", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Embued", "Description": "A scroll embued with overflowing magic.", "Id": None},
+         "Swift": {"Name": "Swift Scroll", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Swift", "Description": "A scroll which shakes in your hands.", "Id": None},
+         "Defensive": {"Name": "Defensive Scroll", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Defensive", "Description": "A really hard piece of paper.", "Id": None},
+         "Sharpened": {"Name": "Sharpened Scroll", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Sharpened", "Description": "A thing that keeps giving you paper cuts.", "Id": None},
+         "Dev": {"Name": "Dev Scroll", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Dev", "Description": "You shouldn't have this.", "Id": None},
          "Acidify Scroll": {"Name": "Acidify Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Acidify", "Description": "A scroll of acidification", "Id": None},
          "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
          "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
@@ -1281,14 +1291,37 @@ LockedAttacks = {"Attack0": False, "Attack1": False, "Attack2": False, "Attack3"
 EquippedUltimate = "Slime Heat-Seeking Missile"
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
 FocusInv = False
-pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "bottom right", 0, -2, -15)
+pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "center", 0, -10, -21)
 pyterm.createItem("ItemDesc", [" "], "Inventory", "bottom right", "top left", 0, -18, -12)
+pyterm.createItem("ItemDesc2", [" "], "Inventory", "bottom right", "top left", 0, -18, -9)
 pyterm.createItem("ItemButton", ["[Exit]       [Use]"], "Inventory", "bottom right", "top left", 0, -19, -2)
 pyterm.createItem("Equipment", ["|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!"], "Inventory", "top left", "center", 0, 11, 26)
 pyterm.createItem("Settings", [assets.get("TitleSettings")], "screen", "center", "center", 0, 0, -15)
 
+CraftingRecipes = {"Sword": {"Ingredients": [{"Item": "Apple", "Amount": 2}, {"Item": "Acidify Scroll", "Amount": 25}], "Research": 300, "Researchlook": "[300.0 Research]", "LightRequirements": 1},
+                   "Apple": {"Ingredients": [{"Item": "Sword", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 1},
+                   "Flame": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 2},
+                   "Poison": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 2},
+                   "Lifesteal": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
+                   "Embued": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
+                   "Swift": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
+                   "Defensive": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
+                   "Sharpened": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
+                   "Dev": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
+                   "Acidify Scroll": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3}
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   
+                   }
+AvaliableRecipes = []
+
 #ITS THE STATS!
-light = 0
+light = 1
 research = 0
 level = 1
 experience = 0
@@ -1734,6 +1767,47 @@ pyterm.createItem("MinigameName", ["          "], "MinigameUi", "center", "cente
 pyterm.createItem("MinigameDesc", ["          "], "MinigameUi", "center", "center", 0, 0, 0)
 CurrentRoom = None
 
+pyterm.createItem("Enemy", [""], "screen", "center", "center", 0, 0, 0)
+
+Crafting = False
+RiseCrafting = 0
+RiseCraftingBool = False
+pyterm.createItem("Crafting", [assets.get("CraftingUi")], "screen", "center", "center", 0, 0, -11)
+pyterm.createItem("CraftingHelp", [assets.get("CraftingHelp")], "screen", "center", "center", 0, 0, 0)
+CraftingHelp = False
+FocusCraft = False
+pyterm.createItem("CraftRecipe", [""], "Crafting", "top left", "top left", 0, 4, 25)
+pyterm.createItem("CraftRecipeResearch", ["[       ]"], "Crafting", "top left", "top right", 0, 84, 25)
+CraftingCurrent = 0
+FakeInv3 = False
+pyterm.createItem("CraftingImg", [" "], "Crafting", "bottom right", "center", 0, -10, -21)
+pyterm.createItem("CraftingDesc", [" "], "Crafting", "bottom right", "top left", 0, -18, -12)
+pyterm.createItem("CraftingDesc2", [" "], "Crafting", "bottom right", "top left", 0, -18, -9)
+FakeInv3Buffer = False
+
+Shop = False
+pyterm.createItem("ShopTime", [assets.get("ShopTime")], "screen", "center", "center", 0, 0, 0)
+pyterm.createItem("ShopItems", [" "], "ShopTime", "top left", "top left", 0, 5, 9)
+ShopItems = [{"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}]
+
+ShopList = {"Apple": {"PriceRange": (1, 999999), "LightRequired": 1, "Weight": 10}, 
+            "Sword": {"PriceRange": (500, 1000), "LightRequired": 1, "Weight": 5},
+            "Acidify Scroll": {"PriceRange": (5000, 10000), "LightRequired": 2, "Weight": 5}}
+
+def RefreshShop():
+    global ShopList, ShopItems, light
+    weight = []
+    for i in ShopList.keys():
+        if ShopList[i]["LightRequired"] <= light:
+            for i2 in range(ShopList[i]["Weight"]):
+                weight.append(i)
+    ShopItems = []
+    for i in range(5):
+        chosenItem = random.choice(weight)
+        ShopItems.append({"Item": chosenItem, "Price": random.randint(ShopList[chosenItem]["PriceRange"][0], ShopList[chosenItem]["PriceRange"][1])})
+
+RefreshShop()
+
 PhaseChange("battle")
 PhaseChange("title")
 
@@ -1787,6 +1861,10 @@ while True:
     player["CurrentHp"] = min(player["CurrentHp"], player["MaxHealth"])
     player["CurrentMana"] = min(player["CurrentMana"], player["Mana"])
     player["CurrentEnergy"] = min(player["CurrentEnergy"], player["Energy"])
+    for craft in CraftingRecipes.keys():
+        if light >= CraftingRecipes[craft]["LightRequirements"]:
+            if not (craft in AvaliableRecipes):
+                AvaliableRecipes.append(craft)
 
 
     if phase.lower() == "title":
@@ -2198,7 +2276,14 @@ while True:
                 if (pyterm.getTopLeft("HomeCraft")[0] <= pyterm.getCenter("PlayerMove")[0]+round(player_x) <= pyterm.getBottomRight("HomeCraft")[0]) and (pyterm.getTopLeft("HomeCraft")[1] <= pyterm.getCenter("PlayerMove")[1]+round(player_y) <= pyterm.getBottomRight("HomeCraft")[1]):
                     pyterm.renderItem("RoomInteract")
                     if keyboard.is_pressed("e"):
-                        ""
+                        Crafting = True
+                        DisableOther = True
+                        RiseCraftingBool = True
+                        CraftingHelp = False
+                        FocusCraft = False
+                        CraftingCurrent = 0
+                        FakeInv3 = False
+                        FakeInv3Buffer = False
             else:
                 pyterm.renderItem("HomeCraftRuin")
 
@@ -2207,7 +2292,9 @@ while True:
                 if (pyterm.getTopLeft("HomeShop")[0] - 1 <= pyterm.getCenter("PlayerMove")[0]+round(player_x) <= pyterm.getBottomRight("HomeShop")[0] + 1) and (pyterm.getTopLeft("HomeShop")[1] - 1 <= pyterm.getCenter("PlayerMove")[1]+round(player_y) <= pyterm.getBottomRight("HomeShop")[1] + 1):
                     pyterm.renderItem("RoomInteract")
                     if keyboard.is_pressed("e"):
-                        ""
+                        Shop = True
+                        DisableOther = True
+
             else:
                 pyterm.renderItem("HomeShopRuin")
 
@@ -2217,7 +2304,7 @@ while True:
                 if keyboard.is_pressed("e"):
                     ResearchUps = True
                     DisableOther = True
-            # pyterm.renderItem("Altar")
+            pyterm.renderItem("Altar")
 
         pyterm.renderItem("PlayerMove", xBias = round(player_x), yBias = round(player_y))
 
@@ -2642,6 +2729,7 @@ while True:
             player["CurrentHp"] = player["MaxHealth"]
             player["CurrentMana"] = player["Mana"]
             player["CurrentEnergy"] = player["Energy"]
+            RefreshShop()
             PhaseChange("map")
         try:
             if YiPyterminal.checkItemIsClicked("info bar",onlyCheckRelease = True):
@@ -2660,6 +2748,11 @@ while True:
                 YiPyterminal.changeItemFrameContent("info bar",copy.deepcopy(YiPyterminal.ASSETS["info bar"][1]).replace("                                                                         1                                                                         ",battleMessages[len(battleMessages)-4].center(147)).replace("                                                                        2                                                                        ",battleMessages[len(battleMessages)-3].center(145)).replace("                                                                       3                                                                       ",battleMessages[len(battleMessages)-2].center(143)).replace("                                                                      4                                                                      ",battleMessages[len(battleMessages)-1].center(141)),1)
         except:
             pass
+        if selectedMobNum != "" and selectedMobNum != None:
+            pyterm.changeItemFrameContent("Enemy", mobsStatus[selectedMobNum]["Asset"])
+            pyterm.updateItemSize("Enemy")
+            pyterm.renderItem("Enemy")
+
         for item in [
             "enemy selection box",
             "enemy selection option 1",
@@ -2704,6 +2797,10 @@ while True:
         # research *= 2
         research += AddResearch(1)
         research *= 2
+    
+    # if keyboard.is_pressed("v"):
+    #     Shop = True
+    #     DisableOther = True
 
     if not Minigaming:
         Ui = False
@@ -2921,12 +3018,35 @@ while True:
 
             if FocusInv:
                 itemObjects["ItemImg"]["animation frames"][0] = str(FocusInv["Asset"])
-                itemObjects["ItemDesc"]["animation frames"][0] = str(FocusInv["Name"])[:16]
+                FocusInvNameList = FocusInv["Name"].split()
+                FocusInvName = ""
+                for i in FocusInvNameList:
+                    OldFocusInvName = FocusInvName
+                    FocusInvName += i
+                    if len(FocusInvName.splitlines()[-1]) >= 16:
+                        FocusInvName = OldFocusInvName + "\n" + i
+                    FocusInvName += " "
+                if "Description" in list(FocusInv.keys()):
+                    FocusInvDescList = FocusInv["Description"].split()
+                    FocusInvDesc = ""
+                    for i in FocusInvDescList:
+                        OldFocusInvDesc = FocusInvDesc
+                        FocusInvDesc += i
+                        if len(FocusInvDesc.splitlines()[-1]) >= 16:
+                            FocusInvDesc = OldFocusInvDesc + "\n" + i
+                        FocusInvDesc += " "
+                else:
+                    FocusInvDesc = ""
+                itemObjects["ItemDesc"]["animation frames"][0] = FocusInvName
+                itemObjects["ItemDesc2"]["animation frames"][0] = FocusInvDesc
                 pyterm.updateItemSize("ItemImg")
                 pyterm.updateItemLocation("ItemImg")
-                pyterm.renderItem("ItemImg", screenLimits=(999,999))
-                pyterm.renderItem("ItemDesc", screenLimits=(999,999))
-                pyterm.renderItem("ItemButton", screenLimits=(999,999))
+                pyterm.updateItemSize("ItemDesc")
+                pyterm.updateItemSize("ItemDesc2")
+                pyterm.renderItem("ItemImg", screenLimits=(999,999), yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4))
+                pyterm.renderItem("ItemDesc", screenLimits=(999,999), yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4))
+                pyterm.renderItem("ItemDesc2", screenLimits=(999,999), yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4))
+                pyterm.renderItem("ItemButton", screenLimits=(999,999), yBias = RiseMenu - round(os.get_terminal_size().lines * 3/4))
                 if (pyterm.getTopLeft("ItemButton")[0] <= location[0] <= pyterm.getTopLeft("ItemButton")[0] + 5) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
                     FocusInv = False
                 elif (pyterm.getBottomRight("ItemButton")[0] - 4 <= location[0] <= pyterm.getBottomRight("ItemButton")[0]) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
@@ -3209,6 +3329,7 @@ while True:
         if (not RiseEnchantBool) and (RiseEnchant is 0):
             Enchants = False
 
+
         if RiseEnchantBool:
             RiseEnchant = min(RiseEnchant + round(os.get_terminal_size().lines / 20), round(os.get_terminal_size().lines * 3/4))
         else:
@@ -3273,6 +3394,256 @@ while True:
         if (pyterm.getTopLeft("ResearchUps")[1] + 1 == round(location[1])) and (pyterm.getTopLeft("ResearchUps")[0] + 1 <= location[0] <= pyterm.getTopLeft("ResearchUps")[0] + 3) and LeftClick:
             ResearchUps = False
             DisableOther = False
+
+    #Crafts
+    if Crafting:
+        LeftClick = LeftClickCopy
+        RightClick = RightClickCopy
+        pyterm.renderItem("Crafting", screenLimits=(999,999), yBias = RiseCrafting - round(os.get_terminal_size().lines * 3/4))
+        if not FakeInv3:
+            pyterm.renderLiteralItem(assets["TitleReturn"], 10, -30 + RiseCrafting - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
+
+        if (pyterm.getBottomLeft("Crafting")[0] + 40 <= location[0] <= pyterm.getBottomLeft("Crafting")[0] + 47) and (pyterm.getBottomLeft("Crafting")[1] - 29 is round(location[1])) and LeftClick and RiseCraftingBool and FocusCraft:
+            if CraftingRecipes[FocusCraft]["Research"] <= research:
+                InventoryCopy2 = copy.deepcopy(Inventory)
+                EquipmentCopy2 = copy.deepcopy(Equipment)
+                PlayerCopy2 = copy.deepcopy(player)
+                for i in CraftingRecipes[FocusCraft]["Ingredients"]:
+                    for i4 in range(i["Amount"]):
+                        for i2 in InventoryCopy2.keys():
+                            for i3 in InventoryCopy2[i2]:
+                                if i["Item"] == i3["Name"]:
+                                    InventoryCopy2[i2].remove(i3)
+                                    break
+                            else:
+                                continue
+                            break
+                        else:
+                            for i2 in EquipmentCopy2.keys():
+                                if EquipmentCopy2[i2] != None:
+                                    if i["Item"] == EquipmentCopy2[i2]["Name"]:
+                                        for stat in EquipmentCopy2[i2]["Stats"].keys():
+                                            PlayerCopy2["Effects"].remove({"Stat": stat, "Potency": EquipmentCopy2[i2]["Stats"][stat], "Time": -2})
+                                        EquipmentCopy2[i2] = None
+                                        break
+                            else:
+                                break
+                    else:
+                        continue
+                    break
+                else:
+                    Inventory = copy.deepcopy(InventoryCopy2)
+                    Equipment = copy.deepcopy(EquipmentCopy2)
+                    player = copy.deepcopy(PlayerCopy2)
+                    AddInvItem(Items[FocusCraft])
+                    research -= CraftingRecipes[FocusCraft]["Research"]
+                    FocusCraft = False
+        elif (pyterm.getBottomLeft("Crafting")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Crafting")[0] + 6) and (pyterm.getBottomLeft("Crafting")[1] - 29 is round(location[1])) and LeftClick and RiseCraftingBool and not FakeInv3:
+            CraftingHelp = True
+        elif (pyterm.getBottomLeft("Crafting")[0] + 2 <= location[0] <= pyterm.getBottomLeft("Crafting")[0] + 6) and (pyterm.getBottomLeft("Crafting")[1] - 2 is round(location[1])) and LeftClick and RiseCraftingBool and not FakeInv3:
+            CraftingCurrent -= 1
+            if CraftingCurrent < 0:
+                CraftingCurrent = math.floor(len(AvaliableRecipes)/8 - 0.1)
+        elif (pyterm.getBottomLeft("Crafting")[0] + 81 <= location[0] <= pyterm.getBottomLeft("Crafting")[0] + 85) and (pyterm.getBottomLeft("Crafting")[1] - 2 is round(location[1])) and LeftClick and RiseCraftingBool and not FakeInv3:
+            CraftingCurrent += 1
+            if CraftingCurrent > math.floor(len(AvaliableRecipes)/8 - 0.1):
+                CraftingCurrent = 0
+        elif (pyterm.getBottomLeft("Crafting")[0] + 35 <= location[0] <= pyterm.getBottomLeft("Crafting")[0] + 52) and (pyterm.getBottomLeft("Crafting")[1] - 2 is round(location[1])) and LeftClick and RiseCraftingBool and not FakeInv3:
+            FakeInv3 = True
+
+
+
+        for recipe in AvaliableRecipes[0+CraftingCurrent*8:8+CraftingCurrent*8]:
+            itemObjects["CraftRecipe"]["animation frames"][0] = recipe
+            itemObjects["CraftRecipeResearch"]["animation frames"][0] = CraftingRecipes[recipe]["Researchlook"]
+            pyterm.updateItemSize("CraftRecipe")
+            pyterm.updateItemSize("CraftRecipeResearch")
+            pyterm.renderItem("CraftRecipe", screenLimits=(999,999), yBias=AvaliableRecipes[0+CraftingCurrent*8:8+CraftingCurrent*8].index(recipe)*3 + RiseCrafting - round(os.get_terminal_size().lines * 3/4))
+            pyterm.renderItem("CraftRecipeResearch", screenLimits=(999,999), yBias=AvaliableRecipes[0+CraftingCurrent*8:8+CraftingCurrent*8].index(recipe)*3 + RiseCrafting - round(os.get_terminal_size().lines * 3/4))
+            if (pyterm.getTopLeft("CraftRecipe")[0] <= location[0] <= pyterm.getTopRight("CraftRecipeResearch")[0]) and (pyterm.getTopLeft("CraftRecipe")[1] + AvaliableRecipes[0+CraftingCurrent*8:8+CraftingCurrent*8].index(recipe)*3 - 1 <= round(location[1]) <= pyterm.getTopLeft("CraftRecipe")[1] + AvaliableRecipes[0+CraftingCurrent*8:8+CraftingCurrent*8].index(recipe)*3 + 1) and LeftClick and not FakeInv3:
+                FocusCraft = recipe
+
+        if FocusCraft:
+            itemObjects["CraftingImg"]["animation frames"][0] = str(Items[FocusCraft]["Asset"])
+            FocusInvNameList = Items[FocusCraft]["Name"].split()
+            FocusInvName = ""
+            for i in FocusInvNameList:
+                OldFocusInvName = FocusInvName
+                FocusInvName += i
+                if len(FocusInvName.splitlines()[-1]) >= 16:
+                    FocusInvName = OldFocusInvName + "\n" + i
+                FocusInvName += " "
+            FocusInvDesc = ""
+            for i in CraftingRecipes[FocusCraft]["Ingredients"]:
+                FocusInvDesc += (str(i["Amount"]) + " " + i["Item"])[:16] + "\n"
+            itemObjects["CraftingDesc"]["animation frames"][0] = FocusInvName
+            itemObjects["CraftingDesc2"]["animation frames"][0] = FocusInvDesc
+            pyterm.updateItemSize("CraftingImg")
+            pyterm.updateItemLocation("CraftingImg")
+            pyterm.updateItemSize("CraftingDesc")
+            pyterm.updateItemSize("CraftingDesc2")
+            pyterm.renderItem("CraftingImg", screenLimits=(999,999))
+            pyterm.renderItem("CraftingDesc", screenLimits=(999,999))
+            pyterm.renderItem("CraftingDesc2", screenLimits=(999,999)) 
+
+
+        if FakeInv3:
+            pyterm.changeCurrentItemFrame("Inventory", InventoryUiState - 1)
+            pyterm.renderItem("Inventory", screenLimits=(999,999), yBias = 0)
+            pyterm.renderLiteralItem(assets["TitleReturn"], 10, -29 + 0, "top left", "top left")
+
+            if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
+                InventoryUiState = 1
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
+                InventoryUiState = 2
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
+                InventoryUiState = 3
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
+                InventoryUiState = 4
+            elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
+                InventoryUiState = 5
+
+            for itemNo in range(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])):
+                itemInv = Inventory[list(Inventory.keys())[InventoryUiState - 1]][itemNo]
+                if ("Enchant" in itemInv.keys()) and (itemInv["Type"] != "Scroll"):
+                    if itemInv["Enchant"]:
+                        itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"]) + " (" + str(itemInv["Enchant"]) + ")"
+                    else:
+                        itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
+                else:
+                    itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
+                pyterm.renderItem("ItemList", yBias = itemNo + 0, screenLimits=(999,999))
+                if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + 0 + 26 + itemNo == round(location[1])) and LeftClick:
+                    FocusInv = itemInv
+            if (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 7 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 1) and LeftClick:
+                if Equipment["Extra"] != None:
+                    FocusInv = Equipment["Extra"]
+            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 14 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 8) and LeftClick:
+                if Equipment["Offhand"] != None:
+                    FocusInv = Equipment["Offhand"]
+            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 21 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 15) and LeftClick:
+                if Equipment["Weapon"] != None:
+                    FocusInv = Equipment["Weapon"]
+            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 28 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 22) and LeftClick:
+                if Equipment["Armor"] != None:
+                    FocusInv = Equipment["Armor"]
+
+            if FocusInv:
+                itemObjects["ItemImg"]["animation frames"][0] = str(FocusInv["Asset"])
+                FocusInvNameList = FocusInv["Name"].split()
+                FocusInvName = ""
+                for i in FocusInvNameList:
+                    OldFocusInvName = FocusInvName
+                    FocusInvName += i
+                    if len(FocusInvName.splitlines()[-1]) >= 16:
+                        FocusInvName = OldFocusInvName + "\n" + i
+                    FocusInvName += " "
+                if "Description" in list(FocusInv.keys()):
+                    FocusInvDescList = FocusInv["Description"].split()
+                    FocusInvDesc = ""
+                    for i in FocusInvDescList:
+                        OldFocusInvDesc = FocusInvDesc
+                        FocusInvDesc += i
+                        if len(FocusInvDesc.splitlines()[-1]) >= 16:
+                            FocusInvDesc = OldFocusInvDesc + "\n" + i
+                        FocusInvDesc += " "
+                else:
+                    FocusInvDesc = ""
+                itemObjects["ItemDesc"]["animation frames"][0] = FocusInvName
+                itemObjects["ItemDesc2"]["animation frames"][0] = FocusInvDesc
+                pyterm.updateItemSize("ItemImg")
+                pyterm.updateItemLocation("ItemImg")
+                pyterm.updateItemSize("ItemDesc")
+                pyterm.updateItemSize("ItemDesc2")
+                pyterm.renderItem("ItemImg", screenLimits=(999,999), yBias = 0)
+                pyterm.renderItem("ItemDesc", screenLimits=(999,999), yBias = 0)
+                pyterm.renderItem("ItemDesc2", screenLimits=(999,999), yBias = 0)
+                pyterm.renderItem("ItemButton", screenLimits=(999,999), yBias = 0)
+                if (pyterm.getTopLeft("ItemButton")[0] <= location[0] <= pyterm.getTopLeft("ItemButton")[0] + 5) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
+                    FocusInv = False
+                elif (pyterm.getBottomRight("ItemButton")[0] - 4 <= location[0] <= pyterm.getBottomRight("ItemButton")[0]) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
+                    if FocusInv["Type"] in ["Weapon", "Armor", "Extra", "Offhand"]:
+                        NegateInvItemBuffs(Equipment[FocusInv["Type"]])
+                        UseInvItem(FocusInv)
+                        ApplyInvItemBuffs(FocusInv)
+                    elif FocusInv["Type"] in ["Consumable", "Attack"]:
+                        UseInvItem(FocusInv)
+                    FocusInv = False
+            
+            for equipments in Equipment.values():
+                if equipments != None:
+                    itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
+                    pyterm.changeCurrentItemFrame("Equipment", list(Equipment.values()).index(equipments))
+                    pyterm.updateItemSize("Equipment")
+                    pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments) + 0, screenLimits=(999,999))
+
+            if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 + 0 + 30 <= location[1] <= -29 + 0 + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[1]):
+                pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -29 + 0, "top left", "top left")
+                if LeftClick:
+                    FakeInv3 = False
+                    FakeInv3Buffer = True
+
+        if CraftingHelp:
+            pyterm.renderItem("CraftingHelp")
+            if (pyterm.getTopLeft("CraftingHelp")[0] + 1 <= location[0] <= pyterm.getTopLeft("CraftingHelp")[0] + 4) and (pyterm.getTopLeft("CraftingHelp")[1] + 1 is round(location[1])) and LeftClick and RiseCraftingBool and not FakeInv3:
+                CraftingHelp = False
+
+
+        #End
+        if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 - 1 + RiseCrafting - round(os.get_terminal_size().lines * 3/4) + 30 <= location[1] <= -29 - 1 + RiseCrafting - round(os.get_terminal_size().lines * 3/4) + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[1]) and RiseCraftingBool and not FakeInv3:
+            pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -30 + RiseCrafting - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
+            if LeftClick and not FakeInv3Buffer:
+                DisableOther = False
+                RiseCraftingBool = False
+                FocusCraft = False
+                CraftingHelp = False
+                CraftingCurrent = 0
+                FakeInv3 = False
+            else:
+                FakeInv3Buffer = False
+        if (not RiseCraftingBool) and (RiseCrafting is 0):
+            Crafting = False
+
+
+
+
+        if RiseCraftingBool:
+            RiseCrafting = min(RiseCrafting + round(os.get_terminal_size().lines / 20), round(os.get_terminal_size().lines * 3/4))
+        else:
+            RiseCrafting = max(RiseCrafting - round(os.get_terminal_size().lines / 20), 0)
+
+    #Shop Time
+    if Shop:
+        LeftClick = LeftClickCopy
+        RightClick = RightClickCopy
+        pyterm.renderItem("ShopTime", screenLimits=(999,999))
+        pyterm.renderLiteralItem(assets["TitleReturn"], 10, -30, "top left", "top left")
+
+        for shopitem in range(len(ShopItems)):
+            if ShopItems[shopitem]:
+                itemObjects["ShopItems"]["animation frames"][0] = ShopItems[shopitem]["Item"] + " - " + str(ShopItems[shopitem]["Price"]) + " Research\n"
+                itemObjects["ShopItems"]["animation frames"][0] += str(Items[ShopItems[shopitem]["Item"]]["Description"])[:68]
+                pyterm.updateItemSize("ShopItems")
+                pyterm.renderItem("ShopItems", yBias = 4 * shopitem)
+                if (pyterm.getTopLeft("ShopTime")[0] + 68 <= location[0] <= pyterm.getTopLeft("ShopTime")[0] + 72) and (pyterm.getTopLeft("ShopTime")[1] + 9 + 4 * shopitem == round(location[1])) and LeftClick:
+                    if CheckResearchUpgrade(ShopItems[shopitem]["Price"]):
+                        AddInvItem(copy.deepcopy(Items[ShopItems[shopitem]["Item"]]))
+                        ShopItems[shopitem] = False
+            else:
+                itemObjects["ShopItems"]["animation frames"][0] = "Sold Out"
+                pyterm.updateItemSize("ShopItems")
+                pyterm.renderItem("ShopItems", yBias = 4 * shopitem)
+
+        itemObjects["ShopItems"]["animation frames"][0] = str(research)
+        pyterm.updateItemSize("ShopItems")
+        pyterm.renderItem("ShopItems", yBias = 19, xBias = 27)
+
+        #End
+        if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 - 1 + 30 <= location[1] <= -29 - 1 + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[1]):
+            pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -30, "top left", "top left")
+            if LeftClick:
+                DisableOther = False
+                Shop = False
 
     #ChooseATTACK
     if ChooseAttack:

@@ -63,18 +63,21 @@ def RemoveButton(ButtonId):
 
 
 
-
+timed = 0
 
 #ReverseAttack functions scores for def
 def Targets(location, Time: int, Range: tuple, Duration: int, Clickable = True, ScoreMulti = 1):
-    global targets, AimTarget
+    global targets, AimTarget, timed
     if targets["Time"] == 0:
         targets["Time"] = Time
         targets["Range"] = Range
         targets["Duration"] = Duration
         targets["Clickable"] = Clickable
         AimTarget = []
-    score += AddAttackAim(targets["Range"], targets["Duration"], targets["Clickable"]) * ScoreMulti
+    timed += 1
+    if timed >= 13:
+        AddAttackAim(targets["Range"], targets["Duration"], targets["Clickable"]) * ScoreMulti
+        timed = 0
     AttackAim()
     targets["Time"] -= 1
 

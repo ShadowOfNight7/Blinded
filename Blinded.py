@@ -2975,7 +2975,11 @@ while True:
                         if effect["Time"] == 0:
                             effect["Time"] += 1
                             if random.randint(0, 1000000) <= (200/(playercopy["Intelligence"]+200))*1000000:
-                                playercopy["Effects"].remove(effect)
+                                try:
+                                    if effect in player["Effects"]:
+                                        player["Effects"].remove(effect)
+                                else:
+                                    ""
                     player["Effects"] = copy.deepcopy(playercopy["Effects"])
                     UltimateCharge+=(20 if SevenBuff == "Sloth" else 15)
                     UltimateCharge=min(UltimateCharge,100)

@@ -1061,6 +1061,11 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
                     MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
                     MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
                     TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+                elif "Damage" in special:
+                    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Damage", ""))/100)
+                    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Damage", ""))/100)
+                    TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Damage", ""))/100)
+
         if StatUpgrades["Powerful"]:
             mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 1.25 * (1.2 if (SevenBuff == "Wrath") and (player["CurrentHp"]/player["MaxHealth"] <= 1/3) else 1) * 10)/10
         else:
@@ -1149,30 +1154,30 @@ def EnemyAttack(Attack, Enemy: int, guard = False):
     missed = not bool(random.randint(1, 10000) <= attacks[Attack]["Accuracy"] * 100)
     Heal = 0
     crit = (mobcopy["Stats"]["CritPower"] if random.randint(1, 100) <= mobcopy["Stats"]["CritChance"] else 0)
-    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.2
-    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.2
-    TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.2
+    MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.35
+    MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.35
+    TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.35
     #After Specials - Lifesteal, Etc
     if attacks[Attack]["Special"] != None:
         for special in attacks[Attack]["Special"]:
             if "Pierce" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] * (1 - int(special.replace("Pierce", ""))/100) / 100) * (1 + crit / 100) * 0.2
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] * (1 - int(special.replace("Pierce", ""))/100)  / 100) * (1 + crit / 100) * 0.2
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] * (1 - int(special.replace("Pierce", ""))/100) / 100) * (1 + crit / 100) * 0.35
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] * (1 - int(special.replace("Pierce", ""))/100)  / 100) * (1 + crit / 100) * 0.35
             elif "Lifesteal" in special:
                 Heal = min(mob["Stats"]["Health"] - mob["Stats"]["CurrentHp"], (MagicDamage + MeleeDamage) * int(special.replace("Lifesteal", ""))/100)
             elif "Critical" in special:
                 crit = (mobcopy["Stats"]["CritPower"] if random.randint(1, 100) * (1 - int(special.replace("Critical", ""))/100) <= mobcopy["Stats"]["CritChance"] else 0)
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.2
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.2
-                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.2
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.35
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.35
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.35
             elif "Percent" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.2
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.2
-                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.2 + player["CurrentHp"] * int(special.replace("Percent", ""))/100
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.35
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.35
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.35 + player["CurrentHp"] * int(special.replace("Percent", ""))/100
             elif "Status" in special:
-                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.2 * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
-                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.2 * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
-                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.2 * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
+                MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + mobcopy["Stats"]["Strength"] / 100) / (1 + player["Defence"] / 100) * (1 + crit / 100) * 0.35 * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
+                MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.35 * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
+                TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.35 * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
     if StatUpgrades["Tank"]:
         player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.8 * 10)/10 * (1 if not missed else 0) / (1.5 if guard else 1)
     else:
@@ -1263,7 +1268,7 @@ transparency = 1
 phase = "title"
 NonCenterOffset = 0
 
-mobsStatus = ["Slimea", "Slime2"]
+mobsStatus = []
 #Oddly Specific Variables
 riseTitle = 0
 rise = False
@@ -1358,9 +1363,7 @@ Inventory = {"Armor":
              []}
 
 Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("sword"), "Effects": [{"Stat": "CurrentHp", "Potency": 30, "Time": 1}], "Description": "Yum, an apple!", "Id": None},
-         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "The most trusty companion a warrior could have. A weapon of precision and dexterity.", "Id": None},
          "Iron Chestplate": {"Name": "Iron Chestplate", "Type": "Armor", "Asset": assets.get("sword"), "Stats": {"Defence": 20, "Magic Defence": 5, "Dexterity": -5}, "Enchant": False, "Description": "A tough chestplate", "Id": None},
-         "Slime Leap Scroll": {"Name": "Slime Leap Scroll", "Type": "Attack", "Asset": assets.get("Scroll"), "Attack": "Slime Leap", "Description": "N/A", "Id": None},
          "Flame": {"Name": "Flame Scroll", "Type": "Scroll", "Asset": assets.get("Scroll"), "Enchant": "Burning", "Description": "A flame scroll.", "Id": None},
          "Poison": {"Name": "Poison Scroll", "Type": "Scroll", "Asset": assets.get("Scroll"), "Enchant": "Poisoning", "Description": "A scroll embued with the strongest poisons.", "Id": None},
          "Lifesteal": {"Name": "Lifesteal Scroll", "Type": "Scroll", "Asset": assets.get("Scroll"), "Enchant": "Lifesteal", "Description": "A scroll which seems to drain your life force.", "Id": None},
@@ -1404,7 +1407,7 @@ Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("s
 Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
 EquippedAttacks = {"Attack0": "Punch", "Attack1": "", "Attack2": "", "Attack3": "", "Attack4": "", "Attack5": "","Attack6": "","Attack7": "",}
 LockedAttacks = {"Attack0": False, "Attack1": False, "Attack2": False, "Attack3": False, "Attack4": True, "Attack5": True,"Attack6": True,"Attack7": True,}
-EquippedUltimate = "Slime Heat-Seeking Missile"
+EquippedUltimate = "Punch++"
 pyterm.createItem("ItemList", ["- Apple"], "Inventory", "top left", "top left", 0, 22, 26)
 FocusInv = False
 pyterm.createItem("ItemImg", [" "], "Inventory", "bottom right", "center", 0, -10, -21)
@@ -1414,17 +1417,32 @@ pyterm.createItem("ItemButton", ["[Exit]       [Use]"], "Inventory", "bottom rig
 pyterm.createItem("Equipment", ["|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!", "|!|!|!|!|!|!|!|!|!"], "Inventory", "top left", "center", 0, 11, 26)
 pyterm.createItem("Settings", [assets.get("TitleSettings")], "screen", "center", "center", 0, 0, -15)
 
-CraftingRecipes = {"Sword": {"Ingredients": [{"Item": "Apple", "Amount": 2}, {"Item": "Acidify Scroll", "Amount": 25}], "Research": 300, "Researchlook": "[300.0 Research]", "LightRequirements": 1},
-                   "Apple": {"Ingredients": [{"Item": "Sword", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 1},
-                   "Flame": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 2},
-                   "Poison": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 2},
-                   "Lifesteal": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
-                   "Embued": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
-                   "Swift": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
-                   "Defensive": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
-                   "Sharpened": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
-                   "Dev": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
-                   "Acidify Scroll": {"Ingredients": [{"Item": "Apple", "Amount": 2}], "Research": 999, "Researchlook": "[999.0 Research]", "LightRequirements": 3}
+
+
+
+
+
+
+
+
+
+
+
+
+CraftingRecipes = {"Sword": {"Ingredients": [{"Item": "Strength Potion", "Amount": 1}, {"Item": "Mystery Potion", "Amount": 1}], "Research": 300, "Researchlook": "[300.0 Research]", "LightRequirements": 1},
+                   "Axe": {"Ingredients": [{"Item": "Strength Potion", "Amount": 2}, {"Item": "Apple", "Amount": 1}], "Research": 500, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
+                   "Spear": {"Ingredients": [{"Item": "Mystery Potion", "Amount": 2}, {"Item": "Smoke Bomb", "Amount": 1}], "Research": 400, "Researchlook": "[999.0 Research]", "LightRequirements": 10},
+                   "Wand": {"Ingredients": [{"Item": "Mana Potion", "Amount": 2}, {"Item": "Mirror Shard", "Amount": 1}], "Research": 600, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
+                   "Mace": {"Ingredients": [{"Item": "Mana Potion", "Amount": 1}, {"Item": "Dynamite", "Amount": 1}], "Research": 800, "Researchlook": "[999.0 Research]", "LightRequirements": 10},
+                   "Staff": {"Ingredients": [{"Item": "Bottled Mist", "Amount": 1}, {"Item": "Mirror Shard", "Amount": 1}], "Research": 700, "Researchlook": "[999.0 Research]", "LightRequirements": 1},
+                   "Ring": {"Ingredients": [{"Item": "Mana Potion", "Amount": 1}, {"Item": "Health Potion", "Amount": 1}, {"Item": "Focus Tomb", "Amount": 1}], "Research": 300000, "Researchlook": "[999.0 Research]", "LightRequirements": 25},
+                   "Defensive": {"Ingredients": [{"Item": "Health Potion", "Amount": 3}, {"Item": "Apple", "Amount": 2}], "Research": 2000000, "Researchlook": "[999.0 Research]", "LightRequirements": 35},
+                   "Sharpened": {"Ingredients": [{"Item": "Strength Potion", "Amount": 3}], "Research": 10000000, "Researchlook": "[999.0 Research]", "LightRequirements": 25},
+                   "Swift": {"Ingredients": [{"Item": "Net", "Amount": 2}], "Research": 25000000, "Researchlook": "[999.0 Research]", "LightRequirements": 10},
+                   "Embued": {"Ingredients": [{"Item": "Mirror Shard", "Amount": 2}], "Research": 2000000, "Researchlook": "[999.0 Research]", "LightRequirements": 20},
+                   "Lifesteal": {"Ingredients": [{"Item": "Dynamite", "Amount": 2}, {"Item": "Strength Potion", "Amount": 1}], "Research": 100000000, "Researchlook": "[999.0 Research]", "LightRequirements": 50},
+                   "Poison": {"Ingredients": [{"Item": "Mystery Potion", "Amount": 3}], "Research": 15000000, "Researchlook": "[999.0 Research]", "LightRequirements": 40},
+                   "Flame": {"Ingredients": [{"Item": "Smoke Bomb", "Amount": 2}], "Research": 30000000, "Researchlook": "[999.0 Research]", "LightRequirements": 35},
                    
                    
                    
@@ -1458,73 +1476,73 @@ player = {"MaxHealth": 100, "CurrentHp": 100, "Regen": 0,
 
 attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
             #Slime (Reg) + (Large) + (Giga) + (Corrupted) + (Defensive) + (Attack)
-            "Slime Leap": {"BasePowerMelee": 15, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 10, "Mana": 10, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 10 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #15 * 1.3 = 19.5dmg * 80% acc = 15.6dmg avg
-            "Slime Shot": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 10 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #25 * 1.3 = 32.5dmg * 50% acc = 16.25dmg avg
-            "Acidify": {"BasePowerMelee": 0, "BasePowerMagic": 10, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (10, 70), "Time": 20 * pyterm.FPS, "SpawnRate": 0.025 * pyterm.FPS, "InverseBias": 4, "ScoreMulti": 1}}], "Effects": [], "Special": None},
-            "Tackle": {"BasePowerMelee": 10, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 8 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 1.25}}], "Effects": [], "Special": None}, #10 * 1.3 = 13dmg avg
-            "Slime Heat-Seeking Missile": {"BasePowerMelee": 150, "BasePowerMagic": 150, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 10 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 0.5 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #150 * 1.3 = 195dmg avg
+            "Slime Leap": {"BasePowerMelee": 15, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 10, "Mana": 10, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 10 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 1}}], "Effects": [], "Special": ["Damage100"]}, #15 * 1.3 = 19.5dmg * 80% acc = 15.6dmg avg
+            "Slime Shot": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 15, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 10 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": ["Damage50"]}, #25 * 1.3 = 32.5dmg * 50% acc = 16.25dmg avg
+            "Acidify": {"BasePowerMelee": 0, "BasePowerMagic": 10, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (10, 70), "Time": 20 * pyterm.FPS, "SpawnRate": 0.025 * pyterm.FPS, "InverseBias": 4, "ScoreMulti": 1}}], "Effects": [], "Special": ["Damage100"]},
+            "Tackle": {"BasePowerMelee": 10, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 8 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 1.25}}], "Effects": [], "Special": ["Damage120"]}, #10 * 1.3 = 13dmg avg
+            "Slime Heat-Seeking Missile": {"BasePowerMelee": 150, "BasePowerMagic": 150, "Accuracy": 999, "Energy": 100, "Mana": 100, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 10 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 0.5 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #150 * 1.3 = 195dmg avg
             #Slime (Large) + (Giga) + (Defensive) + (Attack)
-            "Crush": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 15 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 0.7}}], "Effects": [], "Special": None}, #20 * 1.5 = 30dmg * 80% acc = 24dmg avg (Low Weight)
+            "Crush": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 30, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 15 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.5, "Unpredictability": 25, "ScoreMulti": 0.7}}], "Effects": [], "Special": ["Damage100"]}, #20 * 1.5 = 30dmg * 80% acc = 24dmg avg (Low Weight)
             #Slime (Giga)
-            "Devour": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 15 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 0.7}}], "Effects": [], "Special": None}, #15 * 1.6 = 24dmg avg
+            "Devour": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 100, "Energy": 30, "Mana": 20, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 15 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 0.7}}], "Effects": [], "Special": ["Damage100"]}, #15 * 1.6 = 24dmg avg
             #Slime (Corrosive)
-            "Corrode": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (30, 65), "Time": 10 * pyterm.FPS, "SpawnRate": 0.025 * pyterm.FPS, "InverseBias": 4, "ScoreMulti": 2}}], "Effects": [], "Special": None}, #
-            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1, "Arg": {"Character": "O", "SpawnRate": 0.025 * pyterm.FPS, "SpeedRange": (15, 25), "DespawnRate": 4 * pyterm.FPS, "Time": 20 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #10 * 1.5 = 15 dmg * 65% acc = 9.75dmg, 
+            "Corrode": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 0, "Mana": 10, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (30, 65), "Time": 10 * pyterm.FPS, "SpawnRate": 0.025 * pyterm.FPS, "InverseBias": 4, "ScoreMulti": 2}}], "Effects": [], "Special": ["Damage100"]}, #
+            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 15, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1, "Arg": {"Character": "O", "SpawnRate": 0.025 * pyterm.FPS, "SpeedRange": (15, 25), "DespawnRate": 4 * pyterm.FPS, "Time": 20 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": ["Damage100"]}, #10 * 1.5 = 15 dmg * 65% acc = 9.75dmg, 
             #Slime (Defensive)
             "Reinforce": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defense", "Potency": 15, "Target": "Self", "Time": 3},{"Stat": "MagicDefense", "Potency": 15, "Target": "Self", "Time": 3}], "Special": None},
             "Intimidate": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": -20, "Target": "Enemy", "Time": 5}], "Special": None},
             #Slime (Attack)
             "Piercing Slime": {"BasePowerMelee": 12, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Reaction", "Weight": 1, "Arg": {"TimeRange": (1 * pyterm.FPS, 3 * pyterm.FPS), "Repetitions": 3, "ScoreMulti": 1}}], "Effects": [], "Special": ["Pierce100"]}, #15 * 2.5 = 30dmg avg
             "Enlarge": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 50, "Target": "Self", "Time": 3}], "Special": None},
-            "Slime Rollout": {"BasePowerMelee": 30, "BasePowerMagic": 0, "Accuracy": 95, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 20 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 0.5}}], "Effects": [], "Special": None}, #30 * 2.5 = 70 dmg * 95% acc = 66.5dmg avg (Lower Weight)
+            "Slime Rollout": {"BasePowerMelee": 30, "BasePowerMagic": 0, "Accuracy": 95, "Energy": 50, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 20 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 0.5}}], "Effects": [], "Special": ["Damage100"]}, #30 * 2.5 = 70 dmg * 95% acc = 66.5dmg avg (Lower Weight)
             
             #Goblin
-            "Stab": {"BasePowerMelee": 12, "BasePowerMagic": 5, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Pierce20"]},
-            "Charge": {"BasePowerMelee": 15, "BasePowerMagic": 5, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
-            "Headbutt": {"BasePowerMelee": 25, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -30, "Target": "Enemy", "Time": 2}], "Special": None},
+            "Stab": {"BasePowerMelee": 12, "BasePowerMagic": 5, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Pierce20", "Damage100"]},
+            "Charge": {"BasePowerMelee": 15, "BasePowerMagic": 5, "Accuracy": 100, "Energy": 5, "Mana": 5, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Headbutt": {"BasePowerMelee": 25, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 30, "Mana": 5, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -30, "Target": "Enemy", "Time": 2}], "Special": ["Damage100"]},
             #Range
-            "Shoot": {"BasePowerMelee": 25, "BasePowerMagic": 15, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Pierce50"]},
-            "Fire": {"BasePowerMelee": 20, "BasePowerMagic": 5, "Accuracy": 65, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -10, "Target": "Enemy", "Time": 3}], "Special": None},
+            "Shoot": {"BasePowerMelee": 25, "BasePowerMagic": 15, "Accuracy": 50, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Pierce50", "Damage50"]},
+            "Fire": {"BasePowerMelee": 20, "BasePowerMagic": 5, "Accuracy": 65, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -10, "Target": "Enemy", "Time": 3}], "Special": ["Damage50"]},
             #Dart
-            "Blowdart": {"BasePowerMelee": 35, "BasePowerMagic": 0, "Accuracy": 30, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Pierce50"]},
+            "Blowdart": {"BasePowerMelee": 35, "BasePowerMagic": 0, "Accuracy": 30, "Energy": 60, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Pierce50", "Damage50"]},
             "Breathe": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 10, "Target": "Self", "Time": 3}], "Special": None},
 
             #Wolf
             "Howl": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defence", "Potency": -20, "Target": "Enemy", "Time": 3}], "Special": ["Pierce20"]},
-            "Bite": {"BasePowerMelee": 20, "BasePowerMagic": 10, "Accuracy": 95, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
-            "Ferocious Swipe": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Percent10"]},
+            "Bite": {"BasePowerMelee": 20, "BasePowerMagic": 10, "Accuracy": 95, "Energy": 15, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Ferocious Swipe": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Percent5"]},
             #Silver
-            "Claw": {"BasePowerMelee": 5, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -10, "Target": "Enemy", "Time": 3}], "Special": None},
-            "Shining Ram": {"BasePowerMelee": 20, "BasePowerMagic": 20, "Accuracy": 70, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "Claw": {"BasePowerMelee": 5, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -10, "Target": "Enemy", "Time": 3}], "Special": ["Damage200"]},
+            "Shining Ram": {"BasePowerMelee": 20, "BasePowerMagic": 20, "Accuracy": 70, "Energy": 20, "Mana": 20, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
             #Alpha
-            "Endurance": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 95, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defence", "Potency": 20, "Target": "Self", "Time": 3}, {"Stat": "MagicDefence", "Potency": 20, "Target": "Self", "Time": 3}], "Special": None},
-            "Shread": {"BasePowerMelee": 30, "BasePowerMagic": 10, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Percent20"]},
+            "Endurance": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 95, "Energy": 10, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defence", "Potency": 20, "Target": "Self", "Time": 3}, {"Stat": "MagicDefence", "Potency": 20, "Target": "Self", "Time": 3}], "Special": None},
+            "Shread": {"BasePowerMelee": 30, "BasePowerMagic": 10, "Accuracy": 80, "Energy": 30, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Percent10"]},
 
             #Orc
-            "Smack": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
-            "Stomp": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
-            "Shockwave": {"BasePowerMelee": 30, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "Smack": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 15, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Stomp": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Shockwave": {"BasePowerMelee": 30, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 25, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
             #Cyclops
-            "Focus": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 30, "Target": "Self", "Time": 3}], "Special": None},
-            "Eye Beam": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
-            "Hypnotise": {"BasePowerMelee": 25, "BasePowerMagic": 25, "Accuracy": 60, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CritChance", "Potency": -10, "Target": "Enemy", "Time": 5}], "Special": None},
+            "Focus": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 20, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 30, "Target": "Self", "Time": 3}], "Special": ["Damage100"]},
+            "Eye Beam": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 90, "Energy": 0, "Mana": 25, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Hypnotise": {"BasePowerMelee": 25, "BasePowerMagic": 25, "Accuracy": 60, "Energy": 0, "Mana": 30, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CritChance", "Potency": -10, "Target": "Enemy", "Time": 5}], "Special": ["Damage100"]},
             #Armored
-            "Slam": {"BasePowerMelee": 35, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
-            "Guard": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defence", "Potency": 50, "Target": "Self", "Time": 5}], "Special": None},
+            "Slam": {"BasePowerMelee": 35, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 30, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Guard": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defence", "Potency": 50, "Target": "Self", "Time": 5}], "Special": ["Damage100"]},
             #All-seeing
-            "Intense Glare": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 95, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
-            "Honed Club": {"BasePowerMelee": 20, "BasePowerMagic": 35, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": None},
+            "Intense Glare": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 95, "Energy": 0, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Honed Club": {"BasePowerMelee": 20, "BasePowerMagic": 35, "Accuracy": 90, "Energy": 15, "Mana": 30, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
 
             #Spider
-            "Poison": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": None},
-            "Crawl": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": None},
-            "Web Shot": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CritPower", "Potency": -50, "Target": "Enemy", "Time": 3}, {"Stat": "Dexterity", "Potency": -50, "Target": "Enemy", "Time": 3}], "Special": None},
+            "Poison": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": ["Damage100"]},
+            "Crawl": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 5, "Mana": 5, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": ["Damage100"]},
+            "Web Shot": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 100, "Energy": 10, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CritPower", "Potency": -50, "Target": "Enemy", "Time": 3}], "Special": ["Damage100"]},
             #Silkweaver
-            "Silk-Blade": {"BasePowerMelee": 25, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -5, "Target": "Enemy", "Time": 5}], "Special": None},
-            "Blood Drain": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": ["Lifesteal15"]},
+            "Silk-Blade": {"BasePowerMelee": 25, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -5, "Target": "Enemy", "Time": 5}], "Special": None},
+            "Blood Drain": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 30, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": ["Lifesteal15", "Damage100"]},
             #Jump
-            "Jump": {"BasePowerMelee": 10, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Lifesteal25"]},
-            "Leap": {"BasePowerMelee": 11, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Lifesteal20"]},
+            "Jump": {"BasePowerMelee": 10, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Lifesteal25", "Damage100"]},
+            "Leap": {"BasePowerMelee": 11, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Lifesteal20", "Damage100"]},
 
 
             #Player Attacks
@@ -1539,10 +1557,10 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             "Lightning": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 100, "Energy": 0, "Mana": 30, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 5 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.6, "Unpredictability": 10, "ScoreMulti": 2}}], "Effects": [{"Stat": "Strength", "Potency": -30, "Time": 3, "Target": "Enemy"}, {"Stat": "MagicPower", "Potency": -20, "Time": 3, "Target": "Enemy"}], "Special": None},
             "Aim": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 50, "Time": 5, "Target": "Self"}], "Special": None},
             "Premonition": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 50, "Time": 5, "Target": "Self"}], "Special": None},
-            "Weaken": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 50, "Time": 5, "Target": "Self"}], "Special": None},
-            "Stab": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 50, "Time": 5, "Target": "Self"}], "Special": None},
-            "Splash": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 50, "Time": 5, "Target": "Self"}], "Special": None},
-            "Tracking Missile": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 50, "Time": 5, "Target": "Self"}], "Special": None},
+            "Weaken": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -50, "Time": 10, "Target": "Enemy"}], "Special": None},
+            "Stab": {"BasePowerMelee": 40, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 5, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 10, "Time": 7, "Target": "Self"}], "Special": None},
+            "Splash": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 20, "Time": 4, "Target": "Self"}, {"Stat": "MagicDefence", "Potency": -20, "Time": 3, "Target": "Enemy"}], "Special": None},
+            "Tracking Missile": {"BasePowerMelee": 0, "BasePowerMagic": 60, "Accuracy": 100, "Energy": 0, "Mana": 35, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 60, "Time": 2, "Target": "Self"}], "Special": ["Pierce40"]},
 
 
 
@@ -1552,81 +1570,76 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             "Storms of Lightning": {"BasePowerMelee": 0, "BasePowerMagic": 130, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicDefence", "Potency": -50, "Time": 2, "Target": "Enemy"}], "Special": None},
             "Overcharge": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicDefence", "Potency": 100, "Time": 2, "Target": "Self"}, {"Stat": "MagicPower", "Potency": 150, "Time": 3, "Target": "Self"}], "Special": None},
             "Laser of Retribution": {"BasePowerMelee": 0, "BasePowerMagic": 170, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicDefence", "Potency": -50, "Time": 2, "Target": "Enemy"}], "Special": None},
-            "Balance": {"BasePowerMelee": 100, "BasePowerMagic": 100, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicDefence", "Potency": 20, "Time": 3, "Target": "Enemy"}, {"Stat": "Defence", "Potency": 20, "Time": 3, "Target": "Enemy"}], "Special": None}
+            "Balance": {"BasePowerMelee": 100, "BasePowerMagic": 100, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicDefence", "Potency": 80, "Time": 3, "Target": "Self"}, {"Stat": "Defence", "Potency": 80, "Time": 3, "Target": "Self"}], "Special": None},
+            "Punch++": {"BasePowerMelee": 100, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicDefence", "Potency": -50, "Time": 3, "Target": "Enemy"}, {"Stat": "Defence", "Potency": -50, "Time": 3, "Target": "Enemy"}], "Special": None}
 
             }
 
 for attack in attacks.keys():
     Items[attack + " Scroll"] = {"Name": attack + " Scroll", "Type": "Attack", "Asset": assets.get("Scroll"), "Attack": attack, "Description": "An attack scroll.", "Id": None}
 
-enemies = {"Slimea": {"Attacks": [{"AttackType": "Stab", "Weight": 10}, {"AttackType": "Charge", "Weight": 10}, {"AttackType": "Headbutt", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
-          "Defence": 0, "MagicDefence": 0, 
-          "Strength": 0, "MagicPower": 0, "CritChance": 5, "CritPower": 100, "TrueAttack": 0, "TrueDefence": 0, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 100, "Weight": 0}, {"Item": "Exp", "Min": 100, "Max": 150, "Weight": 0}], "Effects": [], "Asset": assets.get("Slime"), "Special": None}
-,"Slime2": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
-          "Defence": 1, "MagicDefence": 1, 
-          "Strength": 1, "MagicPower": 1, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1, }, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 100, "Weight": 0}, {"Item": "Exp", "Min": 100, "Max": 150, "Weight": 0}], "Effects": [], "Asset": assets.get("Slime"), "Special": None}
-
-,"Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Slime Heat-Seeking Missile", "Weight": 1}], "Stats": {"MaxHealth": 150, "CurrentHp": 150, "Regen": 0,
+enemies = {
+"Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Slime Heat-Seeking Missile", "Weight": 1}], "Stats": {"MaxHealth": 150, "CurrentHp": 150, "Regen": 0,
           "Defence": 10, "MagicDefence": 40, 
           "Strength": 25, "MagicPower": 10, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": "Research", "Min": 10, "Max": 100, "Weight": 0}, {"Item": "Exp", "Min": 100, "Max": 150, "Weight": 0}, {"Item": "Acidify Scroll", "Weight": 10}, {"Item": "Slime Leap Scroll", "Weight": 10}, {"Item": None, "Weight": 10}], "Effects": [], "Asset": assets.get("Slime"), "Special": None}
 ,"Large Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Crush", "Weight": 30}, {"AttackType": "Slime Heat-Seeking Missile", "Weight": 1}], "Stats": {"MaxHealth": 300, "CurrentHp": 300, "Regen": 0,
           "Defence": 30, "MagicDefence": 100, 
-          "Strength": 45, "MagicPower": 15, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 80, "Max": 300, "Weight": 0}, {"Item": "Exp", "Min": 200, "Max": 300, "Weight": 0}], "Effects": [], "Asset": assets.get("LargeSlime"), "Special": None}
+          "Strength": 45, "MagicPower": 15, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 80, "Max": 300, "Weight": 0}, {"Item": "Exp", "Min": 200, "Max": 300, "Weight": 0}, {"Item": "Slime Shot Scroll", "Weight": 3}, {"Item": "Crush Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("LargeSlime"), "Special": None}
 ,"Corrosive Slime": {"Attacks": [{"AttackType": "Dissolve", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Corrode", "Weight": 100}, {"AttackType": "Slime Heat-Seeking Missile", "Weight": 1}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 0,
           "Defence": 200, "MagicDefence": 10, 
-          "Strength": 35, "MagicPower": 30, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 150, "Max": 400, "Weight": 0}, {"Item": "Exp", "Min": 150, "Max": 225, "Weight": 0}], "Effects": [], "Asset": assets.get("CorrosiveSlime"), "Special": None}
+          "Strength": 35, "MagicPower": 30, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 150, "Max": 400, "Weight": 0}, {"Item": "Exp", "Min": 150, "Max": 225, "Weight": 0}, {"Item": "Corrode Scroll", "Weight": 3}, {"Item": "Dissolve Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("CorrosiveSlime"), "Special": None}
 ,"Defensive Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Crush", "Weight": 50}, {"AttackType": "Reinforce", "Weight": 150}, {"AttackType": "Intimidate", "Weight": 150}], "Stats": {"MaxHealth": 500, "CurrentHp": 500, "Regen": 5,
           "Defence": 100, "MagicDefence": 30, 
-          "Strength": 20, "MagicPower": 10, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 5}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1000, "Max": 1500, "Weight": 0}, {"Item": "Exp", "Min": 700, "Max": 1000, "Weight": 0}], "Effects": [], "Asset": assets.get("DefensiveSlime"),"Special": None}
+          "Strength": 20, "MagicPower": 10, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 5}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1000, "Max": 1500, "Weight": 0}, {"Item": "Exp", "Min": 700, "Max": 1000, "Weight": 0}, {"Item": "Intimidate Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("DefensiveSlime"),"Special": None}
 ,"Offensive Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Slime Rollout", "Weight": 150}, {"AttackType": "Piercing Shot", "Weight": 150}, {"AttackType": "Enlarge", "Weight": 150}], "Stats": {"MaxHealth": 300, "CurrentHp": 300, "Regen": 0,
           "Defence": 0, "MagicDefence": 0, 
-          "Strength": 100, "MagicPower": 75, "CritChance": 5, "CritPower": 100, "TrueAttack": 5, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1000, "Max": 1500, "Weight": 0}, {"Item": "Exp", "Min": 700, "Max": 1000, "Weight": 0}], "Effects": [], "Asset": assets.get("OffensiveSlime"), "Special": None}
+          "Strength": 100, "MagicPower": 75, "CritChance": 5, "CritPower": 100, "TrueAttack": 5, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1000, "Max": 1500, "Weight": 0}, {"Item": "Exp", "Min": 700, "Max": 1000, "Weight": 0}, {"Item": "Piercing Slime Scroll", "Weight": 3}, {"Item": "Slime Rollout Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("OffensiveSlime"), "Special": None}
 ,"Giga Slime": {"Attacks": [{"AttackType": "Slime Leap", "Weight": 100}, {"AttackType": "Slime Shot", "Weight": 100}, {"AttackType": "Acidify", "Weight": 100}, {"AttackType": "Tackle", "Weight": 100}, {"AttackType": "Crush", "Weight": 100}, {"AttackType": "Devour", "Weight": 100}], "Stats": {"MaxHealth": 400, "CurrentHp": 400, "Regen": 0,
           "Defence": 20, "MagicDefence": 70, 
-          "Strength": 55, "MagicPower": 20, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Exp", "Min": 300, "Max": 400, "Weight": 0}], "Effects": [], "Asset": assets.get("GigaSlime"), "Special": None}
+          "Strength": 55, "MagicPower": 20, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Exp", "Min": 300, "Max": 400, "Weight": 0}, {"Item": "Devour Scroll", "Weight": 5}], "Effects": [], "Asset": assets.get("GigaSlime"), "Special": None}
         
 ,"Goblin": {"Attacks": [{"AttackType": "Stab", "Weight": 10}, {"AttackType": "Charge", "Weight": 10}, {"AttackType": "Headbutt", "Weight": 10}], "Stats": {"MaxHealth": 150, "CurrentHp": 150, "Regen": 1,
           "Defence": 50, "MagicDefence": 10, 
-          "Strength": 30, "MagicPower": 15, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 150, "Weight": 0}, {"Item": "Exp", "Min": 100, "Max": 200, "Weight": 0}], "Effects": [], "Asset": assets.get("Goblin"), "Special": None}
+          "Strength": 30, "MagicPower": 15, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 150, "Weight": 0}, {"Item": "Exp", "Min": 100, "Max": 200, "Weight": 0}, {"Item": "Stab Scroll", "Weight": 3}, {"Item": "Charge Scroll", "Weight": 3}, {"Item": "Headbutt Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("Goblin"), "Special": None}
 ,"Ranged Goblin": {"Attacks": [{"AttackType": "Stab", "Weight": 10}, {"AttackType": "Charge", "Weight": 10}, {"AttackType": "Headbutt", "Weight": 10}, {"AttackType": "Shoot", "Weight": 10}, {"AttackType": "Fire", "Weight": 10}], "Stats": {"MaxHealth": 120, "CurrentHp": 120, "Regen": 2,
           "Defence": 30, "MagicDefence": 0, 
-          "Strength": 50, "MagicPower": 20, "CritChance": 5, "CritPower": 130, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 150, "Weight": 0}, {"Item": "Exp", "Min": 100, "Max": 200, "Weight": 0}], "Effects": [], "Asset": assets.get("RangedGoblin"), "Special": None}
+          "Strength": 50, "MagicPower": 20, "CritChance": 5, "CritPower": 130, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 150, "Weight": 0}, {"Item": "Exp", "Min": 100, "Max": 200, "Weight": 0}, {"Item": "Fire Scroll", "Weight": 3}, {"Item": "Shoot Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("RangedGoblin"), "Special": None}
 ,"Dart Goblin": {"Attacks": [{"AttackType": "Stab", "Weight": 10}, {"AttackType": "Charge", "Weight": 10}, {"AttackType": "Headbutt", "Weight": 10}, {"AttackType": "Blowdart", "Weight": 10}, {"AttackType": "Breathe", "Weight": 10}], "Stats": {"MaxHealth": 80, "CurrentHp": 80, "Regen": 5,
           "Defence": 10, "MagicDefence": 10, 
-          "Strength": 100, "MagicPower": 50, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 100, "Max": 200, "Weight": 0}, {"Item": "Exp", "Min": 150, "Max": 250, "Weight": 0}], "Effects": [], "Asset": assets.get("DartGoblin"), "Special": None}
+          "Strength": 100, "MagicPower": 50, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 100, "Max": 200, "Weight": 0}, {"Item": "Exp", "Min": 150, "Max": 250, "Weight": 0}, {"Item": "Blowdart Scroll", "Weight": 3}, {"Item": "Breathe Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("DartGoblin"), "Special": None}
 
 ,"Wolf": {"Attacks": [{"AttackType": "Howl", "Weight": 10}, {"AttackType": "Bite", "Weight": 10}, {"AttackType": "Ferocious Swipe", "Weight": 10}], "Stats": {"MaxHealth": 140, "CurrentHp": 140, "Regen": 5,
           "Defence": 50, "MagicDefence": 50, 
-          "Strength": 30, "MagicPower": 30, "CritChance": 5, "CritPower": 150, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 200, "Max": 300, "Weight": 0}, {"Item": "Exp", "Min": 200, "Max": 350, "Weight": 0}], "Effects": [], "Asset": assets.get("Wolf"), "Special": None}
+          "Strength": 30, "MagicPower": 30, "CritChance": 5, "CritPower": 150, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 200, "Max": 300, "Weight": 0}, {"Item": "Exp", "Min": 200, "Max": 350, "Weight": 0}, {"Item": "Howl Scroll", "Weight": 3}, {"Item": "Bite Scroll", "Weight": 3}, {"Item": "Ferocious Swipe Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("Wolf"), "Special": None}
 ,"Silver Wolf": {"Attacks": [{"AttackType": "Howl", "Weight": 10}, {"AttackType": "Bite", "Weight": 10}, {"AttackType": "Ferocious Swipe", "Weight": 10}, {"AttackType": "Shining Ram", "Weight": 10}, {"AttackType": "Claw", "Weight": 10}], "Stats": {"MaxHealth": 300, "CurrentHp": 300, "Regen": 5,
           "Defence": 40, "MagicDefence": 40, 
-          "Strength": 40, "MagicPower": 40, "CritChance": 5, "CritPower": 200, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 250, "Max": 400, "Weight": 0}, {"Item": "Exp", "Min": 300, "Max": 500, "Weight": 0}], "Effects": [], "Asset": assets.get("SilverWolf"), "Special": None}
+          "Strength": 40, "MagicPower": 40, "CritChance": 5, "CritPower": 200, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 250, "Max": 400, "Weight": 0}, {"Item": "Exp", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Claw Scroll", "Weight": 3}, {"Item": "Shining Ram Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("SilverWolf"), "Special": None}
 ,"Alpha Wolf": {"Attacks": [{"AttackType": "Howl", "Weight": 10}, {"AttackType": "Bite", "Weight": 10}, {"AttackType": "Ferocious Swipe", "Weight": 10}, {"AttackType": "Shining Ram", "Weight": 10}, {"AttackType": "Claw", "Weight": 10}, {"AttackType": "Shread", "Weight": 30}, {"AttackType": "Endurance", "Weight": 30}], "Stats": {"MaxHealth": 1000, "CurrentHp": 1000, "Regen": 10,
           "Defence": 50, "MagicDefence": 50, 
-          "Strength": 50, "MagicPower": 50, "CritChance": 10, "CritPower": 230, "TrueAttack": 10, "TrueDefence": 10}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1800, "Max": 2500, "Weight": 0}, {"Item": "Exp", "Min": 1800, "Max": 2500, "Weight": 0}], "Effects": [], "Asset": assets.get("AlphaWolf"), "Special": None}
+          "Strength": 50, "MagicPower": 50, "CritChance": 10, "CritPower": 230, "TrueAttack": 10, "TrueDefence": 10}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1800, "Max": 2500, "Weight": 0}, {"Item": "Exp", "Min": 1800, "Max": 2500, "Weight": 0}, {"Item": "Endurance Scroll", "Weight": 3}, {"Item": "Shread Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("AlphaWolf"), "Special": None}
 
 ,"Orc": {"Attacks": [{"AttackType": "Smack", "Weight": 10}, {"AttackType": "Stomp", "Weight": 10}, {"AttackType": "Shockwave", "Weight": 10}], "Stats": {"MaxHealth": 240, "CurrentHp": 240, "Regen": 5,
           "Defence": 40, "MagicDefence": 40, 
-          "Strength": 60, "MagicPower": 10, "CritChance": 5, "CritPower": 100, "TrueAttack": 10, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Exp", "Min": 500, "Max": 700, "Weight": 0}], "Effects": [], "Asset": assets.get("Orc"), "Special": None}
+          "Strength": 60, "MagicPower": 10, "CritChance": 5, "CritPower": 100, "TrueAttack": 10, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Exp", "Min": 500, "Max": 700, "Weight": 0}, {"Item": "Smack Scroll", "Weight": 3}, {"Item": "Stomp Scroll", "Weight": 3}, {"Item": "Shockwave Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("Orc"), "Special": None}
 ,"Cyclops": {"Attacks": [{"AttackType": "Eye Beam", "Weight": 10}, {"AttackType": "Focus", "Weight": 10}, {"AttackType": "Hypnotise", "Weight": 10}], "Stats": {"MaxHealth": 500, "CurrentHp": 500, "Regen": 10,
           "Defence": 20, "MagicDefence": 20, 
-          "Strength": 50, "MagicPower": 20, "CritChance": 5, "CritPower": 100, "TrueAttack": 20, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Exp", "Min": 500, "Max": 700, "Weight": 0}], "Effects": [], "Asset": assets.get("Cyclops"), "Special": None}
+          "Strength": 50, "MagicPower": 20, "CritChance": 5, "CritPower": 100, "TrueAttack": 20, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Exp", "Min": 500, "Max": 700, "Weight": 0}, {"Item": "Focus Scroll", "Weight": 3}, {"Item": "Eye Beam Scroll", "Weight": 3}, {"Item": "Hypnotise Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("Cyclops"), "Special": None}
 ,"Armored Orc": {"Attacks": [{"AttackType": "Smack", "Weight": 10}, {"AttackType": "Stomp", "Weight": 10}, {"AttackType": "Shockwave", "Weight": 10}, {"AttackType": "Slam", "Weight": 10}, {"AttackType": "Guard", "Weight": 10}], "Stats": {"MaxHealth": 250, "CurrentHp": 250, "Regen": 10,
           "Defence": 200, "MagicDefence": 200, 
-          "Strength": 40, "MagicPower": 35, "CritChance": 5, "CritPower": 100, "TrueAttack": 25, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 400, "Max": 650, "Weight": 0}, {"Item": "Exp", "Min": 900, "Max": 1600, "Weight": 0}], "Effects": [], "Asset": assets.get("ArmoredOrc"), "Special": None}
+          "Strength": 40, "MagicPower": 35, "CritChance": 5, "CritPower": 100, "TrueAttack": 25, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 400, "Max": 650, "Weight": 0}, {"Item": "Exp", "Min": 900, "Max": 1600, "Weight": 0}, {"Item": "Slam Scroll", "Weight": 3}, {"Item": "Guard Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("ArmoredOrc"), "Special": None}
 ,"All-Seeing Orc": {"Attacks": [{"AttackType": "Eye Beam", "Weight": 10}, {"AttackType": "Focus", "Weight": 10}, {"AttackType": "Hypnotise", "Weight": 10}, {"AttackType": "Intense Glare", "Weight": 10}, {"AttackType": "Honed Club", "Weight": 10}], "Stats": {"MaxHealth": 200, "CurrentHp": 200, "Regen": 10,
           "Defence": -20, "MagicDefence": -20, 
-          "Strength": 50, "MagicPower": 150, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 25}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 400, "Max": 800, "Weight": 0}, {"Item": "Exp", "Min": 900, "Max": 2000, "Weight": 0}], "Effects": [], "Asset": assets.get("All-Seeing Orc"), "Special": None}
+          "Strength": 50, "MagicPower": 150, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 25}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 400, "Max": 800, "Weight": 0}, {"Item": "Exp", "Min": 900, "Max": 2000, "Weight": 0}, {"Item": "Intense Glare Scroll", "Weight": 3}, {"Item": "Honed Club Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("All-Seeing Orc"), "Special": None}
 
 ,"Spider": {"Attacks": [{"AttackType": "Web Shot", "Weight": 10}, {"AttackType": "Poison", "Weight": 10}, {"AttackType": "Crawl", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 20,
           "Defence": 50, "MagicDefence": 50, 
-          "Strength": 100, "MagicPower": 110, "CritChance": 5, "CritPower": 100, "TrueAttack": 10, "TrueDefence": 10}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Exp", "Min": 800, "Max": 1000, "Weight": 0}], "Effects": [], "Asset": assets.get("Spider"), "Special": None}
+          "Strength": 100, "MagicPower": 110, "CritChance": 5, "CritPower": 100, "TrueAttack": 10, "TrueDefence": 10}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Exp", "Min": 800, "Max": 1000, "Weight": 0}, {"Item": "Poison Scroll", "Weight": 3}, {"Item": "Crawl Scroll", "Weight": 3}, {"Item": "Web Shot Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("Spider"), "Special": None}
 ,"Silkweaver": {"Attacks": [{"AttackType": "Web Shot", "Weight": 10}, {"AttackType": "Poison", "Weight": 10}, {"AttackType": "Crawl", "Weight": 10}, {"AttackType": "Silk-Blade", "Weight": 10}, {"AttackType": "Blood Drain", "Weight": 10}], "Stats": {"MaxHealth": 120, "CurrentHp": 120, "Regen": 20,
           "Defence": 80, "MagicDefence": 80, 
-          "Strength": 120, "MagicPower": 150, "CritChance": 5, "CritPower": 100, "TrueAttack": 15, "TrueDefence": 50}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Exp", "Min": 800, "Max": 1000, "Weight": 0}], "Effects": [], "Asset": assets.get("Silkweaver"), "Special": None}
+          "Strength": 120, "MagicPower": 150, "CritChance": 5, "CritPower": 100, "TrueAttack": 15, "TrueDefence": 50}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 300, "Max": 500, "Weight": 0}, {"Item": "Exp", "Min": 800, "Max": 1000, "Weight": 0}, {"Item": "Silk-Blade Scroll", "Weight": 3}, {"Item": "Blood Drain Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("Silkweaver"), "Special": None}
 ,"Jumping Spider": {"Attacks": [{"AttackType": "Web Shot", "Weight": 10}, {"AttackType": "Poison", "Weight": 10}, {"AttackType": "Crawl", "Weight": 10}, {"AttackType": "Jump", "Weight": 10}, {"AttackType": "Leap", "Weight": 10}], "Stats": {"MaxHealth": 50, "CurrentHp": 50, "Regen": 20,
           "Defence": 100, "MagicDefence": 100, 
-          "Strength": 200, "MagicPower": 250, "CritChance": 5, "CritPower": 100, "TrueAttack": 50, "TrueDefence": 10}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 400, "Max": 600, "Weight": 0}, {"Item": "Exp", "Min": 1000, "Max": 2500, "Weight": 0}], "Effects": [], "Asset": assets.get("JumpingSpider"), "Special": None}
+          "Strength": 200, "MagicPower": 250, "CritChance": 5, "CritPower": 100, "TrueAttack": 50, "TrueDefence": 10}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 400, "Max": 600, "Weight": 0}, {"Item": "Exp", "Min": 1000, "Max": 2500, "Weight": 0}, {"Item": "Jump Scroll", "Weight": 3}, {"Item": "Leap Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("JumpingSpider"), "Special": None}
 
 
 }
@@ -2006,9 +2019,46 @@ pyterm.createItem("ShopTime", [assets.get("ShopTime")], "screen", "center", "cen
 pyterm.createItem("ShopItems", [" "], "ShopTime", "top left", "top left", 0, 5, 9)
 ShopItems = [{"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}]
 
-ShopList = {"Apple": {"PriceRange": (1, 999999), "LightRequired": 1, "Weight": 10}, 
-            "Sword": {"PriceRange": (500, 1000), "LightRequired": 1, "Weight": 5},
-            "Acidify Scroll": {"PriceRange": (5000, 10000), "LightRequired": 2, "Weight": 5}}
+ShopList = {"Apple": {"PriceRange": (10000, 50000), "LightRequired": 1, "Weight": 10}, 
+            "Punch Scroll": {"PriceRange": (1000, 2000), "LightRequired": 1, "Weight": 5},
+            "Slash Scroll": {"PriceRange": (20000, 60000), "LightRequired": 5, "Weight": 5},
+            "Bash Scroll": {"PriceRange": (500000, 1000000), "LightRequired": 25, "Weight": 5},
+            "Mash Scroll": {"PriceRange": (3000000, 8000000), "LightRequired": 30, "Weight": 5},
+            "Meteoric Strike Scroll": {"PriceRange": (100000000, 300000000), "LightRequired": 40, "Weight": 5},
+            "Blast Scroll": {"PriceRange": (122352, 125215), "LightRequired": 12, "Weight": 5},
+            "Fireball Scroll": {"PriceRange": (30000, 150000), "LightRequired": 7, "Weight": 5},
+            "Sweeping Edge Scroll": {"PriceRange": (150000, 180000), "LightRequired": 16, "Weight": 5},
+            "Lightning Scroll": {"PriceRange": (100000, 120000), "LightRequired": 13, "Weight": 5},
+            "Aim Scroll": {"PriceRange": (300000, 700000), "LightRequired": 18, "Weight": 5},
+            "Premonition Scroll": {"PriceRange": (300000, 700000), "LightRequired": 18, "Weight": 5},
+            "Weaken Scroll": {"PriceRange": (400000, 1500000), "LightRequired": 21, "Weight": 5},
+            "Stab Scroll": {"PriceRange": (3000000, 8500000), "LightRequired": 31, "Weight": 5},
+            "Splash Scroll": {"PriceRange": (3000000, 8500000), "LightRequired": 31, "Weight": 5},
+            "Health Potion": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
+            "Mana Potion": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
+            "Strength Potion": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
+            "Mystery Potion": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
+            "Net": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
+            "Smoke Bomb": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
+            "Focus Tomb": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
+            "Mirror Shard": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
+            "Bottled Mist": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
+            "Dynamite": {"PriceRange": (140000, 170000), "LightRequired": 15, "Weight": 7}
+}
+
+        #  "Health Potion": {"Name": "Health Potion", "Type": "Consumable", "Asset": assets.get("PotionHealth"), "Effects": [{"Stat": "CurrentHp", "Potency": 20, "Time": 1}], "Description": "A green potion which heals 20hp.", "Id": None},
+        #  "Mana Potion": {"Name": "Mana Potion", "Type": "Consumable", "Asset": assets.get("PotionMana"), "Effects": [{"Stat": "CurrentMana", "Potency": 30, "Time": 1}], "Description": "A blue potion which gives 30 mana.", "Id": None},
+        #  "Strength Potion": {"Name": "Strength Potion", "Type": "Consumable", "Asset": assets.get("PotionStrength"), "Effects": [{"Stat": "Strength", "Potency": 30, "Time": 2}], "Description": "A red potion which gives 30 strength for 2 turns.", "Id": None},
+        #  "Mystery Potion": {"Name": "Mystery Potion", "Type": "Consumable", "Asset": assets.get("PotionMystery"), "Effects": [{"Stat": "CurrentHp", "Potency": -30, "Time": 1}, {"Stat": "MagicPower", "Potency": 30, "Time": 3}], "Description": "A yellow potion which does something idk.", "Id": None},
+        #  "Net": {"Name": "Net", "Type": "Consumable", "Asset": assets.get("Net"), "Effects": [{"Stat": "CritChance", "Potency": 100, "Time": 2}], "Description": "A net which makes critical hits certain for 2 turns!", "Id": None},
+        #  "Smoke Bomb": {"Name": "Smoke Bomb", "Type": "Consumable", "Asset": assets.get("SmokeBomb"), "Effects": [{"Stat": "CritPower", "Potency": 70, "Time": 5}], "Description": "A smokebomb which makes critical hits deal +70% more power.", "Id": None},
+        #  "Focus Tomb": {"Name": "Focus Tomb", "Type": "Consumable", "Asset": assets.get("FocusTomb"), "Effects": [{"Stat": "Skill", "Potency": 50, "Time": 3}, {"Stat": "Intelligence", "Potency": 100, "Time": 3}], "Description": "Helps you concentrate. Gain more int and skill for 3 turns.", "Id": None},
+        #  "Mirror Shard": {"Name": "Mirror Shard", "Type": "Consumable", "Asset": assets.get("MirrorShard"), "Effects": [{"Stat": "MagicDefence", "Potency": 30, "Time": 2}], "Description": "A reflective shard. It boosts magic defence by 30 for 2 turns.", "Id": None},
+        #  "Bottled Mist": {"Name": "Bottled Mist", "Type": "Consumable", "Asset": assets.get("BottledMist"), "Effects": [{"Stat": "Defence", "Potency": 30, "Time": 2}], "Description": "Some wierd vial of some misty substance. Boosts defence by 30 for 2 turns.", "Id": None},
+        #  "Dynamite": {"Name": "Dynamite", "Type": "Consumable", "Asset": assets.get("Dynamite"), "Effects": [{"Stat": "Dexterity", "Potency": 50, "Time": 3}], "Description": "A non-functional bomb. Can be used for scaring though, increasing dexterity by 50 for 3 turns.", "Id": None},
+
+
+
 
 def RefreshShop():
     global ShopList, ShopItems, light

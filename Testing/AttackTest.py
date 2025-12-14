@@ -1,4 +1,4 @@
-import keyboard, random, threading, math, time, sys, os, pygetwindow, mouse
+import keyboard, random, math, time, sys, os, pygetwindow, mouse
 from Testing.YiPyterminal import assets
 import Assets.YiPyterminal as pyterm
 import Testing.Cursor as Cursor

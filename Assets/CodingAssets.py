@@ -151,19 +151,19 @@ ASSETS = {
     "information button": [
         R"""──────────────────────────────
                               
-         INFORMATION          
+            GUARD             
                               """,
         R"""──────────────────────────────
                               
-     >>> INFORMATION <<<      
+     >>>    GUARD    <<<      
                               """,
         R"""──────────────────────────────
  ╔            ╦             ╗ 
- ║       INFORMATION        ║ 
+ ║          GUARD           ║ 
  ╚            ╩             ╝ """,
         R"""──────────────────────────────
  ╔            ╦             ╗ 
- ║   >>> INFORMATION <<<    ║ 
+ ║   >>>    GUARD    <<<    ║ 
  ╚            ╩             ╝ """,
     ],
     "run button": [

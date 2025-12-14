@@ -67,7 +67,7 @@ def PhaseChange(Phase: str):
     elif phase.lower() == "puzzletext":
         pass
     elif phase.lower() == "battle":
-        global mobsStatus, currentMob, selectedButton, clickedMobOption, hoveredMobOption, selectedAttack, selectedMobNum, isUltimateSelected, UltimateAnimationFrame, UltimateCharge, whisperOfTheUltimate, isUltimateClicked, battleMessages, isInfoBarInMessageMode
+        global mobsStatus, currentMob, selectedButton, clickedMobOption, hoveredMobOption, selectedAttack, selectedMobNum, isUltimateSelected, UltimateAnimationFrame, UltimateCharge, whisperOfTheUltimate, isUltimateClicked, battleMessages, isInfoBarInMessageMode, difficulty, TotalResearch, TotalItems, TotalExp
         selectedButton = None
         clickedMobOption = None
         hoveredMobOption = None
@@ -508,6 +508,12 @@ def PhaseChange(Phase: str):
             childAnchor="top center",
             yBias=1,
         )
+        for i in mobsStatus:
+            for i2 in i["Stats"].keys():
+                i["Stats"][i2] = round(i["Stats"][i2] * difficulty)
+        TotalResearch = 0
+        TotalItems = []
+        TotalExp = 0
 
 def ChangeEnemySelection():
     global mobStatus
@@ -797,7 +803,7 @@ def ChangeEnemySelection():
 
 #Oddly Specific Functions
 def SetRoomPhase(id: tuple):
-    global ClearedRooms, itemObjects, hierarchyLocations, SettingsRooms
+    global ClearedRooms, itemObjects, hierarchyLocations, SettingsRooms, light, RoomData
     if (id in ClearedRooms):
         if not (assets.get("FilledBlackHole") in itemObjects[str(id)]["animation frames"]):
             itemObjects[str(id)]["animation frames"][0] = assets.get("FilledBlackHole")
@@ -805,7 +811,7 @@ def SetRoomPhase(id: tuple):
         return None
     for ids in ClearedRooms:
         for connections in hierarchyLocations[ids[0]][ids[1] - 1]["Movements"]:
-            if (id == connections["id"]):
+            if (id == connections["id"]) and (RoomData[id]["LightRequired"] <= light):
                 if not (assets.get("FilledBlackHoleClose") in itemObjects[str(id)]["animation frames"]):
                     itemObjects[str(id)]["animation frames"][0] = assets.get("FilledBlackHoleClose")
                     itemObjects[str(id)]["animation frames"][1] = assets.get("FilledBlackHoleClose")
@@ -1029,10 +1035,30 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
             clickedMobOption = None
             ChangeEnemySelection()
             selectedMobNum = None
+        if SevenBuff == "Greed":
+            greedChance = random.randint(1, 1000)
+            if not (500 <= greedChance <= 1000):
+                AddResearch(0)
+            elif not (750 <= greedChance <= 1000):
+                AddResearch(10)
+            elif not (875 <= greedChance <= 1000):
+                AddResearch(15)
+            elif not (950 <= greedChance <= 1000):
+                AddResearch(25)
+            elif not (975 <= greedChance <= 1000):
+                AddResearch(40)
+            elif not (990 <= greedChance <= 1000):
+                AddResearch(70)
+            elif not (995 <= greedChance <= 1000):
+                AddResearch(100)
+            elif not (999 <= greedChance <= 1000):
+                AddResearch(120)
+            else:
+                AddResearch(1000)
         return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10)
 
 
-def EnemyAttack(Attack, Enemy: int):
+def EnemyAttack(Attack, Enemy: int, guard = False):
     global player, mobsStatus, attacks, StatUpgrades, score
 
     # if not Minigame(Attack["Minigames"]["Name"], Attack["Minigames"]["Arg"]):
@@ -1080,12 +1106,12 @@ def EnemyAttack(Attack, Enemy: int):
                 MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.2 * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
                 TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.2 * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
     if StatUpgrades["Tank"]:
-        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.8 * 10)/10 * (1 if not missed else 0)
+        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.8 * 10)/10 * (1 if not missed else 0) / (1.5 if guard else 1)
     else:
-        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10 * (1 if not missed else 0)
+        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10 * (1 if not missed else 0) / (1.5 if guard else 1)
     mob["Stats"]["CurrentHp"] += round(Heal*10)/10
     if not missed:
-        battleMessages.append(mob["Name"] + " used " + str(attacks[Attack]["Name"]) + " to deal " + str(round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10) + " damage and healed " + str(Heal) + " health.")
+        battleMessages.append(mob["Name"] + " used " + str(attacks[Attack]["Name"]) + " to deal " + str(round((MeleeDamage + MagicDamage + TrueDamage) / (1.5 if guard else 1) * 10)/10) + " damage and healed " + str(Heal) + " health.")
     return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10, missed)
 
 
@@ -1131,21 +1157,27 @@ def Minigame(Name: str, Args: dict):
     
 
 def MobDrops(MobNum):
-    global player, mobsStatus, research, enemiesKilled, experience, Items
+    global player, mobsStatus, research, enemiesKilled, experience, Items, TotalItems, TotalResearch, TotalExp
     mob = mobsStatus[MobNum]["Drops"]
     weight = 0
     for drop in mob:
         if drop["Item"] == "Research":
-            research += AddResearch(random.randint(round(drop["Min"]), round(drop["Max"])) * (math.log(enemiesKilled/3, 3) if SevenBuff == "Desire" else 1))
-        if drop["Item"] == "Exp":
-            experience += random.randint(round(drop["Min"]), round(drop["Max"]) * (math.log(enemiesKilled/3 + 1, 3) if SevenBuff == "Desire" else 1))
+            addedRESEARCH = AddResearch(random.randint(round(drop["Min"]), round(drop["Max"])) * (math.log(enemiesKilled/3 + 3, 3) if SevenBuff == "Desire" else 1))
+            research += addedRESEARCH
+            TotalResearch += addedRESEARCH
+        elif drop["Item"] == "Exp":
+            experience_1 = random.randint(round(drop["Min"]), round(drop["Max"])) * (math.log(enemiesKilled/3 + 1, 3) if SevenBuff == "Desire" else 1)
+            TotalExp += experience_1
+            experience += experience_1
         else:
             weight += drop["Weight"]
     for i in range(round(math.log10(enemiesKilled/2) + 1) if SevenBuff == "Desire" else 1):
         for drop in mob:
-            if (drop["Item"] != "Research") and (drop["Item"] != None)and (drop["Item"] != "Exp"):
-                if random.randint(1, 1000000) <= round(drop["Weight"]/weight)*1000000:
+            if (drop["Item"] != "Research") and (drop["Item"] != None) and (drop["Item"] != "Exp"):
+                if random.randint(1, 1000000) <= drop["Weight"]/weight*1000000:
                     AddInvItem(Items[drop["Item"]])
+                    TotalItems.append(drop["Item"])
+
 
 
 score = 0
@@ -1204,9 +1236,10 @@ pyterm.createItem("RoomHierarchy", ["Hierarchy: 0"], "screen", "top right", "cen
 pyterm.createItem("RoomNo.", ["Room Number: 1"], "screen", "top right", "center", 0)
 pyterm.createItem("RoomType", ["Type: Battle"], "screen", "top right", "center", 0)
 pyterm.createItem("RoomDifficulty", ["Difficulty: 1.05"], "screen", "top right", "center", 0)
+pyterm.createItem("RoomLightRequirements", ["Light Needed: 1"], "screen", "top right", "center", 0)
 pyterm.createItem("RoomRewards", ["Rewards:", "- Light", "- Gold", "- Exp"], "screen", "top right", "center", 0)
 
-RoomData = {(0, 1): {"Type": "Home", "SpawnLocation": (0, 10)}}
+RoomData = {(0, 1): {"Type": "Home", "SpawnLocation": (0, 10), "LightRequired": 0}}
 RoomException = False
 
 player_x, player_y = 0, 0
@@ -1808,6 +1841,23 @@ def RefreshShop():
 
 RefreshShop()
 
+difficulty = 0
+
+pyterm.createItem("BattleRewards", [assets.get("BattleRewards"), assets.get("BattleRewards2")], "screen", "center", "center", 0, 0, 0)
+pyterm.createItem("LightRewards", ["+ 1 Light", "+ 0 Light (Already Cleared)"], "BattleRewards", "top left", "top left", 0, 2, 4)
+pyterm.createItem("ResearchRewards", ["+ 1 Research"], "BattleRewards", "top left", "top left", 0, 2, 5)
+pyterm.createItem("ExpRewards", ["+ 1 Exp"], "BattleRewards", "top left", "top left", 0, 2, 6)
+pyterm.createItem("ItemRewards", ["+ Item "], "BattleRewards", "top left", "top left", 0, 2, 7)
+TotalResearch = 0
+TotalItems = []
+TotalExp = 0
+RanAway = False
+
+ConsumeInv = False
+ConsumeInvBuffer = False
+
+
+
 PhaseChange("battle")
 PhaseChange("title")
 
@@ -1825,7 +1875,7 @@ while True:
     if CopyPaste:
         ctypes.windll.user32.OpenClipboard()
         ctypes.windll.user32.EmptyClipboard()
-    # ctypes.windll.user32.CloseClipboard()
+        ctypes.windll.user32.CloseClipboard()
     if Cursor.is_full_screen() == "maximized":
         NonCenterOffset = 1
     elif Cursor.is_full_screen():
@@ -1855,6 +1905,7 @@ while True:
             max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(45 ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/((level - 35) ** 1.75 + 1.1 ** (level - 40)))) + 0.798935) * 100)
         LevelUp = True
     light = len(ClearedRooms)
+    research = round(research)
     for i in ClearedRooms:
         if highestHierarchy < i[0]:
             highestHierarchy = i[0]
@@ -2054,21 +2105,21 @@ while True:
             for tier in hierarchyLocations:
                 for rooms in tier:
                     if rooms["id"][0] > 0:
-                        RoomData[rooms["id"]] = {"Type": random.choice(["Puzzle", "Puzzle", "Battle", "Treasure", "Battle", "Battle", "Battle", "Battle", "Battle", "Battle"]), "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
+                        RoomData[copy.deepcopy(rooms["id"])] = {"Type": random.choice(["Puzzle", "Puzzle", "Battle", "Treasure", "Battle", "Battle", "Battle", "Battle", "Battle", "Battle"]), "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
                         if rooms["id"] == (3, 1):
-                            RoomData[rooms["id"]] = {"Type": "BossBattle1", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
+                            RoomData[copy.deepcopy(rooms["id"])] = {"Type": "BossBattle1", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0), "Difficulty": 1}
                         elif rooms["id"] == (5, 1):
-                            RoomData[rooms["id"]] = {"Type": "BossBattle2", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
+                            RoomData[copy.deepcopy(rooms["id"])] = {"Type": "BossBattle2", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0), "Difficulty": 1}
                         elif rooms["id"] == (7, 1):
-                            RoomData[rooms["id"]] = {"Type": "BossBattle3", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
+                            RoomData[copy.deepcopy(rooms["id"])] = {"Type": "BossBattle3", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0), "Difficulty": 1}
                         elif rooms["id"] == (1, 1):
-                            RoomData[rooms["id"]] = {"Type": "Battle", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
+                            RoomData[copy.deepcopy(rooms["id"])] = {"Type": "Battle", "LightRequired": 1, "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
                         elif rooms["id"] == (1, 2):
-                            RoomData[rooms["id"]] = {"Type": "Battle", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
+                            RoomData[copy.deepcopy(rooms["id"])] = {"Type": "Battle", "LightRequired": 1, "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
                         elif rooms["id"] == (1, 3):
-                            RoomData[rooms["id"]] = {"Type": "Battle", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
+                            RoomData[copy.deepcopy(rooms["id"])] = {"Type": "Battle", "LightRequired": 1, "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
                         elif rooms["id"] == (1, 4):
-                            RoomData[rooms["id"]] = {"Type": "Battle", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0)}
+                            RoomData[copy.deepcopy(rooms["id"])] = {"Type": "Battle", "LightRequired": 1, "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
                         leastDistanceRoom = 10**100
                         ClosestPastRoom = ""
                         for pastrooms in hierarchyLocations[rooms["id"][0] - 1]: 
@@ -2161,15 +2212,26 @@ while True:
                 if (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHole")) or (itemObjects[str(FocusRoom["id"])]["animation frames"][itemObjects[str(FocusRoom["id"])]["current frame"]] is assets.get("FilledBlackHoleClose")):
                     itemObjects["RoomHierarchy"]["animation frames"][0] = "Hierarchy: " + str(FocusRoom["id"][0])
                     itemObjects["RoomNo."]["animation frames"][0] = "Room Number: " + str(FocusRoom["id"][1])
+                    if "Difficulty" in RoomData[FocusRoom["id"]].keys():
+                        itemObjects["RoomDifficulty"]["animation frames"][0] = "Difficulty: " + str(RoomData[FocusRoom["id"]]["Difficulty"])
+                    else:
+                        itemObjects["RoomDifficulty"]["animation frames"][0] = "Difficulty: N/A"
+                    itemObjects["RoomLightRequirements"]["animation frames"][0] = "Light Required: " + str(RoomData[FocusRoom["id"]]["LightRequired"])
                 else:
                     itemObjects["RoomHierarchy"]["animation frames"][0] = "Hierarchy: ???"
                     itemObjects["RoomNo."]["animation frames"][0] = "Room Number: ???"
+                    itemObjects["RoomDifficulty"]["animation frames"][0] = "Difficulty: ???"
+                    itemObjects["RoomLightRequirements"]["animation frames"][0] = "Light Required: " + str(RoomData[FocusRoom["id"]]["LightRequired"])
                     pyterm.changeCurrentItemFrame("RoomSidebar", 3)
                 pyterm.changeItemFrameContent("RoomType", "Type: " + str(RoomData[FocusRoom["id"]]["Type"]))
+                pyterm.updateItemSize("RoomDifficulty")
+                pyterm.updateItemSize("RoomLightRequirements")
                 pyterm.renderItem("RoomSidebar", yBias = NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomHierarchy", xBias = -11, yBias = 6 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomNo.", xBias = -11, yBias = 7 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomType", xBias = -11, yBias = 18 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
+                pyterm.renderItem("RoomDifficulty", xBias = -11, yBias = 19 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
+                pyterm.renderItem("RoomLightRequirements", xBias = -11, yBias = 20 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 if os.get_terminal_size().columns < 180:
                     UiOffset[0] = -10
                 #pyterm.renderItem("RoomNo.", xBias = -12, yBias = 13)
@@ -2177,6 +2239,10 @@ while True:
         if AnimateRoomEntry:
             if itemObjects["RoomEntryAnimation"]["current frame"] + 1 >= 15:
                 pyterm.changeCurrentItemFrame("RoomEntryAnimation", 0)
+                if "Difficulty" in RoomData[AnimateRoomEntry["id"]].keys():
+                    difficulty = RoomData[AnimateRoomEntry["id"]]["Difficulty"]
+                else:
+                    difficulty = 1
                 if RoomData[AnimateRoomEntry["id"]]["Type"] == "Puzzle":
                     PhaseChange("room")
                 elif RoomData[AnimateRoomEntry["id"]]["Type"] == "Battle":
@@ -2415,7 +2481,7 @@ while True:
                     onlyCheckRelease=True,
                 )
                 == True
-            ):
+            ) and not DisableOther:
                 if selectedButton == button:
                     selectedButton = None
                 else:
@@ -2428,17 +2494,63 @@ while True:
                     UltimateCharge = 0
                     selectedAttack = None
                     selectedMobNum = None
-                    player["CurrentHp"] = player["MaxHealth"]
-                    player["CurrentMana"] = player["Mana"]
-                    player["CurrentEnergy"] = player["Energy"]
+                    player["CurrentHp"] = player["MaxHealth"] * (1.35 if SevenBuff == "Sloth" else 1)
+                    player["CurrentMana"] = player["Mana"] * (1.35 if SevenBuff == "Sloth" else 1)
+                    player["CurrentEnergy"] = player["Energy"] * (1.35 if SevenBuff == "Sloth" else 1)
+                    RanAway = True
                     PhaseChange("map")
-                    YiPyterminal.addDebugMessage("You fled from the battle...",isAddTime=False)
                     continue
-            if YiPyterminal.checkItemIsHovered(button) == True and selectedButton == button:
+                if selectedButton == "items button":
+                    ConsumeInv = True
+                    DisableOther = True
+                    ConsumeInvBuffer = True
+                if selectedButton == "information button":
+                    playercopy = copy.deepcopy(player)
+                    player["CurrentHp"] = min(player["CurrentHp"] + playercopy["Regen"], playercopy["MaxHealth"])
+                    player["CurrentMana"] = min(player["CurrentMana"] + playercopy["ManaRegen"], playercopy["Mana"])
+                    player["CurrentEnergy"] = min(player["CurrentEnergy"] + playercopy["EnergyRegen"], playercopy["Energy"])
+                    for effect in playercopy["Effects"]:
+                        playercopy[effect["Stat"]] += effect["Potency"] * (1.2 if SevenBuff == "Gluttony" else 1)
+                        if "Current" in effect["Stat"]:
+                            player[effect["Stat"]] += effect["Potency"] * (1.2 if SevenBuff == "Gluttony" else 1)
+                    for passive in playercopy["Passives"]:
+                        playercopy[passive["Stat"]] += passive["Potency"]
+                        if "Current" in passive:
+                            player[passive["Stat"]] += passive["Potency"]
+                    
+                    for effect in player["Effects"]:
+                        if effect["Time"] > 0:
+                            effect["Time"] -= 1
+                        if effect["Time"] == 0:
+                            effect["Time"] += 1
+                            if random.randint(0, 1000000) <= (200/(playercopy["Intelligence"]+200))*1000000:
+                                playercopy["Effects"].remove(effect)
+                    player["Effects"] = copy.deepcopy(playercopy["Effects"])
+                    UltimateCharge+=(20 if SevenBuff == "Sloth" else 15)
+                    UltimateCharge=min(UltimateCharge,100)
+                    if selectedAttack == EquippedUltimate:
+                        UltimateCharge=0
+                        isUltimateClicked=False
+                        isUltimateSelected=False
+                        YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
+                    selectedAttack = None
+                    for mobNum in range(len(mobsStatus)):
+                        if mobsStatus[mobNum]["Stats"]["CurrentHp"] > 0:
+                            selectedMobAttack = random.choices(
+                                population=[attack["AttackType"] for attack in mobsStatus[mobNum]["Attacks"]],
+                                weights=[attack["Weight"] for attack in mobsStatus[mobNum]["Attacks"]],
+                                k=1,
+                            )[0]
+
+                            EnemyAttack(selectedMobAttack, mobNum, True)
+                    selectedButton = None
+                    isInfoBarInMessageMode = True
+
+            if YiPyterminal.checkItemIsHovered(button) == True and selectedButton == button and not DisableOther:
                 YiPyterminal.changeCurrentItemFrame(button, 3)
             elif selectedButton == button:
                 YiPyterminal.changeCurrentItemFrame(button, 2)
-            elif YiPyterminal.checkItemIsHovered(button) == True:
+            elif YiPyterminal.checkItemIsHovered(button) == True and not DisableOther:
                 YiPyterminal.changeCurrentItemFrame(button, 1)
             elif YiPyterminal.itemObjects[button]["current frame"] != 0:
                 YiPyterminal.changeCurrentItemFrame(button, 0)
@@ -2452,6 +2564,8 @@ while True:
             YiPyterminal.itemObjects["left barrier"]["current frame"] == 1
             or YiPyterminal.itemObjects["right barrier"]["current frame"] == 1
         ):
+            currentFrameBarrier = 0
+        if (selectedButton == "items button"):
             currentFrameBarrier = 0
         if currentFrameBarrier != None:
             for barrier in [
@@ -2475,7 +2589,7 @@ while True:
                 YiPyterminal.moveItem("ultimate bar",y=-1)
             if YiPyterminal.getBottomCenter("ultimate bar")[1]+1==YiPyterminal.getTopCenter("fight box")[1]:
                 if UltimateCharge>=100:
-                    if YiPyterminal.checkItemIsClicked("ultimate bar",onlyCheckRelease=True):
+                    if YiPyterminal.checkItemIsClicked("ultimate bar",onlyCheckRelease=True) and not DisableOther:
                         isUltimateSelected = not isUltimateSelected
                         if isUltimateSelected == True:
                             YiPyterminal.moveItem("ultimate button",y=0,absoluteBias=True)
@@ -2546,11 +2660,11 @@ while True:
                     YiPyterminal.changeItemFrameContent(
                         "ultimate bar",
                         copy.deepcopy(YiPyterminal.ASSETS["ultimate bar"][0]).replace("                                                   ",bar).replace("            Whispers Of The Ultimate           ","                U L T I M A T E                "))
-            if YiPyterminal.checkItemIsClicked("ultimate button",onlyCheckRelease=True) == True:
+            if YiPyterminal.checkItemIsClicked("ultimate button",onlyCheckRelease=True) == True and not DisableOther:
                 isUltimateClicked = not isUltimateClicked
                 if isUltimateClicked == True:
                     selectedAttack = EquippedUltimate
-            if YiPyterminal.checkItemIsHovered("ultimate button") == True or isUltimateClicked == True:
+            if YiPyterminal.checkItemIsHovered("ultimate button") == True or isUltimateClicked == True and not DisableOther:
                 YiPyterminal.changeItemFrameContent("ultimate button",copy.deepcopy(YiPyterminal.ASSETS["ultimate button"][0]).replace("○","●").replace("✧                                          ✧","✦"+EquippedUltimate.center(42)+"✦"))
             else:
                 YiPyterminal.changeItemFrameContent("ultimate button",copy.deepcopy(YiPyterminal.ASSETS["ultimate button"][0]))
@@ -2588,19 +2702,19 @@ while True:
             for optionNum in range(len(attackOptions)):
                 if LockedAttacks["Attack"+str(optionNum)]==False and EquippedAttacks["Attack"+str(optionNum)]!=None and EquippedAttacks["Attack"+str(optionNum)]!="":
                     if selectedAttack== EquippedAttacks["Attack"+str(optionNum)]:
-                        if YiPyterminal.checkItemIsHovered(attackOptions[optionNum]) == True:
+                        if YiPyterminal.checkItemIsHovered(attackOptions[optionNum]) == True and not DisableOther:
                             if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] != 3:
                                 YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 3)
                         else:
                             if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] != 2:
                                 YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 2)
-                    elif YiPyterminal.checkItemIsHovered(attackOptions[optionNum]) == True:
+                    elif YiPyterminal.checkItemIsHovered(attackOptions[optionNum]) == True and not DisableOther:
                         if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] != 1:
                             YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 1)
                     else:
                         if YiPyterminal.itemObjects[attackOptions[optionNum]]["current frame"] != 0:
                             YiPyterminal.changeCurrentItemFrame(attackOptions[optionNum], 0)
-                    if YiPyterminal.checkItemIsClicked(attackOptions[optionNum],onlyCheckRelease=True) == True:
+                    if YiPyterminal.checkItemIsClicked(attackOptions[optionNum],onlyCheckRelease=True) == True and not DisableOther:
                         selectedAttack = EquippedAttacks["Attack"+str(optionNum)]
         hoveredMobOption = None
         for option in [
@@ -2614,14 +2728,14 @@ while True:
             # "enemy selection option 8",
             ]:
             if len(YiPyterminal.itemObjects[option]["animation frames"])!=1:
-                if YiPyterminal.checkItemIsClicked(option,onlyCheckRelease=True) == True:
+                if YiPyterminal.checkItemIsClicked(option,onlyCheckRelease=True) == True and not DisableOther:
                     if clickedMobOption != option:
                         clickedMobOption = option
                         selectedMobNum = int(clickedMobOption[-1])-1
                     else:
                         clickedMobOption = None
                         selectedMobNum = None
-                if YiPyterminal.checkItemIsHovered(option)==True:
+                if YiPyterminal.checkItemIsHovered(option)==True and not DisableOther:
                     hoveredMobOption = option
                 if clickedMobOption == option and hoveredMobOption == option:
                     if YiPyterminal.itemObjects[option]["current frame"]!=3:
@@ -2665,31 +2779,12 @@ while True:
             if player["CurrentMana"]>=attacks[selectedAttack]["Mana"] and player["CurrentEnergy"]>= attacks[selectedAttack]["Energy"] and mobsStatus[selectedMobNum]["Stats"]["CurrentHp"]>0:
                 player["CurrentMana"]-=attacks[selectedAttack]["Mana"]
                 player["CurrentEnergy"]-= attacks[selectedAttack]["Energy"]
-                # mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] -= (
-                #     attacks[selectedAttack]["BasePowerMelee"]
-                #     * (1 + player["Strength"] / 100)
-                #     / (1 + mobsStatus[selectedMobNum]["Stats"]["Defence"] / 100)
-                #     + attacks[selectedAttack]["BasePowerMagic"]
-                #     * (1 + player["MagicPower"] / 100)
-                #     / (1 + mobsStatus[selectedMobNum]["Stats"]["MagicDefence"] / 100)
-                #     + (1 + player["TrueAttack"] / 100)
-                #     / (1 + mobsStatus[selectedMobNum]["Stats"]["TrueDefence"] / 100)
-                # ) * (
-                #     1
-                #     + (player["CritPower"] if random.randint(1, 100) <= player["CritChance"] else 0)
-                #     / 100
-                # )
                 if not ((attacks[selectedAttack]["Minigames"][0] == None) or (selectedAttack == EquippedUltimate)):
                     PlayerBattleResults = PlayerAttack(selectedMobNum, selectedAttack, True)
                 else:
                     PlayerBattleResults = PlayerAttack(selectedMobNum, selectedAttack, False)
                     battleMessages.append("You dealt " + str(PlayerBattleResults[0] + PlayerBattleResults[1] + PlayerBattleResults[2]) + " damage, and healed " + str(PlayerBattleResults[3]) + " health.")
                     isInfoBarInMessageMode = True
-
-                # mobsStatus[selectedMobNum]["Stats"]["CurrentHp"]=max(mobsStatus[selectedMobNum]["Stats"]["CurrentHp"],0)
-                # if mobsStatus[selectedMobNum]["Stats"]["CurrentHp"] <=0:
-                #     MobDrops(selectedMobNum)
-                #     battleMessages.append("You killed the "+mobsStatus[selectedMobNum]["Name"]+" You see its soul flying off as you loot what is left of it.")
                 FocusPlayerAttack = [selectedMobNum, selectedAttack]
                 UltimateCharge+=15
                 UltimateCharge=min(UltimateCharge,100)
@@ -2723,20 +2818,42 @@ while True:
                     selectedAttack=None
                 isInfoBarInMessageMode = True
         if mobsStatus == []:
-            ClearedRooms.append(CurrentRoom)
-            CurrentRoom = None
+            if (CurrentRoom != None):
+                pyterm.changeCurrentItemFrame("LightRewards", 1)
+            if not (CurrentRoom in ClearedRooms) and (CurrentRoom != None):
+                ClearedRooms.append(copy.deepcopy(CurrentRoom))
+                pyterm.changeCurrentItemFrame("LightRewards", 0)
+            DisableOther = True
             battles += 1
             player["CurrentHp"] = player["MaxHealth"]
             player["CurrentMana"] = player["Mana"]
             player["CurrentEnergy"] = player["Energy"]
+            pyterm.changeCurrentItemFrame("BattleRewards", 0)
             RefreshShop()
-            PhaseChange("map")
+            itemObjects["ResearchRewards"]["animation frames"][0] = "+ " + str(round(TotalResearch)) + " Research"
+            itemObjects["ExpRewards"]["animation frames"][0] = "+ " + str(round(TotalExp)) + " Exp"
+            if (CurrentRoom != None):
+                itemObjects["ItemRewards"]["animation frames"][0] = ""
+                for i in TotalItems:
+                    itemObjects["ItemRewards"]["animation frames"][0] += str("+ " + str(i))[:38] + "\n"
+            pyterm.renderItem("BattleRewards")
+            pyterm.renderItem("LightRewards")
+            pyterm.renderItem("ResearchRewards")
+            pyterm.renderItem("ExpRewards")
+            pyterm.renderItem("ItemRewards")
+            CurrentRoom = None
+            if (pyterm.getBottomLeft("BattleRewards")[0] + 16 <= location[0] <= pyterm.getBottomLeft("BattleRewards")[0] + 25) and (pyterm.getBottomLeft("BattleRewards")[1] - 1 == round(location[1])) and LeftClickCopy:
+                TotalResearch = 0
+                TotalItems = []
+                TotalExp = 0
+                DisableOther = False
+                PhaseChange("map")
         try:
-            if YiPyterminal.checkItemIsClicked("info bar",onlyCheckRelease = True):
+            if YiPyterminal.checkItemIsClicked("info bar",onlyCheckRelease = True) and not DisableOther:
                 isInfoBarInMessageMode = not isInfoBarInMessageMode
             if isInfoBarInMessageMode ==False:
-                bar = ("─"*(61-math.floor(max(player["CurrentHp"]/player["MaxHealth"],0)*61)))+"●"+(math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)*"─")
-                bar2 = (math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)*"─")+"●"+("─"*(61-math.floor(max(player["CurrentHp"]/player["MaxHealth"],0)*61)))
+                bar = str(("─"*(61-math.floor(max(player["CurrentHp"]/player["MaxHealth"],0)*61)))+"●"+(math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)*"─"))[:62]
+                bar2 = str((math.ceil(max(player["CurrentHp"]/player["MaxHealth"],0)*61)*"─")+"●"+("─"*(61-math.floor(max(player["CurrentHp"]/player["MaxHealth"],0)*61))))[:62]
                 bar3 = str(((49-math.floor(max(player["CurrentEnergy"]/player["Energy"],0)*49))*"◇")+(math.ceil(max(player["CurrentEnergy"]/player["Energy"],0)*49)*"◆"))[:49]
                 bar4 = str((math.ceil(max(player["CurrentMana"]/player["Mana"],0)*49)*"◆")+((49-math.floor(max(player["CurrentMana"]/player["Mana"],0)*49))*"◇"))[:49]
                 if YiPyterminal.itemObjects["info bar"]["current frame"]!=0:
@@ -2773,9 +2890,9 @@ while True:
             "attack option 6",
             "attack option 7",
             "attack option 8",
-            "items box",
-            "information box",
-            "run box",
+            # "items box",
+            # "information box",
+            # "run box",
             "center barrier",
             "items button",
             "information button",
@@ -3116,6 +3233,179 @@ while True:
             RiseMenu = min(RiseMenu + round(os.get_terminal_size().lines / 20), round(os.get_terminal_size().lines * 3/4))
         else:
             RiseMenu = max(RiseMenu - round(os.get_terminal_size().lines / 20), 0)
+
+    #RanAway
+    if RanAway:
+        LeftClick = LeftClickCopy
+        DisableOther = True
+        pyterm.changeCurrentItemFrame("BattleRewards", 1)
+        itemObjects["ResearchRewards"]["animation frames"][0] = "+ " + str(round(TotalResearch)) + " Research"
+        itemObjects["ExpRewards"]["animation frames"][0] = "+ " + str(round(TotalExp)) + " Exp"
+        if (CurrentRoom != None):
+            itemObjects["ItemRewards"]["animation frames"][0] = ""
+            for i in TotalItems:
+                itemObjects["ItemRewards"]["animation frames"][0] += str("+ " + str(i))[:38] + "\n"
+        pyterm.renderItem("BattleRewards")
+        pyterm.renderItem("ResearchRewards", yBias = -1)
+        pyterm.renderItem("ExpRewards", yBias = -1)
+        pyterm.renderItem("ItemRewards", yBias = -1)
+        CurrentRoom = None
+        if (pyterm.getBottomLeft("BattleRewards")[0] + 16 <= location[0] <= pyterm.getBottomLeft("BattleRewards")[0] + 25) and (pyterm.getBottomLeft("BattleRewards")[1] - 1 == round(location[1])) and LeftClick:
+            TotalResearch = 0
+            TotalItems = []
+            TotalExp = 0
+            DisableOther = False
+            RanAway = False
+
+    #ConsumeInv
+    if ConsumeInv:
+        LeftClick = LeftClickCopy
+        InventoryCopy3 = copy.deepcopy(Inventory)
+        removeItems = []
+        for i in InventoryCopy3.keys():
+            for i2 in InventoryCopy3[i]:
+                if i2["Type"] != "Consumable":
+                    removeItems.append([i2, i])
+        for i in removeItems:
+            InventoryCopy3[i[1]].remove(i[0])
+        pyterm.changeCurrentItemFrame("Inventory", InventoryUiState - 1)
+        pyterm.renderItem("Inventory", screenLimits=(999,999), yBias = 0)
+
+        if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
+            InventoryUiState = 1
+        elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
+            InventoryUiState = 2
+        elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
+            InventoryUiState = 3
+        elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
+            InventoryUiState = 4
+        elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
+            InventoryUiState = 5
+
+        for itemNo in range(len(InventoryCopy3[list(InventoryCopy3.keys())[InventoryUiState - 1]])):
+            itemInv = InventoryCopy3[list(InventoryCopy3.keys())[InventoryUiState - 1]][itemNo]
+            if ("Enchant" in itemInv.keys()) and (itemInv["Type"] != "Scroll"):
+                if itemInv["Enchant"]:
+                    itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"]) + " (" + str(itemInv["Enchant"]) + ")"
+                else:
+                    itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
+            else:
+                itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
+            pyterm.renderItem("ItemList", yBias = itemNo + 0, screenLimits=(999,999))
+            if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + 0 + 26 + itemNo == round(location[1])) and LeftClick:
+                FocusInv = itemInv
+
+        if FocusInv:
+            itemObjects["ItemImg"]["animation frames"][0] = str(FocusInv["Asset"])
+            FocusInvNameList = FocusInv["Name"].split()
+            FocusInvName = ""
+            for i in FocusInvNameList:
+                OldFocusInvName = FocusInvName
+                FocusInvName += i
+                if len(FocusInvName.splitlines()[-1]) >= 16:
+                    FocusInvName = OldFocusInvName + "\n" + i
+                FocusInvName += " "
+            if "Description" in list(FocusInv.keys()):
+                FocusInvDescList = FocusInv["Description"].split()
+                FocusInvDesc = ""
+                for i in FocusInvDescList:
+                    OldFocusInvDesc = FocusInvDesc
+                    FocusInvDesc += i
+                    if len(FocusInvDesc.splitlines()[-1]) >= 16:
+                        FocusInvDesc = OldFocusInvDesc + "\n" + i
+                    FocusInvDesc += " "
+            else:
+                FocusInvDesc = ""
+            itemObjects["ItemDesc"]["animation frames"][0] = FocusInvName
+            itemObjects["ItemDesc2"]["animation frames"][0] = FocusInvDesc
+            pyterm.updateItemSize("ItemImg")
+            pyterm.updateItemLocation("ItemImg")
+            pyterm.updateItemSize("ItemDesc")
+            pyterm.updateItemSize("ItemDesc2")
+            pyterm.renderItem("ItemImg", screenLimits=(999,999), yBias = 0)
+            pyterm.renderItem("ItemDesc", screenLimits=(999,999), yBias = 0)
+            pyterm.renderItem("ItemDesc2", screenLimits=(999,999), yBias = 0)
+            pyterm.renderItem("ItemButton", screenLimits=(999,999), yBias = 0)
+            if (pyterm.getTopLeft("ItemButton")[0] <= location[0] <= pyterm.getTopLeft("ItemButton")[0] + 5) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
+                FocusInv = False
+            elif (pyterm.getBottomRight("ItemButton")[0] - 4 <= location[0] <= pyterm.getBottomRight("ItemButton")[0]) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
+                if FocusInv["Type"] in ["Consumable"]:
+                    UseInvItem(FocusInv)
+                    playercopy = copy.deepcopy(player)
+                    player["CurrentHp"] = min(player["CurrentHp"] + playercopy["Regen"], playercopy["MaxHealth"])
+                    player["CurrentMana"] = min(player["CurrentMana"] + playercopy["ManaRegen"], playercopy["Mana"])
+                    player["CurrentEnergy"] = min(player["CurrentEnergy"] + playercopy["EnergyRegen"], playercopy["Energy"])
+                    for effect in playercopy["Effects"]:
+                        playercopy[effect["Stat"]] += effect["Potency"] * (1.2 if SevenBuff == "Gluttony" else 1)
+                        if "Current" in effect["Stat"]:
+                            player[effect["Stat"]] += effect["Potency"] * (1.2 if SevenBuff == "Gluttony" else 1)
+                    for passive in playercopy["Passives"]:
+                        playercopy[passive["Stat"]] += passive["Potency"]
+                        if "Current" in passive:
+                            player[passive["Stat"]] += passive["Potency"]
+                    
+                    for effect in player["Effects"]:
+                        if effect["Time"] > 0:
+                            effect["Time"] -= 1
+                        if effect["Time"] == 0:
+                            effect["Time"] += 1
+                            if random.randint(0, 1000000) <= (200/(playercopy["Intelligence"]+200))*1000000:
+                                playercopy["Effects"].remove(effect)
+                    player["Effects"] = copy.deepcopy(playercopy["Effects"])
+
+                    DisableOther = False
+                    ConsumeInv = False
+                    selectedButton = None
+                    battleMessages.append("You used the "+FocusInv["Name"]+".")
+                    UltimateCharge+=15
+                    UltimateCharge=min(UltimateCharge,100)
+                    if selectedAttack == EquippedUltimate:
+                        UltimateCharge=0
+                        isUltimateClicked=False
+                        isUltimateSelected=False
+                        YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
+                    selectedAttack = None
+                    for mobNum in range(len(mobsStatus)):
+                        if mobsStatus[mobNum]["Stats"]["CurrentHp"] > 0:
+                            selectedMobAttack = random.choices(
+                                population=[attack["AttackType"] for attack in mobsStatus[mobNum]["Attacks"]],
+                                weights=[attack["Weight"] for attack in mobsStatus[mobNum]["Attacks"]],
+                                k=1,
+                            )[0]
+
+                            EnemyAttack(selectedMobAttack, mobNum)
+                    isInfoBarInMessageMode = True
+
+                FocusInv = False
+        for equipments in Equipment.values():
+            if equipments != None:
+                itemObjects["Equipment"]["animation frames"][list(Equipment.values()).index(equipments)] = math.floor((18 - len(equipments["Name"]))/2) * " " + equipments["Name"] + math.ceil((18 - len(equipments["Name"]))/2) * " "
+                pyterm.changeCurrentItemFrame("Equipment", list(Equipment.values()).index(equipments))
+                pyterm.updateItemSize("Equipment")
+                pyterm.renderItem("Equipment", yBias = 7 * list(Equipment.values()).index(equipments) + 0, screenLimits=(999,999))
+
+        if not ConsumeInvBuffer:
+            for button in ["items button", "information button", "fight button", "run button"]:
+                if (YiPyterminal.checkItemIsClicked(button, onlyCheckRelease=True,) == True):
+                    if selectedButton == button:
+                        selectedButton = None
+                    else:
+                        selectedButton = button
+                    if selectedButton != "items button":
+                        DisableOther = False
+                        ConsumeInv = False
+                        FocusInv = False
+                        if selectedButton == "run button":
+                            UltimateCharge = 0
+                            selectedAttack = None
+                            selectedMobNum = None
+                            player["CurrentHp"] = player["MaxHealth"]
+                            player["CurrentMana"] = player["Mana"]
+                            player["CurrentEnergy"] = player["Energy"]
+                            RanAway = True
+                            PhaseChange("map")
+        ConsumeInvBuffer = False
+
 
     #Enchants
     if Enchants:
@@ -3721,7 +4011,7 @@ while True:
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["MaxHealth"] += 5
-                    player["CurrentHealth"] = player["MaxHealth"]
+                    player["CurrentHp"] += 5
                     player["Defence"] += 10
                     player["MagicDefence"] += 10
                     DisableOther = False
@@ -3732,7 +4022,7 @@ while True:
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["MaxHealth"] += 5
-                    player["CurrentHealth"] = player["MaxHealth"]
+                    player["CurrentHp"] += 5
                     player["Strength"] += 15
                     player["MagicPower"] += 15
                     DisableOther = False
@@ -3743,7 +4033,7 @@ while True:
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["MaxHealth"] += 5
-                    player["CurrentHealth"] = player["MaxHealth"]
+                    player["CurrentHp"] += 5
                     player["Dexterity"] += 20
                     player["CastingSpeed"] += 20
                     DisableOther = False
@@ -3754,7 +4044,7 @@ while True:
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["MaxHealth"] += 5
-                    player["CurrentHealth"] = player["MaxHealth"]
+                    player["CurrentHp"] += 5
                     player["Skill"] += 15
                     player["Intelligence"] += 15
                     DisableOther = False
@@ -3765,7 +4055,7 @@ while True:
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["MaxHealth"] += 5
-                    player["CurrentHealth"] = player["MaxHealth"]
+                    player["CurrentHp"] += 5
                     player["CritChance"] += 5
                     player["CritPower"] += 12.5
                     DisableOther = False
@@ -3776,11 +4066,11 @@ while True:
                 pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
                 if LeftClick:
                     player["MaxHealth"] += 5
-                    player["CurrentHealth"] = player["MaxHealth"]
+                    player["CurrentHp"] += 5
                     player["Mana"] += 18
                     player["Energy"] += 18
-                    player["CurrentMana"] = player["Mana"]
-                    player["CurrentEnergy"] = player["Energy"]
+                    player["CurrentMana"] += 18
+                    player["CurrentEnergy"] += 18
                     player["ManaRegen"] += 1.5
                     player["EnergyRegen"] += 1.5
                     DisableOther = False

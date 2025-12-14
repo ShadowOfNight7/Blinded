@@ -34,7 +34,7 @@ highestHierarchy = 0
 
 # fmt: on
 def PhaseChange(Phase: str):
-    global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry, player_x, player_y, Ui, EnteredRoom, RoomData
+    global phase, riseTitle, rise, Settings, SevenSins, mapOffset, InitialHold, locationMapDiff, mapOffsetCopy, TargetLocation, FocusRoom, AnimateRoomEntry, player_x, player_y, Ui, EnteredRoom, RoomData, room_push, room_invis_walls
     phase = Phase
     if phase.lower() == "title":
         riseTitle = 0
@@ -60,7 +60,12 @@ def PhaseChange(Phase: str):
         Ui = True
         firstFrame = copy.deepcopy(MainClock)
     elif phase.lower() == "room":
-        player_x, player_y = RoomData[EnteredRoom]["SpawnLocation"]
+        if RoomData[EnteredRoom]["Type"] != "Puzzle":
+            player_x, player_y = RoomData[EnteredRoom]["SpawnLocation"]
+        else:
+            player_x, player_y = RoomData[EnteredRoom]["Special"]["SpawnLocation"][0] + 3, RoomData[EnteredRoom]["Special"]["SpawnLocation"][1] + 1
+        room_push = []
+        room_invis_walls = []
         Ui = True
     elif phase.lower() == "puzzlemove":
         pass
@@ -918,8 +923,8 @@ def RenderSpell(Spell):
 
 
 def PlayerAttack(Enemy: int, Attack = None, minigame = False):
-    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode, enemiesKilled, battles, selectedViewMobOption, hoveredMobOption, clickedMobOption, selectedMobNum
-
+    global player, mobsStatus, attacks, StatUpgrades, score, SevenBuff, location, Minigaming, SpeedMode, enemiesKilled, battles, selectedViewMobOption, hoveredMobOption, clickedMobOption, selectedMobNum, Equipment
+    #Poisoning Burning Sharpened Lifesteal Embued Swift Defensive
     if Attack != None:
         if minigame:
             if attacks[Attack]["Minigames"][0] != None:
@@ -984,15 +989,54 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
 
     #Math
     if Attack != None:
-        for effect in attacks[Attack]["Effects"]:
-            if effect["Target"] == "Self":
-                player["Effects"].append(effect)
-            elif effect["Target"] == "Enemy":
-                mob["Effects"].append(effect)
+        if Equipment["Weapon"] != None:
+            if "Enchant" in Equipment["Weapon"].keys():
+                if "Poisoning" in Equipment["Weapon"]["Enchant"]:
+                    if "+" in Equipment["Weapon"]["Enchant"]:
+                        mob["Effects"].append({"Stat": "Strength", "Potency": -25, "Time": 4})
+                    else:
+                        mob["Effects"].append({"Stat": "Strength", "Potency": -10, "Time": 2})
+                if "Burning" in Equipment["Weapon"]["Enchant"]:
+                    if "+" in Equipment["Weapon"]["Enchant"]:
+                        mob["Effects"].append({"Stat": "CurrentHp", "Potency": -70, "Time": 4})
+                    else:
+                        mob["Effects"].append({"Stat": "CurrentHp", "Potency": -30, "Time": 2})
+                if "Sharpened" in Equipment["Weapon"]["Enchant"]:
+                    if "+" in Equipment["Weapon"]["Enchant"]:
+                        playercopy["Strength"] *= 1.25
+                    else:
+                        playercopy["Strength"] *= 1.1
+                if "Embued" in Equipment["Weapon"]["Enchant"]:
+                    if "+" in Equipment["Weapon"]["Enchant"]:
+                        playercopy["MagicPower"] *= 1.25
+                    else:
+                        playercopy["MagicPower"] *= 1.1
+                if "Swift" in Equipment["Weapon"]["Enchant"]:
+                    if "+" in Equipment["Weapon"]["Enchant"]:
+                        playercopy["Dexterity"] *= 1.35
+                    else:
+                        playercopy["Dexterity"] *= 1.15
+                if "Dev" in Equipment["Weapon"]["Enchant"]:
+                    if "+" in Equipment["Weapon"]["Enchant"]:
+                        for i in playercopy.keys():
+                            playercopy[i] *= 999999999
+                        for i in player.keys():
+                            player[i] *= 999999999
+                    else:
+                        for i in playercopy.keys():
+                            playercopy[i] *= 999
+
+            for effect in attacks[Attack]["Effects"]:
+                if effect["Target"] == "Self":
+                    player["Effects"].append(effect)
+                elif effect["Target"] == "Enemy":
+                    mob["Effects"].append(effect)
         # missed = not bool(random.randint(1, 10000) <= attacks[Attack]["Accuracy"] * 100)
         Heal = 0
         score *= (1 + playercopy["Skill"]/250)
-        crit = (playercopy["CritPower"] if random.randint(1, 100) <= playercopy["CritChance"] else 0)
+        crit = 0
+        for i in range(round(playercopy["Dexterity"]/100)):
+            crit = (playercopy["CritPower"] if random.randint(1, 100) <= playercopy["CritChance"] else 0) if crit == 0 else crit
         MeleeDamage = attacks[Attack]["BasePowerMelee"] * (1 + playercopy["Strength"] / 100) / (1 + mob["Stats"]["Defence"] / 100) * (1 + crit / 100) * (score / 10)
         MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + playercopy["MagicPower"] / 100) / (1 + mob["Stats"]["MagicDefence"] / 100) * (1 + crit / 100) * (score / 10)
         TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10)
@@ -1021,6 +1065,13 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
             mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 1.25 * (1.2 if (SevenBuff == "Wrath") and (player["CurrentHp"]/player["MaxHealth"] <= 1/3) else 1) * 10)/10
         else:
             mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10
+        if Equipment["Weapon"] != None:
+            if "Enchant" in Equipment["Weapon"].keys():
+                if "Lifesteal" in Equipment["Weapon"]["Enchant"]:
+                    if "+" in Equipment["Weapon"]["Enchant"]:
+                        Heal += 12
+                    else:
+                        Heal += 5
         player["CurrentHp"] += round(Heal*10)/10
         score = 0
         AttackTest.score = 0
@@ -1059,7 +1110,7 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
 
 
 def EnemyAttack(Attack, Enemy: int, guard = False):
-    global player, mobsStatus, attacks, StatUpgrades, score
+    global player, mobsStatus, attacks, StatUpgrades, score, Equipment
 
     # if not Minigame(Attack["Minigames"]["Name"], Attack["Minigames"]["Arg"]):
     #     return False
@@ -1072,6 +1123,15 @@ def EnemyAttack(Attack, Enemy: int, guard = False):
     for effect in mob["Effects"]:
         mob[effect["Stat"]] += effect["Potency"]
     #Math
+    if Equipment["Weapon"] != None:
+        if "Enchant" in Equipment["Weapon"].keys():
+            if "Defensive" in Equipment["Weapon"]["Enchant"]:
+                if "+" in Equipment["Weapon"]["Enchant"]:
+                    mobcopy["Stat"]["Strength"] -= 30
+                    mobcopy["Stat"]["MagicPower"] -= 30
+                else:
+                    mobcopy["Stat"]["Strength"] -= 12
+                    mobcopy["Stat"]["MagicPower"] -= 12
     for effect in attacks[Attack]["Effects"]:
             if effect["Target"] == "Self":
                 mob["Effects"].append(effect)
@@ -1249,8 +1309,10 @@ room_size = [round(120), round(25)]
 # pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(round((room_size[0] - 1)/2 + 1))) + "\n" for i3 in range(round((room_size[1] - 1)/2 + 1))), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
 pyterm.createItem("RoomSize", [pyterm.addBorder("".join("".join(" " for i2 in range(room_size[0])) + "\n" for i3 in range(room_size[1])), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})], "screen", "center", "center", 0)
 room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#"]
+# room_invis_walls = [((1, 1), (2, 2), True)]
+room_invis_walls = []
 room_push = []
-# room_push = [{"Character": "#", "Location": (0, 0)}, {"Character": "%", "Location": (1, 1)}]
+# room_push = [{"Character": "#", "Location": (-60, -12)}, {"Character": "%", "Location": (1, 1)}]
 pyterm.createItem("Pushable", ["#"], "screen", "center", "center", 0)
 
 UiOffset = [0, 0]
@@ -1279,8 +1341,8 @@ DisableOther = False
 Inventory = {"Armor": 
              [], 
              "Weapon": 
-             [{"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "A powerful sword", "Id": None},
-              {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "A powerful sword", "Id": None}], 
+             [{"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": "Dev", "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "A powerful sword", "Id": None},
+              {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": "Burning", "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "A powerful sword", "Id": None}], 
              "Offhand": 
              [], 
              "Accessory": 
@@ -1299,7 +1361,7 @@ Inventory = {"Armor":
               {"Name": "Acidify Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Acidify", "Description": "N/A", "Id": None}]}
 
 Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("sword"), "Effects": [{"Stat": "CurrentHp", "Potency": 30, "Time": 1}], "Description": "Yum, an apple!", "Id": None},
-         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "A powerful sword", "Id": None},
+         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "The most trusty companion a warrior could have. A weapon of precision and dexterity.", "Id": None},
          "Iron Chestplate": {"Name": "Iron Chestplate", "Type": "Armor", "Asset": assets.get("sword"), "Stats": {"Defence": 20, "Magic Defence": 5, "Dexterity": -5}, "Enchant": False, "Description": "A tough chestplate", "Id": None},
          "Miracle Gem": {"Name": "Miracle Gem", "Type": "Extra", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Description": "A gem that feels like it’s pulsating attached to a thin string of pure mana. Once on, it almost feels draining, yet replenishing? -1 hp +5 mana per turn", "Id": None},
          "Slime Leap Scroll": {"Name": "Slime Leap Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Slime Leap", "Description": "N/A", "Id": None},
@@ -1312,9 +1374,31 @@ Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("s
          "Sharpened": {"Name": "Sharpened Scroll", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Sharpened", "Description": "A thing that keeps giving you paper cuts.", "Id": None},
          "Dev": {"Name": "Dev Scroll", "Type": "Scroll", "Asset": assets.get("sword"), "Enchant": "Dev", "Description": "You shouldn't have this.", "Id": None},
          "Acidify Scroll": {"Name": "Acidify Scroll", "Type": "Attack", "Asset": assets.get("sword"), "Attack": "Acidify", "Description": "A scroll of acidification", "Id": None},
-         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
-         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
-         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None}}
+        #  "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
+        #  "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
+        #  "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
+         
+         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "The most trusty companion a warrior could have. A weapon of precision and dexterity.", "Id": None},
+         "Axe": {"Name": "Axe", "Type": "Weapon", "Asset": assets.get("Axe"), "Stats": {"Skill": 5, "Strength": 30, "Dexterity": -5}, "Enchant": False, "Ultimate": {"Description": "Pierce through the skies.", "Ultimate": "Piercing Power"}, "Description": "A strength based alternative to the sword. Shield breaker and mighty log smasher.", "Id": None},
+         "Spear": {"Name": "Spear", "Type": "Weapon", "Asset": assets.get("Spear"), "Stats": {"Skill": 15, "Strength": 0, "Dexterity": 45}, "Enchant": False, "Ultimate": {"Description": "And even further.", "Ultimate": "Strike the Heavens"}, "Description": "Precise and accurate polearm. Deadly in the right hands. Harmless in some.", "Id": None},
+         "Wand": {"Name": "Wand", "Type": "Weapon", "Asset": assets.get("Wand"), "Stats": {"Intelligence": 10, "MagicPower": 10, "CastingSpeed": 40}, "Enchant": False, "Ultimate": {"Description": "Shocking", "Ultimate": "Storms of Lighting"}, "Description": "A small stick that emits a warmth when touched. Mana is quickly processed through the wand and shot out at lightning quick rates.", "Id": None},
+         "Staff": {"Name": "Staff", "Type": "Weapon", "Asset": assets.get("Staff"), "Stats": {"Intelligence": 10, "MagicPower": 30, "CastingSpeed": 10}, "Enchant": False, "Ultimate": {"Description": "You feel as if you are filled with pure electricity.", "Ultimate": "Overcharge"}, "Description": "A large staff with a magical core fused into the centre, letting mana compound inside its wooden head.", "Id": None},
+         "Mace": {"Name": "Mace", "Type": "Weapon", "Asset": assets.get("Mace"), "Stats": {"Intelligence": 100, "MagicPower": 15, "CastingSpeed": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Laser of Retribution"}, "Description": "A blade weapon not meant for strength. Each point on its surface concentrates the mana within it multiple-fold.", "Id": None},
+         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "The most trusty companion a warrior could have. A weapon of precision and dexterity.", "Id": None},
+
+         "Health Potion": {"Name": "Health Potion", "Type": "Consumable", "Asset": assets.get("PotionHealth"), "Effects": [{"Stat": "CurrentHp", "Potency": 20, "Time": 1}], "Description": "A green potion which heals 20hp.", "Id": None},
+         "Mana Potion": {"Name": "Mana Potion", "Type": "Consumable", "Asset": assets.get("PotionMana"), "Effects": [{"Stat": "CurrentMana", "Potency": 30, "Time": 1}], "Description": "A blue potion which gives 30 mana.", "Id": None},
+         "Strength Potion": {"Name": "Strength Potion", "Type": "Consumable", "Asset": assets.get("PotionStrength"), "Effects": [{"Stat": "Strength", "Potency": 30, "Time": 2}], "Description": "A red potion which gives 30 strength for 2 turns.", "Id": None},
+         "Mystery Potion": {"Name": "Mystery Potion", "Type": "Consumable", "Asset": assets.get("PotionMystery"), "Effects": [{"Stat": "CurrentHp", "Potency": -30, "Time": 1}, {"Stat": "MagicPower", "Potency": 30, "Time": 3}], "Description": "A yellow potion which does something idk.", "Id": None},
+         "Net": {"Name": "Net", "Type": "Consumable", "Asset": assets.get("Net"), "Effects": [{"Stat": "CritChance", "Potency": 100, "Time": 2}], "Description": "A net which makes critical hits certain for 2 turns!", "Id": None},
+         "Smoke Bomb": {"Name": "Smoke Bomb", "Type": "Consumable", "Asset": assets.get("SmokeBomb"), "Effects": [{"Stat": "CritPower", "Potency": 70, "Time": 5}], "Description": "A smokebomb which makes critical hits deal +70% more power.", "Id": None},
+         "Focus Tomb": {"Name": "Focus Tomb", "Type": "Consumable", "Asset": assets.get("FocusTomb"), "Effects": [{"Stat": "Skill", "Potency": 50, "Time": 3}, {"Stat": "Intelligence", "Potency": 100, "Time": 3}], "Description": "Helps you concentrate. Gain more int and skill for 3 turns.", "Id": None},
+         "Mirror Shard": {"Name": "Mirror Shard", "Type": "Consumable", "Asset": assets.get("MirrorShard"), "Effects": [{"Stat": "MagicDefence", "Potency": 30, "Time": 2}], "Description": "A reflective shard. It boosts magic defence by 30 for 2 turns.", "Id": None},
+         "Bottled Mist": {"Name": "Bottled Mist", "Type": "Consumable", "Asset": assets.get("BottledMist"), "Effects": [{"Stat": "Defence", "Potency": 30, "Time": 2}], "Description": "Some wierd vial of some misty substance. Boosts defence by 30 for 2 turns.", "Id": None},
+         "Dynamite": {"Name": "Dynamite", "Type": "Consumable", "Asset": assets.get("Dynamite"), "Effects": [{"Stat": "Dexterity", "Potency": 50, "Time": 3}], "Description": "A non-functional bomb. Can be used for scaring though, increasing dexterity by 50 for 3 turns.", "Id": None},
+
+         
+         }
 
 #sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
 #apple = {"Name": "Apple", "Type": Consumable", "Asset": "", "Effects": [{"Type": Strength, "Time": 3, "Potency": 1, "Apply": "Player"},{"Type": "Damage", "Potency": 999, "Apply": "AllEnemy"}], "Description": "Could be used to make pie", "Id": None}
@@ -1410,7 +1494,13 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
 
 
 
-            "Blade of Glory": {"BasePowerMelee": 160, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 20, "Time": 3, "Target": "Self"}], "Special": ["Pierce50"]}
+            "Blade of Glory": {"BasePowerMelee": 160, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 20, "Time": 3, "Target": "Self"}], "Special": ["Pierce20"]},
+            "Piercing Power": {"BasePowerMelee": 120, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Pierce100"]},
+            "Strike the Heavens": {"BasePowerMelee": 140, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -100, "Time": 2, "Target": "Enemy"}], "Special": ["Lifesteal15"]},
+            "Storms of Lightning": {"BasePowerMelee": 0, "BasePowerMagic": 130, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicDefence", "Potency": -50, "Time": 2, "Target": "Enemy"}], "Special": None},
+            "Overcharge": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicDefence", "Potency": 100, "Time": 2, "Target": "Self"}, {"Stat": "MagicPower", "Potency": 150, "Time": 3, "Target": "Self"}], "Special": None},
+            "Laser of Retribution": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 999, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicDefence", "Potency": 100, "Time": 2, "Target": "Self"}, {"Stat": "MagicPower", "Potency": 150, "Time": 3, "Target": "Self"}], "Special": None},
+
             }
 
 enemies = {"Slimea": {"Attacks": [{"AttackType": "BasicAttack", "Weight": 10}], "Stats": {"MaxHealth": 100, "CurrentHp": 100, "Regen": 5,
@@ -1843,7 +1933,7 @@ RefreshShop()
 
 difficulty = 0
 
-pyterm.createItem("BattleRewards", [assets.get("BattleRewards"), assets.get("BattleRewards2")], "screen", "center", "center", 0, 0, 0)
+pyterm.createItem("BattleRewards", [assets.get("BattleRewards"), assets.get("BattleRewards2"), assets.get("PuzzleRewards")], "screen", "center", "center", 0, 0, 0)
 pyterm.createItem("LightRewards", ["+ 1 Light", "+ 0 Light (Already Cleared)"], "BattleRewards", "top left", "top left", 0, 2, 4)
 pyterm.createItem("ResearchRewards", ["+ 1 Research"], "BattleRewards", "top left", "top left", 0, 2, 5)
 pyterm.createItem("ExpRewards", ["+ 1 Exp"], "BattleRewards", "top left", "top left", 0, 2, 6)
@@ -1855,6 +1945,71 @@ RanAway = False
 
 ConsumeInv = False
 ConsumeInvBuffer = False
+
+pyterm.createItem("EnemyBorder", [assets.get("EnemyBorder")], "screen", "center", "center", 0, 0, 0)
+
+#Mazes
+Mazes = [{"Maze1": """┌---┐|┌┬┬┬-|||-┬-
+└┐||├┴┘|||┌┘└┤┌┤|
+┌┘├┘├-┌-┘|└-┐├┘└┤
+├-┘┌┴┐||-┴┐|└┘┌-┤
+||┌┼-|└┼-┐└┘┌┐|||
+|└┘└-┘┌┴-└--┘└-┴┘""", "Maze2": """◉*******5***X****
+*****************
+**************7**
+***********#*****
+*****************
+#****%***&*******""", "MazeRender1": [], "MazeRender2": [], "MazeBlocks": [], "SpawnLocation": (0, 0), "End": (0, 0), "InvisWalls": []}]
+
+# room_push = [{"Character": "#", "Location": (0, 0)}, {"Character": "%", "Location": (1, 1)}]
+
+pyterm.createItem("Maze", [assets.get("Maze")], "screen", "center", "center", 0, 0, 0)
+pyterm.createItem("MazeContent", [""], "Maze", "center", "center", 0, 0, 0)
+pyterm.createItem("MazeOther", [""], "Maze", "center", "top left", 0, 0, 0)
+
+def MakeMaze(MazeNum: int):
+    global Mazes, room_push
+    MainMaze = Mazes[MazeNum]
+    Maze1 = MainMaze["Maze1"].splitlines()
+    Maze2 = MainMaze["Maze2"].splitlines()
+    for mazeline in range(len(Maze1)):
+        for char in range(len(Maze1[mazeline])):
+            MainMaze["MazeRender1"].append({"Img": assets.get("Maze" + str(Maze1[mazeline][char])), "Location": (-57 + 7 * char, -10 + 4 * mazeline)})
+    for mazeline in range(len(Maze2)):
+        for char in range(len(Maze2[mazeline])):
+            if Maze2[mazeline][char] == "#":
+                MainMaze["MazeBlocks"].append({"Character": "#", "Location": (-60 - 4 + 7 + 7 * char, -12 + 2 + 4 * mazeline)})
+            elif Maze2[mazeline][char] == "$":
+                MainMaze["MazeRender2"].append({"Img": " $$$$ \n $$$$ \n $$$$ ", "Location": (-59 + 7 * char, -11 + 4 * mazeline)})
+            elif Maze2[mazeline][char] == "%":
+                MainMaze["MazeRender2"].append({"Img": " %%%% \n %%%% \n %%%% ", "Location": (-59 + 7 * char, -11 + 4 * mazeline)})
+            elif Maze2[mazeline][char] == "&":
+                MainMaze["MazeRender2"].append({"Img": " &&&& \n &&&& \n &&&& ", "Location": (-59 + 7 * char, -11 + 4 * mazeline)})
+            elif Maze2[mazeline][char] == "4":
+                MainMaze["MazeRender2"].append({"Img": "$$$$$$\n$    $\n$$$$$$", "Location": (-59 + 7 * char, -11 + 4 * mazeline), "Type": "$", "Render": True})
+                MainMaze["InvisWalls"].append([[-59 + 7 * char, -11 + 4 * mazeline], [-59 + 7 * char + 5, -11 + 4 * mazeline + 2], True, "$"])
+            elif Maze2[mazeline][char] == "5":
+                MainMaze["MazeRender2"].append({"Img": "%%%%%%\n%    %\n%%%%%%", "Location": (-59 + 7 * char, -11 + 4 * mazeline), "Type": "%", "Render": True})
+                MainMaze["InvisWalls"].append([[-59 + 7 * char, -11 + 4 * mazeline], [-59 + 7 * char + 5, -11 + 4 * mazeline + 2], True, "%"])
+            elif Maze2[mazeline][char] == "7":
+                MainMaze["MazeRender2"].append({"Img": "&&&&&&\n&    &\n&&&&&&", "Location": (-59 + 7 * char, -11 + 4 * mazeline), "Type": "&", "Render": True})
+                MainMaze["InvisWalls"].append([[-59 + 7 * char, -11 + 4 * mazeline], [-59 + 7 * char + 5, -11 + 4 * mazeline + 2], True, "&"])
+            elif Maze2[mazeline][char] == "◉":
+                MainMaze["MazeRender2"].append({"Img": "◉", "Location": (-56 + 7 * char, -10 + 4 * mazeline)})
+                MainMaze["SpawnLocation"] = (-59 + 7 * char, -11 + 4 * mazeline)
+            elif Maze2[mazeline][char] == "X":
+                MainMaze["MazeRender2"].append({"Img": "X", "Location": (-56 + 7 * char, -10 + 4 * mazeline)})
+                MainMaze["End"] = (-59 + 7 * char, -11 + 4 * mazeline)
+
+for i in range(len(Mazes)):
+    MakeMaze(i)
+WonPuzzle = False
+addedResearch = 0
+
+pyterm.createItem("RoomPuzzleHints", ["Try to reach the 'X' by pushing the '#'s onto the pressure plates (Filled in)."], "RoomUi", "center", "center", 0, 0, -1)
+pyterm.createItem("RoomPuzzleHints2", ["Note: You may sometimes noclip through push blocks. That is due to their totally special properties."], "RoomUi", "center", "center", 0, 0, 1)
+
+
 
 
 
@@ -2105,7 +2260,7 @@ while True:
             for tier in hierarchyLocations:
                 for rooms in tier:
                     if rooms["id"][0] > 0:
-                        RoomData[copy.deepcopy(rooms["id"])] = {"Type": random.choice(["Puzzle", "Puzzle", "Battle", "Treasure", "Battle", "Battle", "Battle", "Battle", "Battle", "Battle"]), "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
+                        RoomData[copy.deepcopy(rooms["id"])] = {"Type": random.choice(["Treasure" for i in range(0)] +["Puzzle" for i in range(2)] + ["Battle" for i in range(7)]), "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
                         if rooms["id"] == (3, 1):
                             RoomData[copy.deepcopy(rooms["id"])] = {"Type": "BossBattle1", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0), "Difficulty": 1}
                         elif rooms["id"] == (5, 1):
@@ -2119,7 +2274,9 @@ while True:
                         elif rooms["id"] == (1, 3):
                             RoomData[copy.deepcopy(rooms["id"])] = {"Type": "Battle", "LightRequired": 1, "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
                         elif rooms["id"] == (1, 4):
-                            RoomData[copy.deepcopy(rooms["id"])] = {"Type": "Battle", "LightRequired": 1, "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
+                            RoomData[copy.deepcopy(rooms["id"])] = {"Type": "Puzzle", "LightRequired": 1, "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
+                        if RoomData[rooms["id"]]["Type"] == "Puzzle":
+                            RoomData[rooms["id"]]["Special"] = random.choice(Mazes)
                         leastDistanceRoom = 10**100
                         ClosestPastRoom = ""
                         for pastrooms in hierarchyLocations[rooms["id"][0] - 1]: 
@@ -2312,7 +2469,8 @@ while True:
         else:
             RoomException = False
             if RoomData[EnteredRoom]["Type"] == "Puzzle":
-                room_size = [120, 25]
+                room_size = [118, 23]
+                room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#", "\\", "/", "O", "●", ">", "<", ".", "[", "]", "{", "}", "="]
         itemObjects["RoomSize"]["animation frames"][0] = pyterm.addBorder("".join("".join(" " for i2 in range(room_size[0])) + "\n" for i3 in range(room_size[1])), padding = {"top": 0, "bottom": 0, "left": 0, "right": 0})
         pyterm.updateItemSize("RoomSize")
         pyterm.renderItem("RoomSize", screenLimits= (999, 999))
@@ -2322,6 +2480,7 @@ while True:
         if (pyterm.getTopLeft("LeaveRoom")[0]-round(room_size[0]/2) - 4 <= location[0] <= pyterm.getBottomRight("LeaveRoom")[0]-round(room_size[0]/2) - 4) and (pyterm.getTopLeft("LeaveRoom")[1] <= location[1] <= pyterm.getBottomRight("LeaveRoom")[1]) and LeftClick:
             PhaseChange("map")
 
+        #Home
         if RoomData[EnteredRoom]["Type"] is "Home":
             room_walls = ["|", "-", "_", "¯", "┐", "└", "┘", "┌", "┴", "┬", "├", "┤", "┼", "#", "\\", "/", "O", "◉", ">", "<", ".", "[", "]", "{", "}", "="]
 
@@ -2372,93 +2531,211 @@ while True:
                     DisableOther = True
             pyterm.renderItem("Altar")
 
+        #Puzzle
+        elif RoomData[EnteredRoom]["Type"] is "Puzzle":
+            pyterm.renderItem("RoomPuzzleHints")
+            pyterm.renderItem("RoomPuzzleHints2")
+            for mazerend in RoomData[EnteredRoom]["Special"]["MazeRender1"]:
+                itemObjects["MazeContent"]["animation frames"][0] = mazerend["Img"]
+                pyterm.updateItemSize("MazeContent")
+                pyterm.renderItem("MazeContent", screenLimits = (999, 999), xBias = mazerend["Location"][0] + 1, yBias = mazerend["Location"][1])
+            for mazerend in RoomData[EnteredRoom]["Special"]["MazeRender2"]:
+                if not ("Type" in list(mazerend.keys())):
+                    itemObjects["MazeOther"]["animation frames"][0] = mazerend["Img"]
+                    pyterm.renderItem("MazeOther", screenLimits = (999, 999), xBias = mazerend["Location"][0], yBias = mazerend["Location"][1])
+                elif mazerend["Render"]:
+                    itemObjects["MazeOther"]["animation frames"][0] = mazerend["Img"]
+                    pyterm.renderItem("MazeOther", screenLimits = (999, 999), xBias = mazerend["Location"][0], yBias = mazerend["Location"][1])
+            if room_push == []:
+                for i in RoomData[EnteredRoom]["Special"]["MazeBlocks"]:
+                    room_push.append(copy.deepcopy(i))
+            if room_invis_walls == []:
+                for i in RoomData[EnteredRoom]["Special"]["InvisWalls"]:
+                    room_invis_walls.append(copy.deepcopy(i))
+            pyterm.renderItem("Maze")
+            #Pressure
+            for mazerend in RoomData[EnteredRoom]["Special"]["MazeRender2"]:
+                if "Type" in list(mazerend.keys()):
+                    mazerend["Render"] = True
+            for i in room_invis_walls:
+                i[2] = True
+            for i in room_push:
+                if pyterm.getLetter((i["Location"][0] + round(os.get_terminal_size().columns/2), i["Location"][1] + round(os.get_terminal_size().lines/2))) == "$":
+                    for i2 in room_invis_walls:
+                        if i2[3] == "$":
+                            i2[2] = False
+                            for mazerend in RoomData[EnteredRoom]["Special"]["MazeRender2"]:
+                                if "Type" in list(mazerend.keys()):
+                                    if mazerend["Type"] == "$":
+                                        mazerend["Render"] = False
+                            break
+                    else:
+                        i2[2] = True
+                elif pyterm.getLetter((i["Location"][0] + round(os.get_terminal_size().columns/2), i["Location"][1] + round(os.get_terminal_size().lines/2))) == "%":
+                    for i2 in room_invis_walls:
+                        if i2[3] == "%":
+                            i2[2] = False
+                            for mazerend in RoomData[EnteredRoom]["Special"]["MazeRender2"]:
+                                if "Type" in list(mazerend.keys()):
+                                    if mazerend["Type"] == "%":
+                                        mazerend["Render"] = False
+                            break
+                    else:
+                        i2[2] = True
+                elif pyterm.getLetter((i["Location"][0] + round(os.get_terminal_size().columns/2), i["Location"][1] + round(os.get_terminal_size().lines/2))) == "&":
+                    for i2 in room_invis_walls:
+                        if i2[3] == "&":
+                            i2[2] = False
+                            for mazerend in RoomData[EnteredRoom]["Special"]["MazeRender2"]:
+                                if "Type" in list(mazerend.keys()):
+                                    if mazerend["Type"] == "&":
+                                        mazerend["Render"] = False
+                            break
+                    else:
+                        i2[2] = True
+            if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) in ["$", "%", "&"]:
+                for i2 in room_invis_walls:
+                    if i2[3] == pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])):
+                        i2[2] = False
+                        for mazerend in RoomData[EnteredRoom]["Special"]["MazeRender2"]:
+                            if "Type" in list(mazerend.keys()):
+                                if mazerend["Type"] == pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])):
+                                    mazerend["Render"] = False
+                        break
+            #Win
+            if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) == "X":
+                addedResearch = AddResearch(random.randint(round(1.3 ** (EnteredRoom[0] - 1) * 150), round(1.3 ** (EnteredRoom[0] - 1) * 250)))
+                WonPuzzle = True
+                pyterm.changeCurrentItemFrame("LightRewards", 1)
+                if not EnteredRoom in ClearedRooms:
+                    ClearedRooms.append(EnteredRoom)
+                    pyterm.changeCurrentItemFrame("LightRewards", 0)
+                PhaseChange("map")
+            if keyboard.is_pressed("r"):
+                PhaseChange("room")
+
+
+
         pyterm.renderItem("PlayerMove", xBias = round(player_x), yBias = round(player_y))
 
+        #Movement
         if not DisableOther:
             if keyboard.is_pressed("w"):
                 if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y - 1) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
-                    if (round(player_x), round(player_y - 1)) in [i["Location"] for i in room_push]:
-                        pushed = 0
-                        moved_pushed = []
-                        while True:
-                            pushed += 1
-                            if (round(player_x), round(player_y - pushed)) in [i["Location"] for i in room_push]:
-                                moved_pushed.append((round(player_x), round(player_y - pushed)))
-                                continue
-                            elif pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y - pushed) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
-                                break
-                            else:
-                                if round(player_y - 1) == round(player_y - 0.15):
-                                    for box in room_push:
-                                        if box["Location"] in moved_pushed:
-                                            box["Location"] = (box["Location"][0], box["Location"][1] - 1)
-                                player_y -= 0.15
-                                break
+                    for i in room_invis_walls:
+                        if (i[0][0] + round(os.get_terminal_size().columns/2) <= round(player_x) + pyterm.getCenter("PlayerMove")[0] <= i[1][0] + round(os.get_terminal_size().columns/2)) and (i[0][1] + round(os.get_terminal_size().lines/2) <= round(player_y - 1) + pyterm.getCenter("PlayerMove")[1] <= i[1][1] + round(os.get_terminal_size().lines/2)) and (i[2]):
+                            break
                     else:
-                        player_y -= 0.15
+                        if (round(player_x), round(player_y - 1)) in [i["Location"] for i in room_push]:
+                            pushed = 0
+                            moved_pushed = []
+                            while True:
+                                pushed += 1
+                                if (round(player_x), round(player_y - pushed)) in [i["Location"] for i in room_push]:
+                                    moved_pushed.append((round(player_x), round(player_y - pushed)))
+                                    continue
+                                elif pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y - pushed) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
+                                    break
+                                for i in room_invis_walls:
+                                    if (i[0][0] + round(os.get_terminal_size().columns/2) <= round(player_x) + pyterm.getCenter("PlayerMove")[0] <= i[1][0] + round(os.get_terminal_size().columns/2)) and (i[0][1] + round(os.get_terminal_size().lines/2) <= round(player_y - pushed) + pyterm.getCenter("PlayerMove")[1] <= i[1][1] + round(os.get_terminal_size().lines/2)) and (i[2]):
+                                        break
+                                else:
+                                    if round(player_y - 1) == round(player_y - 0.15):
+                                        for box in room_push:
+                                            if box["Location"] in moved_pushed:
+                                                box["Location"] = (box["Location"][0], box["Location"][1] - 1)
+                                    player_y -= 0.15
+                                    break
+                                break
+                        else:
+                            player_y -= 0.15
             if keyboard.is_pressed("s"):
                 if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y + 1) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
-                    if (round(player_x), round(player_y + 1)) in [i["Location"] for i in room_push]:
-                        pushed = 0
-                        moved_pushed = []
-                        while True:
-                            pushed += 1
-                            if (round(player_x), round(player_y + pushed)) in [i["Location"] for i in room_push]:
-                                moved_pushed.append((round(player_x), round(player_y + pushed)))
-                                continue
-                            elif pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y + pushed) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
-                                break
-                            else:
-                                if round(player_y + 1) == round(player_y + 0.15):
-                                    for box in room_push:
-                                        if box["Location"] in moved_pushed:
-                                            box["Location"] = (box["Location"][0], box["Location"][1] + 1)
-                                player_y += 0.15
-                                break
+                    for i in room_invis_walls:
+                        if (i[0][0] + round(os.get_terminal_size().columns/2) <= round(player_x) + pyterm.getCenter("PlayerMove")[0] <= i[1][0] + round(os.get_terminal_size().columns/2)) and (i[0][1] + round(os.get_terminal_size().lines/2) <= round(player_y + 1) + pyterm.getCenter("PlayerMove")[1] <= i[1][1] + round(os.get_terminal_size().lines/2)) and (i[2]):
+                            break
                     else:
-                        player_y += 0.15
+                        if (round(player_x), round(player_y + 1)) in [i["Location"] for i in room_push]:
+                            pushed = 0
+                            moved_pushed = []
+                            while True:
+                                pushed += 1
+                                if (round(player_x), round(player_y + pushed)) in [i["Location"] for i in room_push]:
+                                    moved_pushed.append((round(player_x), round(player_y + pushed)))
+                                    continue
+                                elif pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y + pushed) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
+                                    break
+                                for i in room_invis_walls:
+                                    if (i[0][0] + round(os.get_terminal_size().columns/2) <= round(player_x) + pyterm.getCenter("PlayerMove")[0] <= i[1][0] + round(os.get_terminal_size().columns/2)) and (i[0][1] + round(os.get_terminal_size().lines/2) <= round(player_y + pushed) + pyterm.getCenter("PlayerMove")[1] <= i[1][1] + round(os.get_terminal_size().lines/2)) and (i[2]):
+                                        break
+                                else:
+                                    if round(player_y + 1) == round(player_y + 0.15):
+                                        for box in room_push:
+                                            if box["Location"] in moved_pushed:
+                                                box["Location"] = (box["Location"][0], box["Location"][1] + 1)
+                                    player_y += 0.15
+                                    break
+                                break
+                        else:
+                            player_y += 0.15
             if keyboard.is_pressed("a"):
                 if pyterm.getLetter((round(player_x - 1) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
-                    if (round(player_x - 1), round(player_y)) in [i["Location"] for i in room_push]:
-                        pushed = 0
-                        moved_pushed = []
-                        while True:
-                            pushed += 1
-                            if (round(player_x - pushed), round(player_y)) in [i["Location"] for i in room_push]:
-                                moved_pushed.append((round(player_x - pushed), round(player_y)))
-                                continue
-                            elif pyterm.getLetter((round(player_x - pushed) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
-                                break
-                            else:
-                                if round(player_x - 1) == round(player_x - 0.3):
-                                    for box in room_push:
-                                        if box["Location"] in moved_pushed:
-                                            box["Location"] = (box["Location"][0] - 1, box["Location"][1])
-                                player_x -= 0.3
-                                break
+                    for i in room_invis_walls:
+                        if (i[0][0] + round(os.get_terminal_size().columns/2) <= round(player_x - 1) + pyterm.getCenter("PlayerMove")[0] <= i[1][0] + round(os.get_terminal_size().columns/2)) and (i[0][1] + round(os.get_terminal_size().lines/2) <= round(player_y) + pyterm.getCenter("PlayerMove")[1] <= i[1][1] + round(os.get_terminal_size().lines/2)) and (i[2]):
+                            break
                     else:
-                        player_x -= 0.3
+                        if (round(player_x - 1), round(player_y)) in [i["Location"] for i in room_push]:
+                            pushed = 0
+                            moved_pushed = []
+                            while True:
+                                pushed += 1
+                                if (round(player_x - pushed), round(player_y)) in [i["Location"] for i in room_push]:
+                                    moved_pushed.append((round(player_x - pushed), round(player_y)))
+                                    continue
+                                elif pyterm.getLetter((round(player_x - pushed) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
+                                    break
+                                for i in room_invis_walls:
+                                    if (i[0][0] + round(os.get_terminal_size().columns/2) <= round(player_x - pushed) + pyterm.getCenter("PlayerMove")[0] <= i[1][0] + round(os.get_terminal_size().columns/2)) and (i[0][1] + round(os.get_terminal_size().lines/2) <= round(player_y) + pyterm.getCenter("PlayerMove")[1] <= i[1][1] + round(os.get_terminal_size().lines/2)) and (i[2]):
+                                        break
+                                else:
+                                    if round(player_x - 1) == round(player_x - 0.3):
+                                        for box in room_push:
+                                            if box["Location"] in moved_pushed:
+                                                box["Location"] = (box["Location"][0] - 1, box["Location"][1])
+                                    player_x -= 0.3
+                                    break
+                                break
+                        else:
+                            player_x -= 0.3
             if keyboard.is_pressed("d"):
                 if pyterm.getLetter((round(player_x + 1) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) not in room_walls:
-                    if (round(player_x + 1), round(player_y)) in [i["Location"] for i in room_push]:
-                        pushed = 0
-                        moved_pushed = []
-                        while True:
-                            pushed += 1
-                            if (round(player_x + pushed), round(player_y)) in [i["Location"] for i in room_push]:
-                                moved_pushed.append((round(player_x + pushed), round(player_y)))
-                                continue
-                            elif pyterm.getLetter((round(player_x + pushed) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
-                                break
-                            else:
-                                if round(player_x + 1) == round(player_x + 0.3):
-                                    for box in room_push:
-                                        if box["Location"] in moved_pushed:
-                                            box["Location"] = (box["Location"][0] + 1, box["Location"][1])
-                                player_x += 0.3
-                                break
+                    for i in room_invis_walls:
+                        if (i[0][0] + round(os.get_terminal_size().columns/2) <= round(player_x + 1) + pyterm.getCenter("PlayerMove")[0] <= i[1][0] + round(os.get_terminal_size().columns/2)) and (i[0][1] + round(os.get_terminal_size().lines/2) <= round(player_y) + pyterm.getCenter("PlayerMove")[1] <= i[1][1] + round(os.get_terminal_size().lines/2)) and (i[2]):
+                            break
                     else:
-                        player_x += 0.3
+                        if (round(player_x + 1), round(player_y)) in [i["Location"] for i in room_push]:
+                            pushed = 0
+                            moved_pushed = []
+                            while True:
+                                pushed += 1
+                                if (round(player_x + pushed), round(player_y)) in [i["Location"] for i in room_push]:
+                                    moved_pushed.append((round(player_x + pushed), round(player_y)))
+                                    continue
+                                elif pyterm.getLetter((round(player_x + pushed) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) in room_walls:
+                                    break
+                                for i in room_invis_walls:
+                                    if (i[0][0] + round(os.get_terminal_size().columns/2) <= round(player_x + pushed) + pyterm.getCenter("PlayerMove")[0] <= i[1][0] + round(os.get_terminal_size().columns/2)) and (i[0][1] + round(os.get_terminal_size().lines/2) <= round(player_y) + pyterm.getCenter("PlayerMove")[1] <= i[1][1] + round(os.get_terminal_size().lines/2)) and (i[2]):
+                                        break
+                                else:
+                                    if round(player_x + 1) == round(player_x + 0.3):
+                                        for box in room_push:
+                                            if box["Location"] in moved_pushed:
+                                                box["Location"] = (box["Location"][0] + 1, box["Location"][1])
+                                    player_x += 0.3
+                                    break
+                                break
+                        else:
+                            player_x += 0.3
             if not (keyboard.is_pressed("w") or keyboard.is_pressed("a") or keyboard.is_pressed("s") or keyboard.is_pressed("d")):
                 player_x = round(player_x)
                 player_y = round(player_y)
@@ -2469,6 +2746,7 @@ while True:
 
     elif (phase.lower() == "battle") and (Minigaming):
         Ui = False
+        pyterm.renderItem("EnemyBorder")
         for button in [
             "items button",
             "information button",
@@ -2494,9 +2772,9 @@ while True:
                     UltimateCharge = 0
                     selectedAttack = None
                     selectedMobNum = None
-                    player["CurrentHp"] = player["MaxHealth"] * (1.35 if SevenBuff == "Sloth" else 1)
-                    player["CurrentMana"] = player["Mana"] * (1.35 if SevenBuff == "Sloth" else 1)
-                    player["CurrentEnergy"] = player["Energy"] * (1.35 if SevenBuff == "Sloth" else 1)
+                    player["CurrentHp"] = player["MaxHealth"]
+                    player["CurrentMana"] = player["Mana"]
+                    player["CurrentEnergy"] = player["Energy"]
                     RanAway = True
                     PhaseChange("map")
                     continue
@@ -2506,9 +2784,9 @@ while True:
                     ConsumeInvBuffer = True
                 if selectedButton == "information button":
                     playercopy = copy.deepcopy(player)
-                    player["CurrentHp"] = min(player["CurrentHp"] + playercopy["Regen"], playercopy["MaxHealth"])
-                    player["CurrentMana"] = min(player["CurrentMana"] + playercopy["ManaRegen"], playercopy["Mana"])
-                    player["CurrentEnergy"] = min(player["CurrentEnergy"] + playercopy["EnergyRegen"], playercopy["Energy"])
+                    player["CurrentHp"] = round(min(player["CurrentHp"] + playercopy["Regen"] * (1.35 if SevenBuff == "Sloth" else 1), playercopy["MaxHealth"]))
+                    player["CurrentMana"] = round(min(player["CurrentMana"] + playercopy["ManaRegen"] * (1.35 if SevenBuff == "Sloth" else 1), playercopy["Mana"]))
+                    player["CurrentEnergy"] = round(min(player["CurrentEnergy"] + playercopy["EnergyRegen"] * (1.35 if SevenBuff == "Sloth" else 1), playercopy["Energy"]))
                     for effect in playercopy["Effects"]:
                         playercopy[effect["Stat"]] += effect["Potency"] * (1.2 if SevenBuff == "Gluttony" else 1)
                         if "Current" in effect["Stat"]:
@@ -2848,6 +3126,17 @@ while True:
                 TotalExp = 0
                 DisableOther = False
                 PhaseChange("map")
+        if player["CurrentHp"] <= 0:
+            YiPyterminal.moveItem("ultimate button",y=100,absoluteBias=True)
+            UltimateCharge = 0
+            selectedAttack = None
+            selectedMobNum = None
+            player["CurrentHp"] = player["MaxHealth"]
+            player["CurrentMana"] = player["Mana"]
+            player["CurrentEnergy"] = player["Energy"]
+            RanAway = True
+            PhaseChange("map")
+            continue
         try:
             if YiPyterminal.checkItemIsClicked("info bar",onlyCheckRelease = True) and not DisableOther:
                 isInfoBarInMessageMode = not isInfoBarInMessageMode
@@ -3257,6 +3546,21 @@ while True:
             DisableOther = False
             RanAway = False
 
+#   WONPUZZLE
+    if WonPuzzle:
+        LeftClick = LeftClickCopy
+        DisableOther = True
+        pyterm.changeCurrentItemFrame("BattleRewards", 2)
+        itemObjects["ResearchRewards"]["animation frames"][0] = "+ " + str(round(addedResearch)) + " Research"
+        pyterm.renderItem("BattleRewards")
+        pyterm.renderItem("LightRewards")
+        pyterm.renderItem("ResearchRewards")
+        EnteredRoom = None
+        if (pyterm.getBottomLeft("BattleRewards")[0] + 16 <= location[0] <= pyterm.getBottomLeft("BattleRewards")[0] + 25) and (pyterm.getBottomLeft("BattleRewards")[1] - 1 == round(location[1])) and LeftClick:
+            addedResearch = 0
+            DisableOther = False
+            WonPuzzle = False
+
     #ConsumeInv
     if ConsumeInv:
         LeftClick = LeftClickCopy
@@ -3500,7 +3804,7 @@ while True:
             RemoveItems = []
             for types in InventoryCopy.keys():
                 for items in InventoryCopy[types]:
-                    if items["Type"] not in ["Weapon", "Armor"]:
+                    if items["Type"] not in ["Weapon"]:
                         RemoveItems.append((items, types))
             for removed in RemoveItems:
                 InventoryCopy[removed[1]].remove(removed[0])

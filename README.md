@@ -9,3 +9,5 @@
 - ctypes
 - keyboard
 - mouse
+
+Run 'main.bat' by double clicking it in your folders to start.

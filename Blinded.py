@@ -1067,9 +1067,9 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
                     TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Damage", ""))/100)
 
         if StatUpgrades["Powerful"]:
-            mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 1.25 * (1.2 if (SevenBuff == "Wrath") and (player["CurrentHp"]/player["MaxHealth"] <= 1/3) else 1) * 10)/10
+            mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.85 * 1.25 * (1.2 if (SevenBuff == "Wrath") and (player["CurrentHp"]/player["MaxHealth"] <= 1/3) else 1) * 10)/10
         else:
-            mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10
+            mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.85 * (1.2 if (SevenBuff == "Wrath") and (player["CurrentHp"]/player["MaxHealth"] <= 1/3) else 1) * 10)/10
         if Equipment["Weapon"] != None:
             if "Enchant" in Equipment["Weapon"].keys():
                 if "Lifesteal" in Equipment["Weapon"]["Enchant"]:
@@ -1111,7 +1111,7 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
                 AddResearch(120)
             else:
                 AddResearch(1000)
-        return (round(MeleeDamage*10)/10, round(MagicDamage*10)/10, round(TrueDamage*10)/10, round(Heal*10)/10)
+        return (round(MeleeDamage*10 * 0.85)/10, round(MagicDamage*10 * 0.85)/10, round(TrueDamage*10 * 0.85)/10, round(Heal*10)/10)
 
 
 def EnemyAttack(Attack, Enemy: int, guard = False):
@@ -1466,7 +1466,7 @@ player = {"MaxHealth": 100, "CurrentHp": 100, "Regen": 0,
           "Strength": 0, "MagicPower": 0, 
           "Dexterity": 100, "CastingSpeed": 100, 
           "Skill": 0, "Intelligence": 0, 
-          "CritChance": 5, "CritPower": 60, 
+          "CritChance": 5, "CritPower": 40, 
           "Mana": 100, "Energy": 100, 
           "ManaRegen": 10, "EnergyRegen": 10, 
           "CurrentMana": 100, "CurrentEnergy": 100, 

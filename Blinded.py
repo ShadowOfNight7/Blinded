@@ -1179,9 +1179,9 @@ def EnemyAttack(Attack, Enemy: int, guard = False):
                 MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.35 * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
                 TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.35 * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
     if StatUpgrades["Tank"]:
-        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.8 * 10)/10 * (1 if not missed else 0) / (1.5 if guard else 1)
+        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.8 * 10)/10 * (1 if not missed else 0) / (1.95 if guard else 1)
     else:
-        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10 * (1 if not missed else 0) / (1.5 if guard else 1)
+        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10 * (1 if not missed else 0) / (1.95 if guard else 1)
     mob["Stats"]["CurrentHp"] += round(Heal*10)/10
     if not missed:
         battleMessages.append(mob["Name"] + " used " + str(attacks[Attack]["Name"]) + " to deal " + str(round((MeleeDamage + MagicDamage + TrueDamage) / (1.5 if guard else 1) * 10)/10) + " damage and healed " + str(Heal) + " health.")
@@ -1734,7 +1734,7 @@ def AddResearch(Research: int):
                 Research *= (1 + 0.5 * battles)
             elif str(upgrade) is "Research":
                 Research *= (1 + research ** 0.125)
-    return Research
+    return Research * 0.35
 
 def BuyUpgrade(Type: str, Number: int):
     global ResearchUpgrades, MechanicUpgrades, StatUpgrades, Research, player
@@ -2154,6 +2154,8 @@ pyterm.createItem("RoomPuzzleHints2", ["Note: You may sometimes noclip through p
 
 InventoryState = 0
 
+def End():
+    pass
 
 
 PhaseChange("battle")
@@ -2379,7 +2381,7 @@ while True:
         else:
             pyterm.renderLiteralItem("x", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
         for i in range(Hierarchy):
-            MaxRooms = (i + 1) * 3 + 1
+            MaxRooms = (i + 1) * 3 + 1 #4, 7, 10, 13, 16, 19, 22 = 91 Rooms
             Angle = 360/MaxRooms
             for i2 in range(MaxRooms):
                 if GetRoomLoc:
@@ -3358,11 +3360,11 @@ while True:
             YiPyterminal.renderItem(item, screenLimits=None)
         # YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"])+" | "+str(UltimateCharge))
 
-    if keyboard.is_pressed("c"):
-        # research += 1
-        # research *= 2
-        research += AddResearch(1)
-        research *= 2
+    # if keyboard.is_pressed("c"):
+    #     # research += 1
+    #     # research *= 2
+    #     research += AddResearch(1)
+    #     research *= 2
     
     # if keyboard.is_pressed("v"):
     #     Shop = True
@@ -3752,17 +3754,32 @@ while True:
 
         if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
             InventoryUiState = 1
+            InventoryState = 0
         elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
             InventoryUiState = 2
+            InventoryState = 0
         elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
             InventoryUiState = 3
+            InventoryState = 0
         elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
             InventoryUiState = 4
+            InventoryState = 0
         elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
             InventoryUiState = 5
+            InventoryState = 0
+        elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+            InventoryState -= 1
+            if InventoryState < 0:
+                InventoryState = math.floor(len(InventoryCopy3[list(InventoryCopy3.keys())[InventoryUiState - 1]])/23)
+        elif (pyterm.getBottomRight("Inventory")[0] - 22 <= location[0] <= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+            InventoryState += 1
+            if InventoryState > math.floor(len(InventoryCopy3[list(InventoryCopy3.keys())[InventoryUiState - 1]])/23):
+                InventoryState = 0
 
-        for itemNo in range(len(InventoryCopy3[list(InventoryCopy3.keys())[InventoryUiState - 1]])):
-            itemInv = InventoryCopy3[list(InventoryCopy3.keys())[InventoryUiState - 1]][itemNo]
+
+        # for itemNo in range(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])):
+        for itemNo in range(len(InventoryCopy3[list(InventoryCopy3.keys())[InventoryUiState - 1]][0 + InventoryState*23:22 + InventoryState*23])):
+            itemInv = InventoryCopy3[list(InventoryCopy3.keys())[InventoryUiState - 1]][itemNo + InventoryState * 23]
             if ("Enchant" in itemInv.keys()) and (itemInv["Type"] != "Scroll"):
                 if itemInv["Enchant"]:
                     itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"]) + " (" + str(itemInv["Enchant"]) + ")"
@@ -3989,17 +4006,32 @@ while True:
 
             if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 1
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 2
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 3
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 4
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 5
+                InventoryState = 0
+            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+                InventoryState -= 1
+                if InventoryState < 0:
+                    InventoryState = math.floor(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])/23)
+            elif (pyterm.getBottomRight("Inventory")[0] - 22 <= location[0] <= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+                InventoryState += 1
+                if InventoryState > math.floor(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])/23):
+                    InventoryState = 0
 
-            for itemNo in range(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])):
-                itemInv = InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]][itemNo]
+
+        # for itemNo in range(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])):
+            for itemNo in range(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]][0 + InventoryState*23:22 + InventoryState*23])):
+                itemInv = InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]][itemNo + InventoryState * 23]
                 if "Enchant" in itemInv.keys():
                     if itemInv["Enchant"]:
                         itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"]) + " (" + str(itemInv["Enchant"]) + ")"
@@ -4054,17 +4086,32 @@ while True:
 
             if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 1
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 2
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 3
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 4
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 5
+                InventoryState = 0
+            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+                InventoryState -= 1
+                if InventoryState < 0:
+                    InventoryState = math.floor(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])/23)
+            elif (pyterm.getBottomRight("Inventory")[0] - 22 <= location[0] <= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+                InventoryState += 1
+                if InventoryState > math.floor(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])/23):
+                    InventoryState = 0
 
-            for itemNo in range(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])):
-                itemInv = InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]][itemNo]
+
+        # for itemNo in range(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])):
+            for itemNo in range(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]][0 + InventoryState*23:22 + InventoryState*23])):
+                itemInv = InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]][itemNo + InventoryState * 23]
                 itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"])
                 pyterm.renderItem("ItemList", yBias = itemNo, screenLimits=(999,999))
                 if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + 26 + itemNo == round(location[1])) and LeftClick and (not OpenedFakeInv):
@@ -4271,9 +4318,19 @@ while True:
                 InventoryUiState = 4
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
                 InventoryUiState = 5
+            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+                InventoryState -= 1
+                if InventoryState < 0:
+                    InventoryState = math.floor(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])/23)
+            elif (pyterm.getBottomRight("Inventory")[0] - 22 <= location[0] <= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+                InventoryState += 1
+                if InventoryState > math.floor(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])/23):
+                    InventoryState = 0
 
-            for itemNo in range(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])):
-                itemInv = Inventory[list(Inventory.keys())[InventoryUiState - 1]][itemNo]
+
+        # for itemNo in range(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])):
+            for itemNo in range(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]][0 + InventoryState*23:22 + InventoryState*23])):
+                itemInv = Inventory[list(Inventory.keys())[InventoryUiState - 1]][itemNo + InventoryState * 23]
                 if ("Enchant" in itemInv.keys()) and (itemInv["Type"] != "Scroll"):
                     if itemInv["Enchant"]:
                         itemObjects["ItemList"]["animation frames"][0] = " - " + str(itemInv["Name"]) + " (" + str(itemInv["Enchant"]) + ")"
@@ -4557,12 +4614,15 @@ while True:
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             
 
+    if light == 91:
+        End()
 
     # pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(player["Effects"]), 0, 0, "bottom left", "bottom left")
     # pyterm.renderLiteralItem("1", 78, 21, "center", "center")
     # pyterm.renderLiteralItem("2", -78, -20, "center", "center")
 
-    pyterm.renderLiteralItem("#", location[0], location[1])
+    if keyboard.is_pressed("t"):
+        pyterm.renderLiteralItem("#", location[0], location[1])
 #34, 3
     pyterm.renderScreen(displayDebugMessages=True,debugDisplayMessageLimit=1,debugIsdisplayMessageLimit=False)
     elapsedTime = time.perf_counter() - startTime

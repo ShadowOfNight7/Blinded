@@ -1126,9 +1126,9 @@ def EnemyAttack(Attack, Enemy: int, guard = False):
     mob = mobsStatus[Enemy]
     mobcopy = copy.deepcopy(mob)
     for effect in mobcopy["Effects"]:
-        mobcopy["Stat"][effect["Stat"]] += effect["Potency"]
+        mobcopy["Stats"][effect["Stat"]] += effect["Potency"]
         if "Current" in effect["Stat"]:
-            mob["Stat"][effect["Stat"]] += effect["Potency"]
+            mob["Stats"][effect["Stat"]] += effect["Potency"]
     for effect in mob["Effects"]:
         if effect["Time"] > 0:
             effect["Time"] -= 1
@@ -1140,11 +1140,11 @@ def EnemyAttack(Attack, Enemy: int, guard = False):
         if "Enchant" in Equipment["Weapon"].keys():
             if "Defensive" in Equipment["Weapon"]["Enchant"]:
                 if "+" in Equipment["Weapon"]["Enchant"]:
-                    mobcopy["Stat"]["Strength"] -= 30
-                    mobcopy["Stat"]["MagicPower"] -= 30
+                    mobcopy["Stats"]["Strength"] -= 30
+                    mobcopy["Stats"]["MagicPower"] -= 30
                 else:
-                    mobcopy["Stat"]["Strength"] -= 12
-                    mobcopy["Stat"]["MagicPower"] -= 12
+                    mobcopy["Stats"]["Strength"] -= 12
+                    mobcopy["Stats"]["MagicPower"] -= 12
     for effect in attacks[Attack]["Effects"]:
             if effect["Target"] == "Self":
                 mob["Effects"].append(effect)

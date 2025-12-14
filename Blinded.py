@@ -2154,8 +2154,18 @@ pyterm.createItem("RoomPuzzleHints2", ["Note: You may sometimes noclip through p
 
 InventoryState = 0
 
+pyterm.createItem("Ending", [assets.get("Ending")], "screen", "center", "center", 0, 0, 0)
 def End():
-    pass
+    global DisableOther, LeftClick, LeftClickCopy, location, light
+    DisableOther = True
+    LeftClick = LeftClickCopy
+    pyterm.renderItem("Ending")
+    if (pyterm.getBottomLeft()[0] + 1 <= location[0] <= pyterm.getBottomLeft()[0] + 16) and (round(location[1]) == pyterm.getBottomLeft()[0] - 1) and LeftClick:
+        light = 100
+        DisableOther = False
+    elif (pyterm.getBottomRight()[0] - 1 <= location[0] <= pyterm.getBottomRight()[0] - 16) and (round(location[1]) == pyterm.getBottomLeft()[0] - 1) and LeftClick:
+        os.sys("exit")
+    
 
 
 PhaseChange("battle")
@@ -4614,7 +4624,7 @@ while True:
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             
 
-    if light == 91:
+    if 99 >= light >= 91:
         End()
 
     # pyterm.renderLiteralItem(str(location) + " " + str(LeftClick) + " " + str(RightClick) + " " + str(player["Effects"]), 0, 0, "bottom left", "bottom left")

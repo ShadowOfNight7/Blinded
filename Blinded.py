@@ -2219,6 +2219,7 @@ while True:
     for i in ClearedRooms:
         if highestHierarchy < i[0]:
             highestHierarchy = i[0]
+    experience = round(experience)
     player["CurrentHp"] = min(player["CurrentHp"], player["MaxHealth"])
     player["CurrentMana"] = min(player["CurrentMana"], player["Mana"])
     player["CurrentEnergy"] = min(player["CurrentEnergy"], player["Energy"])
@@ -3292,7 +3293,7 @@ while True:
             pyterm.renderItem("ExpRewards")
             pyterm.renderItem("ItemRewards")
             CurrentRoom = None
-            if (pyterm.getBottomLeft("BattleRewards")[0] + 16 <= location[0] <= pyterm.getBottomLeft("BattleRewards")[0] + 25) and (pyterm.getBottomLeft("BattleRewards")[1] - 1 == round(location[1])) and LeftClickCopy:
+            if (pyterm.getBottomLeft("BattleRewards")[0] + 16 <= location[0] <= pyterm.getBottomLeft("BattleRewards")[0] + 25) and (pyterm.getBottomLeft("BattleRewards")[1] - 1 - 4 == round(location[1])) and LeftClickCopy:
                 TotalResearch = 0
                 TotalItems = []
                 TotalExp = 0

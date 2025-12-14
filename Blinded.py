@@ -2978,7 +2978,7 @@ while True:
                                 try:
                                     if effect in player["Effects"]:
                                         player["Effects"].remove(effect)
-                                else:
+                                except:
                                     ""
                     player["Effects"] = copy.deepcopy(playercopy["Effects"])
                     UltimateCharge+=(20 if SevenBuff == "Sloth" else 15)

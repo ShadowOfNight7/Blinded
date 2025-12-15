@@ -1067,9 +1067,9 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
                     TrueDamage = (1 + playercopy["TrueAttack"] / 100) / (1 + mob["Stats"]["TrueDefence"] / 100) * (1 + crit / 100) * (score / 10) * (1 + int(special.replace("Damage", ""))/100)
 
         if StatUpgrades["Powerful"]:
-            mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.85 * 1.25 * (1.2 if (SevenBuff == "Wrath") and (player["CurrentHp"]/player["MaxHealth"] <= 1/3) else 1) * 10)/10
+            mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 1.25 * (1.2 if (SevenBuff == "Wrath") and (player["CurrentHp"]/player["MaxHealth"] <= 1/3) else 1) * 10)/10
         else:
-            mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.85 * (1.2 if (SevenBuff == "Wrath") and (player["CurrentHp"]/player["MaxHealth"] <= 1/3) else 1) * 10)/10
+            mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * (1.2 if (SevenBuff == "Wrath") and (player["CurrentHp"]/player["MaxHealth"] <= 1/3) else 1) * 10)/10
         if Equipment["Weapon"] != None:
             if "Enchant" in Equipment["Weapon"].keys():
                 if "Lifesteal" in Equipment["Weapon"]["Enchant"]:
@@ -1230,7 +1230,7 @@ def Minigame(Name: str, Args: dict):
     
 
 def MobDrops(MobNum):
-    global player, mobsStatus, research, enemiesKilled, experience, Items, TotalItems, TotalResearch, TotalExp
+    global player, mobsStatus, research, enemiesKilled, experience, Items, TotalItems, TotalResearch, TotalExp, Inventory
     mob = mobsStatus[MobNum]["Drops"]
     weight = 0
     for drop in mob:
@@ -1248,7 +1248,8 @@ def MobDrops(MobNum):
         for drop in mob:
             if (drop["Item"] != "Research") and (drop["Item"] != None) and (drop["Item"] != "Exp"):
                 if random.randint(1, 1000000) <= drop["Weight"]/weight*1000000:
-                    AddInvItem(Items[drop["Item"]])
+                    if not (Items[drop["Item"]] in Inventory["Armor"]) and not (Items[drop["Item"]] in Inventory["Weapon"]) and not (Items[drop["Item"]] in Inventory["Offhand"]) and not (Items[drop["Item"]] in Inventory["Accessory"]) and not (Items[drop["Item"]] in Inventory["Misc"]):
+                        AddInvItem(Items[drop["Item"]])
                     TotalItems.append(drop["Item"])
 
 
@@ -1363,7 +1364,7 @@ Inventory = {"Armor":
              []}
 
 Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("sword"), "Effects": [{"Stat": "CurrentHp", "Potency": 30, "Time": 1}], "Description": "Yum, an apple!", "Id": None},
-         "Iron Chestplate": {"Name": "Iron Chestplate", "Type": "Armor", "Asset": assets.get("sword"), "Stats": {"Defence": 20, "Magic Defence": 5, "Dexterity": -5}, "Enchant": False, "Description": "A tough chestplate", "Id": None},
+        #  "Iron Chestplate": {"Name": "Iron Chestplate", "Type": "Armor", "Asset": assets.get("sword"), "Stats": {"Defence": 20, "Magic Defence": 5, "Dexterity": -5}, "Enchant": False, "Description": "A tough chestplate", "Id": None},
          "Flame": {"Name": "Flame Scroll", "Type": "Scroll", "Asset": assets.get("Scroll"), "Enchant": "Burning", "Description": "A flame scroll.", "Id": None},
          "Poison": {"Name": "Poison Scroll", "Type": "Scroll", "Asset": assets.get("Scroll"), "Enchant": "Poisoning", "Description": "A scroll embued with the strongest poisons.", "Id": None},
          "Lifesteal": {"Name": "Lifesteal Scroll", "Type": "Scroll", "Asset": assets.get("Scroll"), "Enchant": "Lifesteal", "Description": "A scroll which seems to drain your life force.", "Id": None},
@@ -1376,8 +1377,18 @@ Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("s
         #  "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
         #  "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
         #  "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
-         "Miracle Gem": {"Name": "Miracle Gem", "Type": "Extra", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Description": "A gem that feels like it’s pulsating attached to a thin string of pure mana. Once on, it almost feels draining, yet replenishing? -1 hp +5 mana per turn", "Id": None},
+         "Monocle": {"Name": "Monocle", "Type": "Extra", "Asset": assets.get("Monocle"), "Stats": {"MagicPower": 30, "CurrentHp": -5}, "Enchant": False, "Description": "Who left this here? Strange glistens show within the monocle, almost shining with aura. Boosts Magic Power, at a cost of -5 hp per turn.", "Id": None},
+         "Miracle Gem": {"Name": "Miracle Gem", "Type": "Extra", "Asset": assets.get("Miracle Gem"), "Stats": {"CurrentHp": -1, "CurrentMana": 5}, "Enchant": False, "Description": "A gem that feels like it’s pulsating attached to a thin string of pure mana. Once on, it almost feels draining, yet replenishing? -1 hp +5 mana per turn.", "Id": None},
+         "Delicate Flower": {"Name": "Delicate Flower", "Type": "Extra", "Asset": assets.get("Delicate Flower"), "Stats": {"CurrentHp": 5}, "Enchant": False, "Description": "A calming yet almost fragile peace emanates from the petals of this small bloom. Heals 5 hp per turn.", "Id": None},
+         "Creepy Idol": {"Name": "Creepy Idol", "Type": "Offhand", "Asset": assets.get("Creepy Idol"), "Stats": {"Intelligence": 100}, "Enchant": False, "Description": "An ominous glare observes your every move. It seems to increase your intelligence...", "Id": None},
+         "Shield": {"Name": "Shield", "Type": "Offhand", "Asset": assets.get("Shield"), "Stats": {"Defence": 30, "MagicDefence": 30}, "Enchant": False, "Description": "A shield made of pure void. It looks like it can swallow anything, like a black hole. Boosts defence and magic defence.", "Id": None},
+         "Pocket Watch": {"Name": "Pocket Watch", "Type": "Offhand", "Asset": assets.get("Pocket Watch"), "Stats": {"Dexterity": 50}, "Enchant": False, "Description": "A golden, scratched watch with a long golden chain. Opening it reveals the glass cracked and endless sand pouring out. Boosts dexterity by a ton.", "Id": None},
 
+         "Iron Chestplate": {"Name": "Iron Chestplate", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 50, "MagicDefence": 20, "Regen": 0}, "Enchant": False, "Description": "A tough, silver chestplate that defends against melee attacks well.", "Id": None},
+         "Gilded Chestplate": {"Name": "Golden Chestplate", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 70, "MagicDefence": 30, "Regen": 10}, "Enchant": False, "Description": "Made of strange, enhanced gold. Withstands absurd damage.", "Id": None},
+         "Crystal Chestplate": {"Name": "Pocket Watch", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 20, "MagicDefence": 50, "Regen": 0}, "Enchant": False, "Description": "Refracts the damage into a trillion pieces, making it easier to deal with.", "Id": None},
+         "Florescent Chestplate": {"Name": "Florescent Chestplate", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 30, "MagicDefence": 70, "Regen": 10}, "Enchant": False, "Description": "Converts energy and damage into light!", "Id": None},
+         "Eternality": {"Name": "Eternality", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 100, "MagicDefence": 100, "Regen": 20}, "Enchant": False, "Description": "Lasts for eternity. Gives you a mere fraction of its strength.", "Id": None},
 
 
          "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "The most trusty companion a warrior could have. A weapon of precision and dexterity.", "Id": None},
@@ -1423,6 +1434,11 @@ pyterm.createItem("Settings", [assets.get("TitleSettings")], "screen", "center",
 
 
 
+        #  "Iron Chestplate": {"Name": "Iron Chestplate", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 50, "MagicDefence": 20, "Regen": 0}, "Enchant": False, "Description": "A tough, silver chestplate that defends against melee attacks well.", "Id": None},
+        #  "Gilded Chestplate": {"Name": "Golden Chestplate", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 70, "MagicDefence": 30, "Regen": 10}, "Enchant": False, "Description": "Made of strange, enhanced gold. Withstands absurd damage.", "Id": None},
+        #  "Crystal Chestplate": {"Name": "Pocket Watch", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 20, "MagicDefence": 50, "Regen": 0}, "Enchant": False, "Description": "Refracts the damage into a trillion pieces, making it easier to deal with.", "Id": None},
+        #  "Florescent Chestplate": {"Name": "Florescent Chestplate", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 30, "MagicDefence": 70, "Regen": 10}, "Enchant": False, "Description": "Converts energy and damage into light!", "Id": None},
+        #  "Eternality": {"Name": "Eternality", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 100, "MagicDefence": 100, "Regen": 20}, "Enchant": False, "Description": "Lasts for eternity. Gives you a mere fraction of its strength.", "Id": None},
 
 
 
@@ -1430,21 +1446,27 @@ pyterm.createItem("Settings", [assets.get("TitleSettings")], "screen", "center",
 
 
 CraftingRecipes = {"Sword": {"Ingredients": [{"Item": "Strength Potion", "Amount": 1}, {"Item": "Mystery Potion", "Amount": 1}], "Research": 300, "Researchlook": "[300.0 Research]", "LightRequirements": 1},
-                   "Axe": {"Ingredients": [{"Item": "Strength Potion", "Amount": 2}, {"Item": "Apple", "Amount": 1}], "Research": 500, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
-                   "Spear": {"Ingredients": [{"Item": "Mystery Potion", "Amount": 2}, {"Item": "Smoke Bomb", "Amount": 1}], "Research": 400, "Researchlook": "[999.0 Research]", "LightRequirements": 10},
-                   "Wand": {"Ingredients": [{"Item": "Mana Potion", "Amount": 2}, {"Item": "Mirror Shard", "Amount": 1}], "Research": 600, "Researchlook": "[999.0 Research]", "LightRequirements": 3},
-                   "Mace": {"Ingredients": [{"Item": "Mana Potion", "Amount": 1}, {"Item": "Dynamite", "Amount": 1}], "Research": 800, "Researchlook": "[999.0 Research]", "LightRequirements": 10},
-                   "Staff": {"Ingredients": [{"Item": "Bottled Mist", "Amount": 1}, {"Item": "Mirror Shard", "Amount": 1}], "Research": 700, "Researchlook": "[999.0 Research]", "LightRequirements": 1},
-                   "Ring": {"Ingredients": [{"Item": "Mana Potion", "Amount": 1}, {"Item": "Health Potion", "Amount": 1}, {"Item": "Focus Tomb", "Amount": 1}], "Research": 300000, "Researchlook": "[999.0 Research]", "LightRequirements": 25},
-                   "Defensive": {"Ingredients": [{"Item": "Health Potion", "Amount": 3}, {"Item": "Apple", "Amount": 2}], "Research": 2000000, "Researchlook": "[999.0 Research]", "LightRequirements": 35},
-                   "Sharpened": {"Ingredients": [{"Item": "Strength Potion", "Amount": 3}], "Research": 10000000, "Researchlook": "[999.0 Research]", "LightRequirements": 25},
-                   "Swift": {"Ingredients": [{"Item": "Net", "Amount": 2}], "Research": 25000000, "Researchlook": "[999.0 Research]", "LightRequirements": 10},
-                   "Embued": {"Ingredients": [{"Item": "Mirror Shard", "Amount": 2}], "Research": 2000000, "Researchlook": "[999.0 Research]", "LightRequirements": 20},
-                   "Lifesteal": {"Ingredients": [{"Item": "Dynamite", "Amount": 2}, {"Item": "Strength Potion", "Amount": 1}], "Research": 100000000, "Researchlook": "[999.0 Research]", "LightRequirements": 50},
-                   "Poison": {"Ingredients": [{"Item": "Mystery Potion", "Amount": 3}], "Research": 15000000, "Researchlook": "[999.0 Research]", "LightRequirements": 40},
-                   "Flame": {"Ingredients": [{"Item": "Smoke Bomb", "Amount": 2}], "Research": 30000000, "Researchlook": "[999.0 Research]", "LightRequirements": 35},
+                   "Axe": {"Ingredients": [{"Item": "Strength Potion", "Amount": 2}, {"Item": "Apple", "Amount": 1}], "Research": 500, "Researchlook": "[500.0 Research]", "LightRequirements": 3},
+                   "Spear": {"Ingredients": [{"Item": "Mystery Potion", "Amount": 2}, {"Item": "Smoke Bomb", "Amount": 1}], "Research": 400, "Researchlook": "[400.0 Research]", "LightRequirements": 10},
+                   "Wand": {"Ingredients": [{"Item": "Mana Potion", "Amount": 2}, {"Item": "Mirror Shard", "Amount": 1}], "Research": 600, "Researchlook": "[600.0 Research]", "LightRequirements": 3},
+                   "Mace": {"Ingredients": [{"Item": "Mana Potion", "Amount": 1}, {"Item": "Dynamite", "Amount": 1}], "Research": 800, "Researchlook": "[800.0 Research]", "LightRequirements": 10},
+                   "Staff": {"Ingredients": [{"Item": "Bottled Mist", "Amount": 1}, {"Item": "Mirror Shard", "Amount": 1}], "Research": 700, "Researchlook": "[700.0 Research]", "LightRequirements": 1},
+                   "Ring": {"Ingredients": [{"Item": "Mana Potion", "Amount": 1}, {"Item": "Health Potion", "Amount": 1}, {"Item": "Focus Tomb", "Amount": 1}], "Research": 300000, "Researchlook": "[300k  Research]", "LightRequirements": 25},
+
+                   "Defensive": {"Ingredients": [{"Item": "Health Potion", "Amount": 3}, {"Item": "Apple", "Amount": 2}], "Research": 200000, "Researchlook": "[200k  Research]", "LightRequirements": 35},
+                   "Sharpened": {"Ingredients": [{"Item": "Strength Potion", "Amount": 3}], "Research": 1000000, "Researchlook": "[1.00m Research]", "LightRequirements": 25},
+                   "Swift": {"Ingredients": [{"Item": "Net", "Amount": 2}], "Research": 2500000, "Researchlook": "[2.50m Research]", "LightRequirements": 10},
+                   "Embued": {"Ingredients": [{"Item": "Mirror Shard", "Amount": 2}], "Research": 200000, "Researchlook": "[200k  Research]", "LightRequirements": 20},
+                   "Lifesteal": {"Ingredients": [{"Item": "Dynamite", "Amount": 2}, {"Item": "Strength Potion", "Amount": 1}], "Research": 10000000, "Researchlook": "[10.0m Research]", "LightRequirements": 50},
+                   "Poison": {"Ingredients": [{"Item": "Mystery Potion", "Amount": 3}], "Research": 1500000, "Researchlook": "[1.50m Research]", "LightRequirements": 40},
+                   "Flame": {"Ingredients": [{"Item": "Smoke Bomb", "Amount": 2}], "Research": 3000000, "Researchlook": "[3.00m Research]", "LightRequirements": 35},
                    
-                   
+                   "Iron Chestplate": {"Ingredients": [{"Item": "Smoke Bomb", "Amount": 1}, {"Item": "Health Potion", "Amount": 1}], "Research": 5000, "Researchlook": "[5.00k Research]", "LightRequirements": 10},
+                   "Crystal Chestplate": {"Ingredients": [{"Item": "Swift", "Amount": 1}, {"Item": "Mana Potion", "Amount": 1}], "Research": 5000, "Researchlook": "[5.00k Research]", "LightRequirements": 10},
+                   "Gilded Chestplate": {"Ingredients": [{"Item": "Bottled Mist", "Amount": 2}, {"Item": "Dynamite", "Amount": 1}], "Research": 300000, "Researchlook": "[300k  Research]", "LightRequirements": 25},
+                   "Florescent Chestplate": {"Ingredients": [{"Item": "Mirror Shard", "Amount": 2}, {"Item": "Focus Tomb", "Amount": 1}], "Research": 300000, "Researchlook": "[300k  Research]", "LightRequirements": 25},
+                   "Eternality": {"Ingredients": [{"Item": "Shield", "Amount": 1}, {"Item": "Ring", "Amount": 1}, {"Item": "Health Potion", "Amount": 1}, {"Item": "Bottled Mist", "Amount": 1}, {"Item": "Mirror Shard", "Amount": 1}], "Research": 150000000, "Researchlook": "[150m  Research]", "LightRequirements": 50},
+
                    
                    
                    
@@ -1600,13 +1622,13 @@ enemies = {
         
 ,"Goblin": {"Attacks": [{"AttackType": "Stab", "Weight": 10}, {"AttackType": "Charge", "Weight": 10}, {"AttackType": "Headbutt", "Weight": 10}], "Stats": {"MaxHealth": 150, "CurrentHp": 150, "Regen": 1,
           "Defence": 50, "MagicDefence": 10, 
-          "Strength": 30, "MagicPower": 15, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 150, "Weight": 0}, {"Item": "Exp", "Min": 100, "Max": 200, "Weight": 0}, {"Item": "Stab Scroll", "Weight": 3}, {"Item": "Charge Scroll", "Weight": 3}, {"Item": "Headbutt Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("Goblin"), "Special": None}
+          "Strength": 20, "MagicPower": 15, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 0}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 150, "Weight": 0}, {"Item": "Exp", "Min": 150, "Max": 300, "Weight": 0}, {"Item": "Stab Scroll", "Weight": 3}, {"Item": "Charge Scroll", "Weight": 3}, {"Item": "Headbutt Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("Goblin"), "Special": None}
 ,"Ranged Goblin": {"Attacks": [{"AttackType": "Stab", "Weight": 10}, {"AttackType": "Charge", "Weight": 10}, {"AttackType": "Headbutt", "Weight": 10}, {"AttackType": "Shoot", "Weight": 10}, {"AttackType": "Fire", "Weight": 10}], "Stats": {"MaxHealth": 120, "CurrentHp": 120, "Regen": 2,
           "Defence": 30, "MagicDefence": 0, 
-          "Strength": 50, "MagicPower": 20, "CritChance": 5, "CritPower": 130, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 150, "Weight": 0}, {"Item": "Exp", "Min": 100, "Max": 200, "Weight": 0}, {"Item": "Fire Scroll", "Weight": 3}, {"Item": "Shoot Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("RangedGoblin"), "Special": None}
+          "Strength": 40, "MagicPower": 20, "CritChance": 5, "CritPower": 130, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 10, "Max": 150, "Weight": 0}, {"Item": "Exp", "Min": 150, "Max": 300, "Weight": 0}, {"Item": "Fire Scroll", "Weight": 3}, {"Item": "Shoot Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("RangedGoblin"), "Special": None}
 ,"Dart Goblin": {"Attacks": [{"AttackType": "Stab", "Weight": 10}, {"AttackType": "Charge", "Weight": 10}, {"AttackType": "Headbutt", "Weight": 10}, {"AttackType": "Blowdart", "Weight": 10}, {"AttackType": "Breathe", "Weight": 10}], "Stats": {"MaxHealth": 80, "CurrentHp": 80, "Regen": 5,
           "Defence": 10, "MagicDefence": 10, 
-          "Strength": 100, "MagicPower": 50, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 100, "Max": 200, "Weight": 0}, {"Item": "Exp", "Min": 150, "Max": 250, "Weight": 0}, {"Item": "Blowdart Scroll", "Weight": 3}, {"Item": "Breathe Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("DartGoblin"), "Special": None}
+          "Strength": 70, "MagicPower": 25, "CritChance": 5, "CritPower": 100, "TrueAttack": 1, "TrueDefence": 1}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 100, "Max": 200, "Weight": 0}, {"Item": "Exp", "Min": 225, "Max": 375, "Weight": 0}, {"Item": "Blowdart Scroll", "Weight": 3}, {"Item": "Breathe Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("DartGoblin"), "Special": None}
 
 ,"Wolf": {"Attacks": [{"AttackType": "Howl", "Weight": 10}, {"AttackType": "Bite", "Weight": 10}, {"AttackType": "Ferocious Swipe", "Weight": 10}], "Stats": {"MaxHealth": 140, "CurrentHp": 140, "Regen": 5,
           "Defence": 50, "MagicDefence": 50, 
@@ -1734,10 +1756,10 @@ def AddResearch(Research: int):
                 Research *= (1 + 0.5 * battles)
             elif str(upgrade) is "Research":
                 Research *= (1 + research ** 0.125)
-    return Research * 0.35
+    return Research * 1.2
 
 def BuyUpgrade(Type: str, Number: int):
-    global ResearchUpgrades, MechanicUpgrades, StatUpgrades, Research, player
+    global ResearchUpgrades, MechanicUpgrades, StatUpgrades, research, player, LockedAttacks
     if Type is "Research":
         Upgrade = str(list(ResearchUpgrades.keys())[Number])
         if ResearchUpgrades[Upgrade] == False:
@@ -1774,6 +1796,8 @@ def BuyUpgrade(Type: str, Number: int):
                     MechanicUpgrades[Upgrade] = True
             if Upgrade is "Attacks56":
                 if CheckResearchUpgrade(7500):
+                    LockedAttacks["Attack4"] = False
+                    LockedAttacks["Attack5"] = False
                     MechanicUpgrades[Upgrade] = True
             if Upgrade is "Shop":
                 if CheckResearchUpgrade(10000):
@@ -1783,6 +1807,8 @@ def BuyUpgrade(Type: str, Number: int):
                     MechanicUpgrades[Upgrade] = True
             if Upgrade is "Attacks78":
                 if CheckResearchUpgrade(2000000):
+                    LockedAttacks["Attack6"] = False
+                    LockedAttacks["Attack7"] = False
                     MechanicUpgrades[Upgrade] = True
             if Upgrade is "PerfectEnchants":
                 if CheckResearchUpgrade(25000000):
@@ -2019,43 +2045,46 @@ pyterm.createItem("ShopTime", [assets.get("ShopTime")], "screen", "center", "cen
 pyterm.createItem("ShopItems", [" "], "ShopTime", "top left", "top left", 0, 5, 9)
 ShopItems = [{"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}, {"Item": "Apple", "Price": 1}]
 
-ShopList = {"Apple": {"PriceRange": (10000, 50000), "LightRequired": 1, "Weight": 10}, 
+ShopList = {"Apple": {"PriceRange": (1000, 5000), "LightRequired": 1, "Weight": 10}, 
             "Punch Scroll": {"PriceRange": (1000, 2000), "LightRequired": 1, "Weight": 5},
-            "Slash Scroll": {"PriceRange": (20000, 60000), "LightRequired": 5, "Weight": 5},
-            "Bash Scroll": {"PriceRange": (500000, 1000000), "LightRequired": 25, "Weight": 5},
-            "Mash Scroll": {"PriceRange": (3000000, 8000000), "LightRequired": 30, "Weight": 5},
-            "Meteoric Strike Scroll": {"PriceRange": (100000000, 300000000), "LightRequired": 40, "Weight": 5},
-            "Blast Scroll": {"PriceRange": (122352, 125215), "LightRequired": 12, "Weight": 5},
-            "Fireball Scroll": {"PriceRange": (30000, 150000), "LightRequired": 7, "Weight": 5},
-            "Sweeping Edge Scroll": {"PriceRange": (150000, 180000), "LightRequired": 16, "Weight": 5},
-            "Lightning Scroll": {"PriceRange": (100000, 120000), "LightRequired": 13, "Weight": 5},
-            "Aim Scroll": {"PriceRange": (300000, 700000), "LightRequired": 18, "Weight": 5},
-            "Premonition Scroll": {"PriceRange": (300000, 700000), "LightRequired": 18, "Weight": 5},
-            "Weaken Scroll": {"PriceRange": (400000, 1500000), "LightRequired": 21, "Weight": 5},
-            "Stab Scroll": {"PriceRange": (3000000, 8500000), "LightRequired": 31, "Weight": 5},
-            "Splash Scroll": {"PriceRange": (3000000, 8500000), "LightRequired": 31, "Weight": 5},
-            "Health Potion": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
-            "Mana Potion": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
-            "Strength Potion": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
-            "Mystery Potion": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
-            "Net": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
-            "Smoke Bomb": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
-            "Focus Tomb": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
-            "Mirror Shard": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
-            "Bottled Mist": {"PriceRange": (100000, 150000), "LightRequired": 10, "Weight": 7},
-            "Dynamite": {"PriceRange": (140000, 170000), "LightRequired": 15, "Weight": 7}
-}
+            "Slash Scroll": {"PriceRange": (2000, 6000), "LightRequired": 5, "Weight": 5},
+            "Bash Scroll": {"PriceRange": (50000, 100000), "LightRequired": 25, "Weight": 5},
+            "Mash Scroll": {"PriceRange": (300000, 800000), "LightRequired": 30, "Weight": 5},
+            "Meteoric Strike Scroll": {"PriceRange": (10000000, 30000000), "LightRequired": 40, "Weight": 5},
+            "Blast Scroll": {"PriceRange": (12252, 12515), "LightRequired": 12, "Weight": 5},
+            "Fireball Scroll": {"PriceRange": (3000, 15000), "LightRequired": 7, "Weight": 5},
+            "Sweeping Edge Scroll": {"PriceRange": (15000, 18000), "LightRequired": 16, "Weight": 5},
+            "Lightning Scroll": {"PriceRange": (10000, 12000), "LightRequired": 13, "Weight": 5},
+            "Aim Scroll": {"PriceRange": (30000, 70000), "LightRequired": 18, "Weight": 5},
+            "Premonition Scroll": {"PriceRange": (30000, 70000), "LightRequired": 18, "Weight": 5},
+            "Weaken Scroll": {"PriceRange": (40000, 150000), "LightRequired": 21, "Weight": 5},
+            "Stab Scroll": {"PriceRange": (300000, 850000), "LightRequired": 31, "Weight": 5},
+            "Splash Scroll": {"PriceRange": (300000, 850000), "LightRequired": 31, "Weight": 5},
+            "Health Potion": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
+            "Mana Potion": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
+            "Strength Potion": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
+            "Mystery Potion": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
+            "Net": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
+            "Smoke Bomb": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
+            "Focus Tomb": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
+            "Mirror Shard": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
+            "Bottled Mist": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
+            "Dynamite": {"PriceRange": (14000, 17000), "LightRequired": 15, "Weight": 7},
 
-        #  "Health Potion": {"Name": "Health Potion", "Type": "Consumable", "Asset": assets.get("PotionHealth"), "Effects": [{"Stat": "CurrentHp", "Potency": 20, "Time": 1}], "Description": "A green potion which heals 20hp.", "Id": None},
-        #  "Mana Potion": {"Name": "Mana Potion", "Type": "Consumable", "Asset": assets.get("PotionMana"), "Effects": [{"Stat": "CurrentMana", "Potency": 30, "Time": 1}], "Description": "A blue potion which gives 30 mana.", "Id": None},
-        #  "Strength Potion": {"Name": "Strength Potion", "Type": "Consumable", "Asset": assets.get("PotionStrength"), "Effects": [{"Stat": "Strength", "Potency": 30, "Time": 2}], "Description": "A red potion which gives 30 strength for 2 turns.", "Id": None},
-        #  "Mystery Potion": {"Name": "Mystery Potion", "Type": "Consumable", "Asset": assets.get("PotionMystery"), "Effects": [{"Stat": "CurrentHp", "Potency": -30, "Time": 1}, {"Stat": "MagicPower", "Potency": 30, "Time": 3}], "Description": "A yellow potion which does something idk.", "Id": None},
-        #  "Net": {"Name": "Net", "Type": "Consumable", "Asset": assets.get("Net"), "Effects": [{"Stat": "CritChance", "Potency": 100, "Time": 2}], "Description": "A net which makes critical hits certain for 2 turns!", "Id": None},
-        #  "Smoke Bomb": {"Name": "Smoke Bomb", "Type": "Consumable", "Asset": assets.get("SmokeBomb"), "Effects": [{"Stat": "CritPower", "Potency": 70, "Time": 5}], "Description": "A smokebomb which makes critical hits deal +70% more power.", "Id": None},
-        #  "Focus Tomb": {"Name": "Focus Tomb", "Type": "Consumable", "Asset": assets.get("FocusTomb"), "Effects": [{"Stat": "Skill", "Potency": 50, "Time": 3}, {"Stat": "Intelligence", "Potency": 100, "Time": 3}], "Description": "Helps you concentrate. Gain more int and skill for 3 turns.", "Id": None},
-        #  "Mirror Shard": {"Name": "Mirror Shard", "Type": "Consumable", "Asset": assets.get("MirrorShard"), "Effects": [{"Stat": "MagicDefence", "Potency": 30, "Time": 2}], "Description": "A reflective shard. It boosts magic defence by 30 for 2 turns.", "Id": None},
-        #  "Bottled Mist": {"Name": "Bottled Mist", "Type": "Consumable", "Asset": assets.get("BottledMist"), "Effects": [{"Stat": "Defence", "Potency": 30, "Time": 2}], "Description": "Some wierd vial of some misty substance. Boosts defence by 30 for 2 turns.", "Id": None},
-        #  "Dynamite": {"Name": "Dynamite", "Type": "Consumable", "Asset": assets.get("Dynamite"), "Effects": [{"Stat": "Dexterity", "Potency": 50, "Time": 3}], "Description": "A non-functional bomb. Can be used for scaring though, increasing dexterity by 50 for 3 turns.", "Id": None},
+            "Monocle": {"PriceRange": (100000, 200000), "LightRequired": 12, "Weight": 5},
+            "Miracle Gem": {"PriceRange": (100000, 200000), "LightRequired": 12, "Weight": 5},
+            "Delicate Flower": {"PriceRange": (100000, 200000), "LightRequired": 12, "Weight": 5},
+            "Creepy Idol": {"PriceRange": (100000, 200000), "LightRequired": 12, "Weight": 5},
+            "Shield": {"PriceRange": (100000, 200000), "LightRequired": 12, "Weight": 3},
+            "Pocket Watch": {"PriceRange": (100000, 200000), "LightRequired": 12, "Weight": 5}
+}
+        #  "Monocle": {"Name": "Monocle", "Type": "Extra", "Asset": assets.get("Monocle"), "Stats": {"MagicPower": 30, "CurrentHp": -5}, "Enchant": False, "Description": "Who left this here? Strange glistens show within the monocle, almost shining with aura. Boosts Magic Power, at a cost of -5 hp per turn.", "Id": None},
+        #  "Miracle Gem": {"Name": "Miracle Gem", "Type": "Extra", "Asset": assets.get("Miracle Gem"), "Stats": {"CurrentHp": -1, "CurrentMana": 5}, "Enchant": False, "Description": "A gem that feels like it’s pulsating attached to a thin string of pure mana. Once on, it almost feels draining, yet replenishing? -1 hp +5 mana per turn.", "Id": None},
+        #  "Delicate Flower": {"Name": "Delicate Flower", "Type": "Extra", "Asset": assets.get("Delicate Flower"), "Stats": {"CurrentHp": 5}, "Enchant": False, "Description": "A calming yet almost fragile peace emanates from the petals of this small bloom. Heals 5 hp per turn.", "Id": None},
+        #  "Creepy Idol": {"Name": "Creepy Idol", "Type": "Offhand", "Asset": assets.get("Creepy Idol"), "Stats": {"Intelligence": 100}, "Enchant": False, "Description": "An ominous glare observes your every move. It seems to increase your intelligence...", "Id": None},
+        #  "Shield": {"Name": "Shield", "Type": "Offhand", "Asset": assets.get("Shield"), "Stats": {"Defence": 30, "MagicDefence": 30}, "Enchant": False, "Description": "A shield made of pure void. It looks like it can swallow anything, like a black hole. Boosts defence and magic defence.", "Id": None},
+        #  "Pocket Watch": {"Name": "Pocket Watch", "Type": "Offhand", "Asset": assets.get("Pocket Watch"), "Stats": {"Dexterity": 50}, "Enchant": False, "Description": "A golden, scratched watch with a long golden chain. Opening it reveals the glass cracked and endless sand pouring out. Boosts dexterity by a ton.", "Id": None},
+
 
 
 
@@ -2149,7 +2178,7 @@ for i in range(len(Mazes)):
 WonPuzzle = False
 addedResearch = 0
 
-pyterm.createItem("RoomPuzzleHints", ["Try to reach the 'X' by pushing the '#'s onto the pressure plates (Filled in)."], "RoomUi", "center", "center", 0, 0, -1)
+pyterm.createItem("RoomPuzzleHints", ["Try to reach the 'X' by pushing the '#'s onto the pressure plates (Filled in). Press 'R' to reset."], "RoomUi", "center", "center", 0, 0, -1)
 pyterm.createItem("RoomPuzzleHints2", ["Note: You may sometimes noclip through push blocks. That is due to their totally special properties."], "RoomUi", "center", "center", 0, 0, 1)
 
 InventoryState = 0
@@ -2214,7 +2243,7 @@ while True:
         except OverflowError:
             max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(45 ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/((level - 35) ** 1.75 + 1.1 ** (level - 40)))) + 0.798935) * 100)
         LevelUp = True
-    light = len(ClearedRooms)
+    light = len(ClearedRooms) + 999
     research = round(research)
     for i in ClearedRooms:
         if highestHierarchy < i[0]:
@@ -2388,9 +2417,9 @@ while True:
         pyterm.renderItem(str((0, 1)), xBias = mapOffset[0], yBias = mapOffset[1], screenLimits=(999, 999))
         if (os.get_terminal_size().columns/2 + mapOffset[0] - 8 <= location[0] <= os.get_terminal_size().columns/2 + mapOffset[0] + 8 - 1) and (os.get_terminal_size().lines/2 + mapOffset[1] - 4 <= location[1] <= os.get_terminal_size().lines/2 + mapOffset[1] + 4):
             # pyterm.renderLiteralItem("AAA", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
-            pyterm.renderLiteralItem("X", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
+            pyterm.renderLiteralItem("Home", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
         else:
-            pyterm.renderLiteralItem("x", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
+            pyterm.renderLiteralItem("Home", round(mapOffset[0]), round(mapOffset[1]), "center", "center")
         for i in range(Hierarchy):
             MaxRooms = (i + 1) * 3 + 1 #4, 7, 10, 13, 16, 19, 22 = 91 Rooms
             Angle = 360/MaxRooms
@@ -2539,6 +2568,7 @@ while True:
                 pyterm.changeItemFrameContent("RoomType", "Type: " + str(RoomData[FocusRoom["id"]]["Type"]))
                 pyterm.updateItemSize("RoomDifficulty")
                 pyterm.updateItemSize("RoomLightRequirements")
+                pyterm.updateItemSize("RoomType")
                 pyterm.renderItem("RoomSidebar", yBias = NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomHierarchy", xBias = -11, yBias = 6 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
                 pyterm.renderItem("RoomNo.", xBias = -11, yBias = 7 + NonCenterOffset + round((os.get_terminal_size().lines - NonCenterOffset - pyterm.getStrWidthAndHeight(assets.get("RoomSidebar"))[1])/2), screenLimits=(999, 999))
@@ -2778,6 +2808,7 @@ while True:
             #Win
             if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) == "X":
                 addedResearch = AddResearch(random.randint(round(1.3 ** (EnteredRoom[0] - 1) * 150), round(1.3 ** (EnteredRoom[0] - 1) * 250)))
+                research += addedResearch
                 WonPuzzle = True
                 pyterm.changeCurrentItemFrame("LightRewards", 1)
                 if not EnteredRoom in ClearedRooms:
@@ -3312,6 +3343,7 @@ while True:
             player["CurrentMana"] = player["Mana"]
             player["CurrentEnergy"] = player["Energy"]
             RanAway = True
+            Minigaming = False
             PhaseChange("map")
             continue
         try:
@@ -3375,11 +3407,11 @@ while True:
             YiPyterminal.renderItem(item, screenLimits=None)
         # YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"])+" | "+str(UltimateCharge))
 
-    # if keyboard.is_pressed("c"):
-    #     # research += 1
-    #     # research *= 2
-    #     research += AddResearch(1)
-    #     research *= 2
+    if keyboard.is_pressed("c"):
+        # research += 1
+        # research *= 2
+        research += AddResearch(1)
+        research *= 2
     
     # if keyboard.is_pressed("v"):
     #     Shop = True

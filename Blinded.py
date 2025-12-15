@@ -2462,7 +2462,7 @@ while True:
             for tier in hierarchyLocations:
                 for rooms in tier:
                     if rooms["id"][0] > 0:
-                        RoomData[copy.deepcopy(rooms["id"])] = {"Type": random.choice(["Treasure" for i in range(0)] +["Puzzle" for i in range(2)] + ["Battle" for i in range(7)]), "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
+                        RoomData[copy.deepcopy(rooms["id"])] = {"Type": random.choice(["Treasure" for i in range(0)] +["Puzzle" for i in range(1)] + ["Battle" for i in range(7)]), "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0), "Difficulty": random.randint(80, 120)/100}
                         if rooms["id"] == (3, 1):
                             RoomData[copy.deepcopy(rooms["id"])] = {"Type": "BossBattle1", "LightRequired": round((4.5 * rooms["id"][0] ** 2 - 10.5 * rooms["id"][0] + 6) * 2/3), "SpawnLocation": (0, 0), "Difficulty": 1}
                         elif rooms["id"] == (5, 1):

@@ -1179,9 +1179,9 @@ def EnemyAttack(Attack, Enemy: int, guard = False):
                 MagicDamage = attacks[Attack]["BasePowerMagic"] * (1 + mobcopy["Stats"]["MagicPower"] / 100) / (1 + player["MagicDefence"] / 100) * (1 + crit / 100) * 0.35 * (1 + int(special.replace("Status", ""))/100 * len(player["Effects"]))
                 TrueDamage = (1 + mobcopy["Stats"]["TrueAttack"] / 100) / (1 + player["TrueDefence"] / 100) * (1 + crit / 100) * 0.35 * (1 + int(special.replace("Status", ""))/100 * len(mob["Effects"]))
     if StatUpgrades["Tank"]:
-        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.8 * 10)/10 * (1 if not missed else 0) / (1.95 if guard else 1)
+        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 0.8 * 10)/10 * (1 if not missed else 0) / (1.6 if guard else 1)
     else:
-        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10 * (1 if not missed else 0) / (1.95 if guard else 1)
+        player["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * 10)/10 * (1 if not missed else 0) / (1.6 if guard else 1)
     mob["Stats"]["CurrentHp"] += round(Heal*10)/10
     if not missed:
         battleMessages.append(mob["Name"] + " used " + str(attacks[Attack]["Name"]) + " to deal " + str(round((MeleeDamage + MagicDamage + TrueDamage) / (1.5 if guard else 1) * 10)/10) + " damage and healed " + str(Heal) + " health.")
@@ -1508,8 +1508,8 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             #Slime (Giga)
             "Devour": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 100, "Energy": 30, "Mana": 20, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 15 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 0.7}}], "Effects": [], "Special": ["Damage100"]}, #15 * 1.6 = 24dmg avg
             #Slime (Corrosive)
-            "Corrode": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 0, "Mana": 10, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (30, 65), "Time": 10 * pyterm.FPS, "SpawnRate": 0.025 * pyterm.FPS, "InverseBias": 4, "ScoreMulti": 2}}], "Effects": [], "Special": ["Damage100"]}, #
-            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 15, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1, "Arg": {"Character": "O", "SpawnRate": 0.025 * pyterm.FPS, "SpeedRange": (15, 25), "DespawnRate": 4 * pyterm.FPS, "Time": 20 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": ["Damage100"]}, #10 * 1.5 = 15 dmg * 65% acc = 9.75dmg, 
+            "Corrode": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 0, "Mana": 20, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (30, 65), "Time": 10 * pyterm.FPS, "SpawnRate": 0.01 * pyterm.FPS, "InverseBias": 4, "ScoreMulti": 2}}], "Effects": [], "Special": ["Damage100"]}, #
+            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 30, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1, "Arg": {"Character": "O", "SpawnRate": 0.025 * pyterm.FPS, "SpeedRange": (15, 25), "DespawnRate": 4 * pyterm.FPS, "Time": 20 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": ["Damage100"]}, #10 * 1.5 = 15 dmg * 65% acc = 9.75dmg, 
             #Slime (Defensive)
             "Reinforce": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defense", "Potency": 15, "Target": "Self", "Time": 3},{"Stat": "MagicDefense", "Potency": 15, "Target": "Self", "Time": 3}], "Special": None},
             "Intimidate": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": -20, "Target": "Enemy", "Time": 5}], "Special": None},
@@ -1664,6 +1664,22 @@ enemies = {
           "Strength": 200, "MagicPower": 250, "CritChance": 5, "CritPower": 100, "TrueAttack": 50, "TrueDefence": 10}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 400, "Max": 600, "Weight": 0}, {"Item": "Exp", "Min": 1000, "Max": 2500, "Weight": 0}, {"Item": "Jump Scroll", "Weight": 3}, {"Item": "Leap Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("JumpingSpider"), "Special": None}
 
 
+,"Dave (Angry)": {"Attacks": [{"AttackType": "Web Shot", "Weight": 10}], "Stats": {"MaxHealth": 9998, "CurrentHp": 9998, "Regen": 8,
+          "Defence": 88, "MagicDefence": 88, 
+          "Strength": 2, "MagicPower": 2, "CritChance": 2, "CritPower": 222, "TrueAttack": 2, "TrueDefence": 99}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1, "Max": 10, "Weight": 0}, {"Item": "Exp", "Min": 1, "Max": 10, "Weight": 0}], "Effects": [], "Asset": assets.get("JumpingSpider"), "Special": None}
+,"Dave (Normal)": {"Attacks": [{"AttackType": "Web Shot", "Weight": 10}], "Stats": {"MaxHealth": 10000, "CurrentHp": 10000, "Regen": 10,
+          "Defence": 100, "MagicDefence": 100, 
+          "Strength": 1, "MagicPower": 1, "CritChance": 0, "CritPower": 0, "TrueAttack": 1, "TrueDefence": 100}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1, "Max": 10, "Weight": 0}, {"Item": "Exp", "Min": 1, "Max": 10, "Weight": 0}], "Effects": [], "Asset": assets.get("JumpingSpider"), "Special": None}
+,"Dave (Displeased)": {"Attacks": [{"AttackType": "Web Shot", "Weight": 10}], "Stats": {"MaxHealth": 9999, "CurrentHp": 9999, "Regen": 9,
+          "Defence": 99, "MagicDefence": 99, 
+          "Strength": 1, "MagicPower": 1, "CritChance": 1, "CritPower": 111, "TrueAttack": 1, "TrueDefence": 99}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 1, "Max": 10, "Weight": 0}, {"Item": "Exp", "Min": 1, "Max": 10, "Weight": 0}], "Effects": [], "Asset": assets.get("JumpingSpider"), "Special": None}
+
+
+,"Door": {"Attacks": [{"AttackType": "Web Shot", "Weight": 10}], "Stats": {"MaxHealth": 99999, "CurrentHp": 99999, "Regen": 100,
+          "Defence": 100000, "MagicDefence": 100000, 
+          "Strength": 100, "MagicPower": 100, "CritChance": 0, "CritPower": 0, "TrueAttack": 1, "TrueDefence": 100000}, "SpawnChance": 1, "Drops": [{"Item": None, "Weight": 10}, {"Item": "Research", "Min": 400, "Max": 600, "Weight": 0}, {"Item": "Exp", "Min": 1000, "Max": 2500, "Weight": 0}, {"Item": "Jump Scroll", "Weight": 3}, {"Item": "Leap Scroll", "Weight": 3}], "Effects": [], "Asset": assets.get("JumpingSpider"), "Special": None}
+
+
 }
 for dictionary in [attacks,enemies]:
     for key in dictionary:
@@ -1756,7 +1772,7 @@ def AddResearch(Research: int):
                 Research *= (1 + 0.5 * battles)
             elif str(upgrade) is "Research":
                 Research *= (1 + research ** 0.125)
-    return Research * 1.2
+    return Research * 2
 
 def BuyUpgrade(Type: str, Number: int):
     global ResearchUpgrades, MechanicUpgrades, StatUpgrades, research, player, LockedAttacks
@@ -2243,7 +2259,7 @@ while True:
         except OverflowError:
             max_experience = round((math.log((math.e / 2) ** (level - 1) + math.gamma(45 ** 1.35)/(level ** (level / 4)), max(10 * math.pi / level, 1 + 1/((level - 35) ** 1.75 + 1.1 ** (level - 40)))) + 0.798935) * 100)
         LevelUp = True
-    light = len(ClearedRooms) + 999
+    light = len(ClearedRooms)
     research = round(research)
     for i in ClearedRooms:
         if highestHierarchy < i[0]:
@@ -2404,6 +2420,7 @@ while True:
 
 
     elif phase.lower() == "map":
+        Minigaming = True
         if MainClock- firstFrame>=100:
             YiPyterminal.clearDebugMessages() 
         if not GetRoomLoc:
@@ -3407,17 +3424,15 @@ while True:
             YiPyterminal.renderItem(item, screenLimits=None)
         # YiPyterminal.addDebugMessage("Player Health: "+str(player["CurrentHp"])+"/"+str(player["MaxHealth"])+" | "+str(UltimateCharge))
 
-    if keyboard.is_pressed("c"):
-        # research += 1
-        # research *= 2
-        research += AddResearch(1)
-        research *= 2
+    # if keyboard.is_pressed("c"):
+    #     research += AddResearch(1)
+    #     research *= 2
     
     # if keyboard.is_pressed("v"):
     #     Shop = True
     #     DisableOther = True
 
-    if not Minigaming:
+    if not Minigaming and not (phase.lower() == "map"):
         Ui = False
         pyterm.renderItem("MinigameUi")
         if attacks[FocusPlayerAttack[1]]["Minigames"][0]["Name"] in ["BlackHole", "Reaction", "Shielded", "CircleDefend", "DodgeGrid", "Rain"]:
@@ -4591,18 +4606,18 @@ while True:
         else:
             if (pyterm.getTopLeft("LevelUpStats")[0] <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 23) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
                 pyterm.changeCurrentItemFrame("LevelUpHover", 0)
-                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1], screenLimits=(999,999))
                 if LeftClick:
                     player["MaxHealth"] += 5
                     player["CurrentHp"] += 5
-                    player["Defence"] += 10
-                    player["MagicDefence"] += 10
+                    player["Defence"] += 12
+                    player["MagicDefence"] += 12
                     DisableOther = False
                     LevelUp = False
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             elif (pyterm.getTopLeft("LevelUpStats")[0] + 24 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 47) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
                 pyterm.changeCurrentItemFrame("LevelUpHover", 1)
-                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1], screenLimits=(999,999))
                 if LeftClick:
                     player["MaxHealth"] += 5
                     player["CurrentHp"] += 5
@@ -4613,7 +4628,7 @@ while True:
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             elif (pyterm.getTopLeft("LevelUpStats")[0] + 48 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 71) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
                 pyterm.changeCurrentItemFrame("LevelUpHover", 2)
-                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1], screenLimits=(999,999))
                 if LeftClick:
                     player["MaxHealth"] += 5
                     player["CurrentHp"] += 5
@@ -4624,7 +4639,7 @@ while True:
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             elif (pyterm.getTopLeft("LevelUpStats")[0] + 72 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 95) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
                 pyterm.changeCurrentItemFrame("LevelUpHover", 3)
-                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1], screenLimits=(999,999))
                 if LeftClick:
                     player["MaxHealth"] += 5
                     player["CurrentHp"] += 5
@@ -4635,7 +4650,7 @@ while True:
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             elif (pyterm.getTopLeft("LevelUpStats")[0] + 96 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 119) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
                 pyterm.changeCurrentItemFrame("LevelUpHover", 4)
-                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1], screenLimits=(999,999))
                 if LeftClick:
                     player["MaxHealth"] += 5
                     player["CurrentHp"] += 5
@@ -4646,7 +4661,7 @@ while True:
                     itemObjects["LevelUpTransition"]["current frame"] = 0
             elif (pyterm.getTopLeft("LevelUpStats")[0] + 120 <= location[0] <= pyterm.getTopLeft("LevelUpStats")[0] + 143) and (pyterm.getTopLeft("LevelUpStats")[1] <= location[1] <= pyterm.getTopLeft("LevelUpStats")[1] + 11):
                 pyterm.changeCurrentItemFrame("LevelUpHover", 5)
-                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1])
+                pyterm.renderItem("LevelUpHover", xBias = location[0], yBias = location[1], screenLimits=(999,999))
                 if LeftClick:
                     player["MaxHealth"] += 5
                     player["CurrentHp"] += 5

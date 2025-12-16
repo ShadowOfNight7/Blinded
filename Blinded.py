@@ -2201,15 +2201,17 @@ InventoryState = 0
 
 pyterm.createItem("Ending", [assets.get("Ending")], "screen", "center", "center", 0, 0, 0)
 def End():
-    global DisableOther, LeftClick, LeftClickCopy, location, light
+    global DisableOther, LeftClick, LeftClickCopy, location, light, ClearedRooms
     DisableOther = True
     LeftClick = LeftClickCopy
     pyterm.renderItem("Ending")
-    if (pyterm.getBottomLeft()[0] + 1 <= location[0] <= pyterm.getBottomLeft()[0] + 16) and (round(location[1]) == pyterm.getBottomLeft()[0] - 1) and LeftClick:
-        light = 100
+    if (pyterm.getBottomLeft("Ending")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Ending")[0] + 16) and (round(location[1]) == pyterm.getBottomLeft("Ending")[1] - 1) and LeftClick:
+        for i in range(9):
+            ClearedRooms.append((-1, 1))
         DisableOther = False
-    elif (pyterm.getBottomRight()[0] - 1 <= location[0] <= pyterm.getBottomRight()[0] - 16) and (round(location[1]) == pyterm.getBottomLeft()[0] - 1) and LeftClick:
-        os.sys("exit")
+    elif (pyterm.getBottomRight("Ending")[0] - 1 >= location[0] >= pyterm.getBottomRight("Ending")[0] - 16) and (round(location[1]) == pyterm.getBottomLeft("Ending")[1] - 1) and LeftClick:
+        while True:
+            print()
     
 
 

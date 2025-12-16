@@ -468,7 +468,7 @@ def TrackingMinigame(location, Character: int, SpawnRate: int, SpeedRange: float
         trackingMinigame["SpawnRate"] = SpawnRate
         trackingMinigame["DespawnRate"] = DespawnRate
         trackingMinigame["Hurt"] = []
-        trackingMinigame["Location"] = [0, 3]
+        trackingMinigame["Location"] = [0, 5]
     pyterm.renderLiteralItem(str(assets["GridMove"]), 0, 0, "center", "center")
     if keyboard.is_pressed("w"):
         trackingMinigame["Location"][1] -= 0.2

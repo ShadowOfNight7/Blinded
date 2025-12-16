@@ -846,8 +846,8 @@ def UseInvItem(Item):
         Equipment["Offhand"] = Item
         RemoveInvItem(Item)
     elif Item["Type"] == "Accessory":
-        UnequipInvItem(Equipment["Extra"])
-        Equipment["Extra"] = Item
+        UnequipInvItem(Equipment["Accessory"])
+        Equipment["Accessory"] = Item
         RemoveInvItem(Item)
     elif Item["Type"] == "Consumable":
         for effect in Item["Effects"]:
@@ -991,40 +991,41 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
     if Attack != None:
         if Equipment["Weapon"] != None:
             if "Enchant" in Equipment["Weapon"].keys():
-                if "Poisoning" in Equipment["Weapon"]["Enchant"]:
-                    if "+" in Equipment["Weapon"]["Enchant"]:
-                        mob["Effects"].append({"Stat": "Strength", "Potency": -25, "Time": 4})
-                    else:
-                        mob["Effects"].append({"Stat": "Strength", "Potency": -10, "Time": 2})
-                if "Burning" in Equipment["Weapon"]["Enchant"]:
-                    if "+" in Equipment["Weapon"]["Enchant"]:
-                        mob["Effects"].append({"Stat": "CurrentHp", "Potency": -70, "Time": 4})
-                    else:
-                        mob["Effects"].append({"Stat": "CurrentHp", "Potency": -30, "Time": 2})
-                if "Sharpened" in Equipment["Weapon"]["Enchant"]:
-                    if "+" in Equipment["Weapon"]["Enchant"]:
-                        playercopy["Strength"] *= 1.25
-                    else:
-                        playercopy["Strength"] *= 1.1
-                if "Embued" in Equipment["Weapon"]["Enchant"]:
-                    if "+" in Equipment["Weapon"]["Enchant"]:
-                        playercopy["MagicPower"] *= 1.25
-                    else:
-                        playercopy["MagicPower"] *= 1.1
-                if "Swift" in Equipment["Weapon"]["Enchant"]:
-                    if "+" in Equipment["Weapon"]["Enchant"]:
-                        playercopy["Dexterity"] *= 1.35
-                    else:
-                        playercopy["Dexterity"] *= 1.15
-                if "Dev" in Equipment["Weapon"]["Enchant"]:
-                    if "+" in Equipment["Weapon"]["Enchant"]:
-                        for i in playercopy.keys():
-                            playercopy[i] *= 999999999
-                        for i in player.keys():
-                            player[i] *= 999999999
-                    else:
-                        for i in playercopy.keys():
-                            playercopy[i] *= 999
+                if Equipment["Weapon"]["Enchant"] != False:
+                    if "Poisoning" in Equipment["Weapon"]["Enchant"]:
+                        if "+" in Equipment["Weapon"]["Enchant"]:
+                            mob["Effects"].append({"Stat": "Strength", "Potency": -25, "Time": 4})
+                        else:
+                            mob["Effects"].append({"Stat": "Strength", "Potency": -10, "Time": 2})
+                    if "Burning" in Equipment["Weapon"]["Enchant"]:
+                        if "+" in Equipment["Weapon"]["Enchant"]:
+                            mob["Effects"].append({"Stat": "CurrentHp", "Potency": -70, "Time": 4})
+                        else:
+                            mob["Effects"].append({"Stat": "CurrentHp", "Potency": -30, "Time": 2})
+                    if "Sharpened" in Equipment["Weapon"]["Enchant"]:
+                        if "+" in Equipment["Weapon"]["Enchant"]:
+                            playercopy["Strength"] *= 1.25
+                        else:
+                            playercopy["Strength"] *= 1.1
+                    if "Embued" in Equipment["Weapon"]["Enchant"]:
+                        if "+" in Equipment["Weapon"]["Enchant"]:
+                            playercopy["MagicPower"] *= 1.25
+                        else:
+                            playercopy["MagicPower"] *= 1.1
+                    if "Swift" in Equipment["Weapon"]["Enchant"]:
+                        if "+" in Equipment["Weapon"]["Enchant"]:
+                            playercopy["Dexterity"] *= 1.35
+                        else:
+                            playercopy["Dexterity"] *= 1.15
+                    if "Dev" in Equipment["Weapon"]["Enchant"]:
+                        if "+" in Equipment["Weapon"]["Enchant"]:
+                            for i in playercopy.keys():
+                                playercopy[i] *= 999999999
+                            for i in player.keys():
+                                player[i] *= 999999999
+                        else:
+                            for i in playercopy.keys():
+                                playercopy[i] *= 999
 
             for effect in attacks[Attack]["Effects"]:
                 if effect["Target"] == "Self":
@@ -1071,12 +1072,13 @@ def PlayerAttack(Enemy: int, Attack = None, minigame = False):
         else:
             mob["Stats"]["CurrentHp"] -= round((MeleeDamage + MagicDamage + TrueDamage) * (1.2 if (SevenBuff == "Wrath") and (player["CurrentHp"]/player["MaxHealth"] <= 1/3) else 1) * 10)/10
         if Equipment["Weapon"] != None:
-            if "Enchant" in Equipment["Weapon"].keys():
-                if "Lifesteal" in Equipment["Weapon"]["Enchant"]:
-                    if "+" in Equipment["Weapon"]["Enchant"]:
-                        Heal += 12
-                    else:
-                        Heal += 5
+            if Equipment["Weapon"]["Enchant"] != False:
+                if "Enchant" in Equipment["Weapon"].keys():
+                    if "Lifesteal" in Equipment["Weapon"]["Enchant"]:
+                        if "+" in Equipment["Weapon"]["Enchant"]:
+                            Heal += 12
+                        else:
+                            Heal += 5
         player["CurrentHp"] += round(Heal*10)/10
         score = 0
         AttackTest.score = 0
@@ -1138,13 +1140,14 @@ def EnemyAttack(Attack, Enemy: int, guard = False):
     #Math
     if Equipment["Weapon"] != None:
         if "Enchant" in Equipment["Weapon"].keys():
-            if "Defensive" in Equipment["Weapon"]["Enchant"]:
-                if "+" in Equipment["Weapon"]["Enchant"]:
-                    mobcopy["Stats"]["Strength"] -= 30
-                    mobcopy["Stats"]["MagicPower"] -= 30
-                else:
-                    mobcopy["Stats"]["Strength"] -= 12
-                    mobcopy["Stats"]["MagicPower"] -= 12
+            if Equipment["Weapon"]["Enchant"] != False:
+                if "Defensive" in Equipment["Weapon"]["Enchant"]:
+                    if "+" in Equipment["Weapon"]["Enchant"]:
+                        mobcopy["Stats"]["Strength"] -= 30
+                        mobcopy["Stats"]["MagicPower"] -= 30
+                    else:
+                        mobcopy["Stats"]["Strength"] -= 12
+                        mobcopy["Stats"]["MagicPower"] -= 12
     for effect in attacks[Attack]["Effects"]:
             if effect["Target"] == "Self":
                 mob["Effects"].append(effect)
@@ -1230,7 +1233,7 @@ def Minigame(Name: str, Args: dict):
     
 
 def MobDrops(MobNum):
-    global player, mobsStatus, research, enemiesKilled, experience, Items, TotalItems, TotalResearch, TotalExp, Inventory
+    global player, mobsStatus, research, enemiesKilled, experience, Items, TotalItems, TotalResearch, TotalExp, Inventory, enemiesKilled
     mob = mobsStatus[MobNum]["Drops"]
     weight = 0
     for drop in mob:
@@ -1239,7 +1242,7 @@ def MobDrops(MobNum):
             research += addedRESEARCH
             TotalResearch += addedRESEARCH
         elif drop["Item"] == "Exp":
-            experience_1 = random.randint(round(drop["Min"]), round(drop["Max"])) * (math.log(enemiesKilled/3 + 1, 3) if SevenBuff == "Desire" else 1)
+            experience_1 = random.randint(round(drop["Min"]), round(drop["Max"])) * (math.log(enemiesKilled/3 + 1, 3) if SevenBuff == "Desire" else 1) * (round(enemiesKilled/3) + 1)
             TotalExp += experience_1
             experience += experience_1
         else:
@@ -1377,12 +1380,12 @@ Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("s
         #  "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
         #  "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
         #  "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "apple"}, "Description": "A powerful sword", "Id": None},
-         "Monocle": {"Name": "Monocle", "Type": "Extra", "Asset": assets.get("Monocle"), "Stats": {"MagicPower": 30, "CurrentHp": -5}, "Enchant": False, "Description": "Who left this here? Strange glistens show within the monocle, almost shining with aura. Boosts Magic Power, at a cost of -5 hp per turn.", "Id": None},
-         "Miracle Gem": {"Name": "Miracle Gem", "Type": "Extra", "Asset": assets.get("Miracle Gem"), "Stats": {"CurrentHp": -1, "CurrentMana": 5}, "Enchant": False, "Description": "A gem that feels like it’s pulsating attached to a thin string of pure mana. Once on, it almost feels draining, yet replenishing? -1 hp +5 mana per turn.", "Id": None},
-         "Delicate Flower": {"Name": "Delicate Flower", "Type": "Extra", "Asset": assets.get("Delicate Flower"), "Stats": {"CurrentHp": 5}, "Enchant": False, "Description": "A calming yet almost fragile peace emanates from the petals of this small bloom. Heals 5 hp per turn.", "Id": None},
+         "Monocle": {"Name": "Monocle", "Type": "Accessory", "Asset": assets.get("Monocle"), "Stats": {"MagicPower": 30, "CurrentHp": -5}, "Enchant": False, "Description": "Strange glistens show within the monocle. Boosts Magic Power, at a cost of -5 hp per turn.", "Id": None},
+         "Miracle Gem": {"Name": "Miracle Gem", "Type": "Accessory", "Asset": assets.get("Miracle Gem"), "Stats": {"CurrentHp": -1, "CurrentMana": 5}, "Enchant": False, "Description": "it's pulsating and attached to a thin string of pure mana. -1 hp +5 mana per turn.", "Id": None},
+         "Delicate Flower": {"Name": "Delicate Flower", "Type": "Accessory", "Asset": assets.get("Delicate Flower"), "Stats": {"CurrentHp": 5}, "Enchant": False, "Description": "A calming peace emanates from the petals of this small bloom. Heals 5 hp per turn.", "Id": None},
          "Creepy Idol": {"Name": "Creepy Idol", "Type": "Offhand", "Asset": assets.get("Creepy Idol"), "Stats": {"Intelligence": 100}, "Enchant": False, "Description": "An ominous glare observes your every move. It seems to increase your intelligence...", "Id": None},
-         "Shield": {"Name": "Shield", "Type": "Offhand", "Asset": assets.get("Shield"), "Stats": {"Defence": 30, "MagicDefence": 30}, "Enchant": False, "Description": "A shield made of pure void. It looks like it can swallow anything, like a black hole. Boosts defence and magic defence.", "Id": None},
-         "Pocket Watch": {"Name": "Pocket Watch", "Type": "Offhand", "Asset": assets.get("Pocket Watch"), "Stats": {"Dexterity": 50}, "Enchant": False, "Description": "A golden, scratched watch with a long golden chain. Opening it reveals the glass cracked and endless sand pouring out. Boosts dexterity by a ton.", "Id": None},
+         "Shield": {"Name": "Shield", "Type": "Offhand", "Asset": assets.get("Shield"), "Stats": {"Defence": 30, "MagicDefence": 30}, "Enchant": False, "Description": "A shield made of pure void. Boosts defence and magic defence.", "Id": None},
+         "Pocket Watch": {"Name": "Pocket Watch", "Type": "Offhand", "Asset": assets.get("Pocket Watch"), "Stats": {"Dexterity": 50}, "Enchant": False, "Description": "A golden, scratched watch with a long golden chain. Boosts dexterity by a ton.", "Id": None},
 
          "Iron Chestplate": {"Name": "Iron Chestplate", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 50, "MagicDefence": 20, "Regen": 0}, "Enchant": False, "Description": "A tough, silver chestplate that defends against melee attacks well.", "Id": None},
          "Gilded Chestplate": {"Name": "Golden Chestplate", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 70, "MagicDefence": 30, "Regen": 10}, "Enchant": False, "Description": "Made of strange, enhanced gold. Withstands absurd damage.", "Id": None},
@@ -1391,12 +1394,12 @@ Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("s
          "Eternality": {"Name": "Eternality", "Type": "Armor", "Asset": assets.get("Chestplate"), "Stats": {"Defence": 100, "MagicDefence": 100, "Regen": 20}, "Enchant": False, "Description": "Lasts for eternity. Gives you a mere fraction of its strength.", "Id": None},
 
 
-         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "The most trusty companion a warrior could have. A weapon of precision and dexterity.", "Id": None},
-         "Axe": {"Name": "Axe", "Type": "Weapon", "Asset": assets.get("Axe"), "Stats": {"Skill": 5, "Strength": 30, "Dexterity": -5}, "Enchant": False, "Ultimate": {"Description": "Pierce through the skies.", "Ultimate": "Piercing Power"}, "Description": "A strength based alternative to the sword. Shield breaker and mighty log smasher.", "Id": None},
-         "Spear": {"Name": "Spear", "Type": "Weapon", "Asset": assets.get("Spear"), "Stats": {"Skill": 15, "Strength": 0, "Dexterity": 45}, "Enchant": False, "Ultimate": {"Description": "And even further.", "Ultimate": "Strike the Heavens"}, "Description": "Precise and accurate polearm. Deadly in the right hands. Harmless in some.", "Id": None},
-         "Wand": {"Name": "Wand", "Type": "Weapon", "Asset": assets.get("Wand"), "Stats": {"Intelligence": 10, "MagicPower": 10, "CastingSpeed": 40}, "Enchant": False, "Ultimate": {"Description": "Shocking", "Ultimate": "Storms of Lighting"}, "Description": "A small stick that emits a warmth when touched. Mana is quickly processed through the wand and shot out at lightning quick rates.", "Id": None},
-         "Staff": {"Name": "Staff", "Type": "Weapon", "Asset": assets.get("Staff"), "Stats": {"Intelligence": 10, "MagicPower": 30, "CastingSpeed": 10}, "Enchant": False, "Ultimate": {"Description": "You feel as if you are filled with pure electricity.", "Ultimate": "Overcharge"}, "Description": "A large staff with a magical core fused into the centre, letting mana compound inside its wooden head.", "Id": None},
-         "Mace": {"Name": "Mace", "Type": "Weapon", "Asset": assets.get("Mace"), "Stats": {"Intelligence": 100, "MagicPower": 15, "CastingSpeed": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Laser of Retribution"}, "Description": "A blade weapon not meant for strength. Each point on its surface concentrates the mana within it multiple-fold.", "Id": None},
+         "Sword": {"Name": "Sword", "Type": "Weapon", "Asset": assets.get("sword"), "Stats": {"Skill": 30, "Strength": 10, "Dexterity": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Blade of Glory"}, "Description": "The most trusty companion a warrior could have", "Id": None},
+         "Axe": {"Name": "Axe", "Type": "Weapon", "Asset": assets.get("Axe"), "Stats": {"Skill": 5, "Strength": 30, "Dexterity": -5}, "Enchant": False, "Ultimate": {"Description": "Pierce through the skies.", "Ultimate": "Piercing Power"}, "Description": "A strength based alternative to the sword.", "Id": None},
+         "Spear": {"Name": "Spear", "Type": "Weapon", "Asset": assets.get("Spear"), "Stats": {"Skill": 15, "Strength": 0, "Dexterity": 45}, "Enchant": False, "Ultimate": {"Description": "And even further.", "Ultimate": "Strike the Heavens"}, "Description": "Precise and accurate polearm. Deadly in the right hands.", "Id": None},
+         "Wand": {"Name": "Wand", "Type": "Weapon", "Asset": assets.get("Wand"), "Stats": {"Intelligence": 10, "MagicPower": 10, "CastingSpeed": 40}, "Enchant": False, "Ultimate": {"Description": "Shocking", "Ultimate": "Storms of Lighting"}, "Description": "Mana is quickly processed through the wand and shot out at lightning quick rates.", "Id": None},
+         "Staff": {"Name": "Staff", "Type": "Weapon", "Asset": assets.get("Staff"), "Stats": {"Intelligence": 10, "MagicPower": 30, "CastingSpeed": 10}, "Enchant": False, "Ultimate": {"Description": "You feel as if you are filled with pure electricity.", "Ultimate": "Overcharge"}, "Description": "A large staff with a magical core fused into the centre.", "Id": None},
+         "Mace": {"Name": "Mace", "Type": "Weapon", "Asset": assets.get("Mace"), "Stats": {"Intelligence": 100, "MagicPower": 15, "CastingSpeed": 5}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Laser of Retribution"}, "Description": "Each point on its surface concentrates the mana within it multiple-fold.", "Id": None},
          "Ring": {"Name": "Ring", "Type": "Weapon", "Asset": assets.get("Ring"), "Stats": {"Skill": 15, "Strength": 15, "Dexterity": 15, "Intelligence": 15, "MagicPower": 15, "CastingSpeed": 15}, "Enchant": False, "Ultimate": {"Description": "Power.", "Ultimate": "Balance"}, "Description": "A Wearable object with glyphs and symbols etched into it. Glows faintly when touched", "Id": None},
 
          "Health Potion": {"Name": "Health Potion", "Type": "Consumable", "Asset": assets.get("PotionHealth"), "Effects": [{"Stat": "CurrentHp", "Potency": 20, "Time": 1}], "Description": "A green potion which heals 20hp.", "Id": None},
@@ -1415,7 +1418,7 @@ Items = {"Apple": {"Name": "Apple", "Type": "Consumable", "Asset": assets.get("s
 
 #sword = {"Name": "The Death Star", "Type": "Weapon", "Asset": assets.get(""), "Stats": {"Dexterity": 1, "Strength": 1, "Accuracy": 1}, "Ultimate": {"Description": "apple", "..."}, "Description": "A death star that's deadly and a star.", "Id": None}
 #apple = {"Name": "Apple", "Type": Consumable", "Asset": "", "Effects": [{"Type": Strength, "Time": 3, "Potency": 1, "Apply": "Player"},{"Type": "Damage", "Potency": 999, "Apply": "AllEnemy"}], "Description": "Could be used to make pie", "Id": None}
-Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Extra": None}
+Equipment = {"Armor": None, "Weapon": None, "Offhand": None, "Accessory": None}
 EquippedAttacks = {"Attack0": "Punch", "Attack1": "", "Attack2": "", "Attack3": "", "Attack4": "", "Attack5": "","Attack6": "","Attack7": "",}
 LockedAttacks = {"Attack0": False, "Attack1": False, "Attack2": False, "Attack3": False, "Attack4": True, "Attack5": True,"Attack6": True,"Attack7": True,}
 EquippedUltimate = "Punch++"
@@ -1509,7 +1512,7 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             "Devour": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 100, "Energy": 30, "Mana": 20, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 15 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 0.7}}], "Effects": [], "Special": ["Damage100"]}, #15 * 1.6 = 24dmg avg
             #Slime (Corrosive)
             "Corrode": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 0, "Mana": 20, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (30, 65), "Time": 10 * pyterm.FPS, "SpawnRate": 0.01 * pyterm.FPS, "InverseBias": 4, "ScoreMulti": 2}}], "Effects": [], "Special": ["Damage100"]}, #
-            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 30, "Accuracy": 65, "Energy": 0, "Mana": 30, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1, "Arg": {"Character": "O", "SpawnRate": 0.025 * pyterm.FPS, "SpeedRange": (15, 25), "DespawnRate": 4 * pyterm.FPS, "Time": 20 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": ["Damage100"]}, #10 * 1.5 = 15 dmg * 65% acc = 9.75dmg, 
+            "Dissolve": {"BasePowerMelee": 10, "BasePowerMagic": 25, "Accuracy": 65, "Energy": 0, "Mana": 60, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1, "Arg": {"Character": "O", "SpawnRate": 0.025 * pyterm.FPS, "SpeedRange": (15, 25), "DespawnRate": 4 * pyterm.FPS, "Time": 20 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": None}, #10 * 1.5 = 15 dmg * 65% acc = 9.75dmg, 
             #Slime (Defensive)
             "Reinforce": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defense", "Potency": 15, "Target": "Self", "Time": 3},{"Stat": "MagicDefense", "Potency": 15, "Target": "Self", "Time": 3}], "Special": None},
             "Intimidate": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": -20, "Target": "Enemy", "Time": 5}], "Special": None},
@@ -1519,52 +1522,52 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             "Slime Rollout": {"BasePowerMelee": 30, "BasePowerMagic": 0, "Accuracy": 95, "Energy": 50, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 20 * pyterm.FPS, "Unpredictability": 60, "MaxWait": 1 * pyterm.FPS, "ScoreMulti": 0.5}}], "Effects": [], "Special": ["Damage100"]}, #30 * 2.5 = 70 dmg * 95% acc = 66.5dmg avg (Lower Weight)
             
             #Goblin
-            "Stab": {"BasePowerMelee": 12, "BasePowerMagic": 5, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Pierce20", "Damage100"]},
+            "Stab": {"BasePowerMelee": 12, "BasePowerMagic": 5, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Reaction", "Weight": 1, "Arg": {"TimeRange": (1 * pyterm.FPS, 2 * pyterm.FPS), "Repetitions": 4, "ScoreMulti": 0.32}}], "Effects": [], "Special": ["Pierce20", "Damage100"]},
             "Charge": {"BasePowerMelee": 15, "BasePowerMagic": 5, "Accuracy": 100, "Energy": 5, "Mana": 5, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
-            "Headbutt": {"BasePowerMelee": 25, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 30, "Mana": 5, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -30, "Target": "Enemy", "Time": 2}], "Special": ["Damage100"]},
+            "Headbutt": {"BasePowerMelee": 25, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 30, "Mana": 5, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 20 * pyterm.FPS, "Unpredictability": 40, "MaxWait": 2 * pyterm.FPS, "ScoreMulti": 0.8}}], "Effects": [{"Stat": "Strength", "Potency": -30, "Target": "Enemy", "Time": 2}], "Special": ["Damage100"]},
             #Range
-            "Shoot": {"BasePowerMelee": 25, "BasePowerMagic": 15, "Accuracy": 50, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Pierce50", "Damage50"]},
-            "Fire": {"BasePowerMelee": 20, "BasePowerMagic": 5, "Accuracy": 65, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -10, "Target": "Enemy", "Time": 3}], "Special": ["Damage50"]},
+            "Shoot": {"BasePowerMelee": 25, "BasePowerMagic": 15, "Accuracy": 50, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Aim", "Weight": 1, "Arg": {"Speedrange": (3, 5), "Repeats": 8, "ScoreMulti": 1.5}}], "Effects": [], "Special": ["Pierce50", "Damage50"]},
+            "Fire": {"BasePowerMelee": 20, "BasePowerMagic": 5, "Accuracy": 65, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Aim", "Weight": 1, "Arg": {"Speedrange": (5, 10), "Repeats": 4, "ScoreMulti": 3}}], "Effects": [{"Stat": "CurrentHp", "Potency": -10, "Target": "Enemy", "Time": 3}], "Special": ["Damage50"]},
             #Dart
-            "Blowdart": {"BasePowerMelee": 35, "BasePowerMagic": 0, "Accuracy": 30, "Energy": 60, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Pierce50", "Damage50"]},
-            "Breathe": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 10, "Target": "Self", "Time": 3}], "Special": None},
+            "Blowdart": {"BasePowerMelee": 35, "BasePowerMagic": 0, "Accuracy": 30, "Energy": 60, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Spam", "Weight": 1, "Arg": {"Time": 16 * pyterm.FPS, "ScoreMulti": 0.5}}], "Effects": [], "Special": ["Pierce50", "Damage50"]},
+            "Breathe": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Reaction", "Weight": 1, "Arg": {"TimeRange": (3 * pyterm.FPS, 5 * pyterm.FPS), "Repetitions": 2, "ScoreMulti": 1.5}}], "Effects": [{"Stat": "Strength", "Potency": 10, "Target": "Self", "Time": 3}], "Special": None},
 
             #Wolf
             "Howl": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defence", "Potency": -20, "Target": "Enemy", "Time": 3}], "Special": ["Pierce20"]},
-            "Bite": {"BasePowerMelee": 20, "BasePowerMagic": 10, "Accuracy": 95, "Energy": 15, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
-            "Ferocious Swipe": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Percent5"]},
+            "Bite": {"BasePowerMelee": 20, "BasePowerMagic": 10, "Accuracy": 95, "Energy": 15, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 8 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.4, "Unpredictability": 80, "ScoreMulti": 1.6}}], "Effects": [], "Special": ["Damage100"]},
+            "Ferocious Swipe": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleDefend", "Weight": 1, "Arg": {"SpawnRate": 0.25 * pyterm.FPS, "SpeedRange": (20, 45), "Time": 15 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [], "Special": ["Percent5"]},
             #Silver
-            "Claw": {"BasePowerMelee": 5, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -10, "Target": "Enemy", "Time": 3}], "Special": ["Damage200"]},
-            "Shining Ram": {"BasePowerMelee": 20, "BasePowerMagic": 20, "Accuracy": 70, "Energy": 20, "Mana": 20, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Claw": {"BasePowerMelee": 5, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Targets", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Duration": 0.8 * pyterm.FPS, "Time": 10 * pyterm.FPS, "ScoreMulti": 2}}], "Effects": [{"Stat": "CurrentHp", "Potency": -10, "Target": "Enemy", "Time": 3}], "Special": ["Damage200"]},
+            "Shining Ram": {"BasePowerMelee": 20, "BasePowerMagic": 20, "Accuracy": 70, "Energy": 20, "Mana": 20, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 10 * pyterm.FPS, "Unpredictability": 100, "MaxWait": 0.8 * pyterm.FPS, "ScoreMulti": 0.75}}], "Effects": [], "Special": ["Damage100"]},
             #Alpha
             "Endurance": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 95, "Energy": 10, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defence", "Potency": 20, "Target": "Self", "Time": 3}, {"Stat": "MagicDefence", "Potency": 20, "Target": "Self", "Time": 3}], "Special": None},
-            "Shread": {"BasePowerMelee": 30, "BasePowerMagic": 10, "Accuracy": 80, "Energy": 30, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Percent10"]},
+            "Shread": {"BasePowerMelee": 30, "BasePowerMagic": 10, "Accuracy": 80, "Energy": 30, "Mana": 10, "Cooldown": 0, "Minigames": [{"Name": "Spam", "Weight": 1, "Arg": {"Time": 4 * pyterm.FPS, "ScoreMulti": 2}}], "Effects": [], "Special": ["Percent10"]},
 
             #Orc
-            "Smack": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 15, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
-            "Stomp": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
-            "Shockwave": {"BasePowerMelee": 30, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 25, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Smack": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 15, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 5 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 0.3, "Unpredictability": 15, "ScoreMulti": 2.2}}], "Effects": [], "Special": ["Damage100"]},
+            "Stomp": {"BasePowerMelee": 25, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 5 * pyterm.FPS, "Unpredictability": 30, "MaxWait": 0.5 * pyterm.FPS, "ScoreMulti": 2}}], "Effects": [], "Special": ["Damage100"]},
+            "Shockwave": {"BasePowerMelee": 30, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 25, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (20, 65), "Time": 15 * pyterm.FPS, "SpawnRate": 0.015 * pyterm.FPS, "InverseBias": 5, "ScoreMulti": 1.5}}], "Effects": [], "Special": ["Damage100"]},
             #Cyclops
             "Focus": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 20, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 30, "Target": "Self", "Time": 3}], "Special": ["Damage100"]},
-            "Eye Beam": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 90, "Energy": 0, "Mana": 25, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
-            "Hypnotise": {"BasePowerMelee": 25, "BasePowerMagic": 25, "Accuracy": 60, "Energy": 0, "Mana": 30, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CritChance", "Potency": -10, "Target": "Enemy", "Time": 5}], "Special": ["Damage100"]},
+            "Eye Beam": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 90, "Energy": 0, "Mana": 25, "Cooldown": 0, "Minigames": [{"Name": "Keyboard", "Weight": 1, "Arg": {"Inputs": "a b c d e f g h i j k l m n o p q r s t u v w x y z".split(" "), "Speed": 0.5 * pyterm.FPS, "Time": 7 * pyterm.FPS, "ScoreMulti": 1.5}}], "Effects": [], "Special": ["Damage100"]},
+            "Hypnotise": {"BasePowerMelee": 25, "BasePowerMagic": 25, "Accuracy": 60, "Energy": 0, "Mana": 30, "Cooldown": 0, "Minigames": [{"Name": "SimonSays", "Weight": 1, "Arg": {"Amount": 8, "Initial Speed": 30, "Time": 20 * pyterm.FPS, "ScoreMulti": 1}}], "Effects": [{"Stat": "CritChance", "Potency": -10, "Target": "Enemy", "Time": 5}], "Special": ["Damage100"]},
             #Armored
-            "Slam": {"BasePowerMelee": 35, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 30, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Slam": {"BasePowerMelee": 35, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 30, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleDefend", "Weight": 1, "Arg": {"SpawnRate": 0.175 * pyterm.FPS, "SpeedRange": (35, 50), "Time": 25 * pyterm.FPS, "ScoreMulti": 0.5}}], "Effects": [], "Special": ["Damage100"]},
             "Guard": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 50, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Defence", "Potency": 50, "Target": "Self", "Time": 5}], "Special": ["Damage100"]},
             #All-seeing
-            "Intense Glare": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 95, "Energy": 0, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
-            "Honed Club": {"BasePowerMelee": 20, "BasePowerMagic": 35, "Accuracy": 90, "Energy": 15, "Mana": 30, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Damage100"]},
+            "Intense Glare": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 95, "Energy": 0, "Mana": 10, "Cooldown": 0, "Minigames": [{"Name": "SimonSays", "Weight": 1, "Arg": {"Amount": 10, "Initial Speed": 20, "Time": 20 * pyterm.FPS, "ScoreMulti": 0.8}}], "Effects": [], "Special": ["Damage100"]},
+            "Honed Club": {"BasePowerMelee": 20, "BasePowerMagic": 35, "Accuracy": 90, "Energy": 15, "Mana": 30, "Cooldown": 0, "Minigames": [{"Name": "DodgeGrid", "Weight": 1, "Arg": {"Character": "O", "SpeedRange": (30, 65), "Time": 10 * pyterm.FPS, "SpawnRate": 0.01 * pyterm.FPS, "InverseBias": 2, "ScoreMulti": 1.5}}], "Effects": [], "Special": ["Damage100"]},
 
             #Spider
             "Poison": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": ["Damage100"]},
-            "Crawl": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 5, "Mana": 5, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": ["Damage100"]},
-            "Web Shot": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 100, "Energy": 10, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CritPower", "Potency": -50, "Target": "Enemy", "Time": 3}], "Special": ["Damage100"]},
+            "Crawl": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 90, "Energy": 5, "Mana": 5, "Cooldown": 0, "Minigames": [{"Name": "CircleDefend", "Weight": 1, "Arg": {"SpawnRate": 0.2 * pyterm.FPS, "SpeedRange": (35, 45), "Time": 15 * pyterm.FPS, "ScoreMulti": 0.8}}], "Effects": [{"Stat": "Strength", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": ["Damage100"]},
+            "Web Shot": {"BasePowerMelee": 15, "BasePowerMagic": 15, "Accuracy": 100, "Energy": 10, "Mana": 10, "Cooldown": 0, "Minigames": [{"Name": "SimonSays", "Weight": 1, "Arg": {"Amount": 4, "Initial Speed": 10, "Time": 15 * pyterm.FPS, "ScoreMulti": 2}}], "Effects": [{"Stat": "CritPower", "Potency": -50, "Target": "Enemy", "Time": 3}], "Special": ["Damage100"]},
             #Silkweaver
-            "Silk-Blade": {"BasePowerMelee": 25, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "CurrentHp", "Potency": -5, "Target": "Enemy", "Time": 5}], "Special": None},
-            "Blood Drain": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 30, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": ["Lifesteal15", "Damage100"]},
+            "Silk-Blade": {"BasePowerMelee": 25, "BasePowerMagic": 5, "Accuracy": 80, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "BlackHole", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Strength": 400, "Unpredictability": 30, "Time": 8.5 * pyterm.FPS, "ScoreMulti": 0.7}}], "Effects": [{"Stat": "CurrentHp", "Potency": -5, "Target": "Enemy", "Time": 5}], "Special": None},
+            "Blood Drain": {"BasePowerMelee": 20, "BasePowerMagic": 0, "Accuracy": 80, "Energy": 30, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Keyboard", "Weight": 1, "Arg": {"Inputs": "a b c d e f g h i j k l m n o p q r s t u v w x y z".split(" "), "Speed": 0.7 * pyterm.FPS, "Time": 16 * pyterm.FPS, "ScoreMulti": 0.7}}], "Effects": [{"Stat": "Strength", "Potency": -15, "Target": "Enemy", "Time": 3}], "Special": ["Lifesteal15", "Damage100"]},
             #Jump
-            "Jump": {"BasePowerMelee": 10, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Lifesteal25", "Damage100"]},
-            "Leap": {"BasePowerMelee": 11, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [], "Special": ["Lifesteal20", "Damage100"]},
+            "Jump": {"BasePowerMelee": 10, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 12 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 1, "Unpredictability": 10, "ScoreMulti": 2}}], "Effects": [], "Special": ["Lifesteal25", "Damage100"]},
+            "Leap": {"BasePowerMelee": 11, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 20, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "CircleStay", "Weight": 1, "Arg": {"Time": 10 * pyterm.FPS, "Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Speed": 1.35, "Unpredictability": 20, "ScoreMulti": 3}}], "Effects": [], "Special": ["Lifesteal20", "Damage100"]},
 
 
             #Player Attacks
@@ -1580,9 +1583,9 @@ attacks = {"BasicAttack": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy":
             "Aim": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 50, "Time": 5, "Target": "Self"}], "Special": None},
             "Premonition": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 0, "Mana": 10, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 50, "Time": 5, "Target": "Self"}], "Special": None},
             "Weaken": {"BasePowerMelee": 0, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": -50, "Time": 10, "Target": "Enemy"}], "Special": None},
-            "Stab": {"BasePowerMelee": 40, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 5, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "Strength", "Potency": 10, "Time": 7, "Target": "Self"}], "Special": None},
-            "Splash": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 20, "Time": 4, "Target": "Self"}, {"Stat": "MagicDefence", "Potency": -20, "Time": 3, "Target": "Enemy"}], "Special": None},
-            "Tracking Missile": {"BasePowerMelee": 0, "BasePowerMagic": 60, "Accuracy": 100, "Energy": 0, "Mana": 35, "Cooldown": 0, "Minigames": [None], "Effects": [{"Stat": "MagicPower", "Potency": 60, "Time": 2, "Target": "Self"}], "Special": ["Pierce40"]},
+            "Stabs": {"BasePowerMelee": 45, "BasePowerMagic": 0, "Accuracy": 100, "Energy": 5, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Shielded", "Weight": 1, "Arg": {"Range": (round(os.get_terminal_size().columns / 3), round(os.get_terminal_size().lines / 3)), "Time": 10 * pyterm.FPS, "Unpredictability": 100, "MaxWait": 0.1 * pyterm.FPS, "ScoreMulti": 0.2}}], "Effects": [{"Stat": "Strength", "Potency": 10, "Time": 7, "Target": "Self"}], "Special": None},
+            "Splash": {"BasePowerMelee": 0, "BasePowerMagic": 20, "Accuracy": 100, "Energy": 10, "Mana": 0, "Cooldown": 0, "Minigames": [{"Name": "Rain", "Weight": 1, "Arg": {"Character": "O", "SpawnRate": 0.015 * pyterm.FPS, "SpeedRange": (15, 20), "DespawnRate": 5 * pyterm.FPS, "Time": 20 * pyterm.FPS, "ScoreMulti": 0.8}}], "Effects": [{"Stat": "MagicPower", "Potency": 20, "Time": 4, "Target": "Self"}, {"Stat": "MagicDefence", "Potency": -20, "Time": 3, "Target": "Enemy"}], "Special": None},
+            "Tracking Missile": {"BasePowerMelee": 0, "BasePowerMagic": 60, "Accuracy": 100, "Energy": 0, "Mana": 35, "Cooldown": 0, "Minigames": [{"Name": "SimonSays", "Weight": 1, "Arg": {"Amount": 8, "Initial Speed": 15, "Time": 15 * pyterm.FPS, "ScoreMulti": 1.2}}], "Effects": [{"Stat": "MagicPower", "Potency": 60, "Time": 2, "Target": "Self"}], "Special": ["Pierce40"]},
 
 
 
@@ -1759,7 +1762,7 @@ def AddResearch(Research: int):
             if str(upgrade) is "2xResearch":
                 Research *= 2
             elif str(upgrade) is "Kills":
-                Research *= (1 + 0.1 * enemiesKilled)
+                Research *= (1 + 0.25 * enemiesKilled)
             elif str(upgrade) is "Light":
                 Research *= 1.1 ** light
             elif str(upgrade) is "Level":
@@ -2074,7 +2077,7 @@ ShopList = {"Apple": {"PriceRange": (1000, 5000), "LightRequired": 1, "Weight": 
             "Aim Scroll": {"PriceRange": (30000, 70000), "LightRequired": 18, "Weight": 5},
             "Premonition Scroll": {"PriceRange": (30000, 70000), "LightRequired": 18, "Weight": 5},
             "Weaken Scroll": {"PriceRange": (40000, 150000), "LightRequired": 21, "Weight": 5},
-            "Stab Scroll": {"PriceRange": (300000, 850000), "LightRequired": 31, "Weight": 5},
+            "Stabs Scroll": {"PriceRange": (300000, 850000), "LightRequired": 31, "Weight": 5},
             "Splash Scroll": {"PriceRange": (300000, 850000), "LightRequired": 31, "Weight": 5},
             "Health Potion": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
             "Mana Potion": {"PriceRange": (10000, 15000), "LightRequired": 10, "Weight": 7},
@@ -2094,12 +2097,6 @@ ShopList = {"Apple": {"PriceRange": (1000, 5000), "LightRequired": 1, "Weight": 
             "Shield": {"PriceRange": (100000, 200000), "LightRequired": 12, "Weight": 3},
             "Pocket Watch": {"PriceRange": (100000, 200000), "LightRequired": 12, "Weight": 5}
 }
-        #  "Monocle": {"Name": "Monocle", "Type": "Extra", "Asset": assets.get("Monocle"), "Stats": {"MagicPower": 30, "CurrentHp": -5}, "Enchant": False, "Description": "Who left this here? Strange glistens show within the monocle, almost shining with aura. Boosts Magic Power, at a cost of -5 hp per turn.", "Id": None},
-        #  "Miracle Gem": {"Name": "Miracle Gem", "Type": "Extra", "Asset": assets.get("Miracle Gem"), "Stats": {"CurrentHp": -1, "CurrentMana": 5}, "Enchant": False, "Description": "A gem that feels like it’s pulsating attached to a thin string of pure mana. Once on, it almost feels draining, yet replenishing? -1 hp +5 mana per turn.", "Id": None},
-        #  "Delicate Flower": {"Name": "Delicate Flower", "Type": "Extra", "Asset": assets.get("Delicate Flower"), "Stats": {"CurrentHp": 5}, "Enchant": False, "Description": "A calming yet almost fragile peace emanates from the petals of this small bloom. Heals 5 hp per turn.", "Id": None},
-        #  "Creepy Idol": {"Name": "Creepy Idol", "Type": "Offhand", "Asset": assets.get("Creepy Idol"), "Stats": {"Intelligence": 100}, "Enchant": False, "Description": "An ominous glare observes your every move. It seems to increase your intelligence...", "Id": None},
-        #  "Shield": {"Name": "Shield", "Type": "Offhand", "Asset": assets.get("Shield"), "Stats": {"Defence": 30, "MagicDefence": 30}, "Enchant": False, "Description": "A shield made of pure void. It looks like it can swallow anything, like a black hole. Boosts defence and magic defence.", "Id": None},
-        #  "Pocket Watch": {"Name": "Pocket Watch", "Type": "Offhand", "Asset": assets.get("Pocket Watch"), "Stats": {"Dexterity": 50}, "Enchant": False, "Description": "A golden, scratched watch with a long golden chain. Opening it reveals the glass cracked and endless sand pouring out. Boosts dexterity by a ton.", "Id": None},
 
 
 
@@ -2137,7 +2134,8 @@ ConsumeInvBuffer = False
 pyterm.createItem("EnemyBorder", [assets.get("EnemyBorder")], "screen", "center", "center", 0, 0, 0)
 
 #Mazes
-Mazes = [{"Maze1": """┌---┐|┌┬┬┬-|||-┬-
+Mazes = [
+{"Maze1": """┌---┐|┌┬┬┬-|||-┬-
 └┐||├┴┘|||┌┘└┤┌┤|
 ┌┘├┘├-┌-┘|└-┐├┘└┤
 ├-┘┌┴┐||-┴┐|└┘┌-┤
@@ -2147,7 +2145,29 @@ Mazes = [{"Maze1": """┌---┐|┌┬┬┬-|||-┬-
 **************7**
 ***********#*****
 ***************** 
-#****%***&*******""", "MazeRender1": [], "MazeRender2": [], "MazeBlocks": [], "SpawnLocation": (0, 0), "End": (0, 0), "InvisWalls": []}]
+#****%***&*******""", "MazeRender1": [], "MazeRender2": [], "MazeBlocks": [], "SpawnLocation": (0, 0), "End": (0, 0), "InvisWalls": []},
+{"Maze1": """┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼
+┼┌-------------┐┼
+┼|┼┼┼┼┼┼┼┼┼┼┼┼┼|┼
+┼|┼┼┼┼┼┼┼┼┼┼┼┼┼|┼
+┼-------------┘|┼
+┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼┼""", "Maze2": """&**********7X4**$
+*#**********5****
+********#********
+*****************
+*#***************
+%***************◉""", "MazeRender1": [], "MazeRender2": [], "MazeBlocks": [], "SpawnLocation": (0, 0), "End": (0, 0), "InvisWalls": []},
+{"Maze1": """┌┬-┐┌-┬-┬-|-┬-┌-┐
+|└-|└-├-┴-┴┐|-┴┐|
+├-┬┼┐-┴┬-┬-┤|┌-┘|
+|┌┼┴┘┌-┼-┘┌|└┴┬┌-
+├┼┘┌-┘┌|┌┐└┴--┘||
+└┴-┴--┘└┘└-----┴┘""", "Maze2": """***◉*********&***
+**#**************
+**************4*#
+**%*************X
+******$********4*
+*5*********#***7*""", "MazeRender1": [], "MazeRender2": [], "MazeBlocks": [], "SpawnLocation": (0, 0), "End": (0, 0), "InvisWalls": []}]
 
 # room_push = [{"Character": "#", "Location": (0, 0)}, {"Character": "%", "Location": (1, 1)}]
 
@@ -2213,7 +2233,6 @@ def End():
         while True:
             print()
     
-
 
 PhaseChange("battle")
 PhaseChange("title")
@@ -2790,9 +2809,6 @@ while True:
                                 if "Type" in list(mazerend.keys()):
                                     if mazerend["Type"] == "$":
                                         mazerend["Render"] = False
-                            break
-                    else:
-                        i2[2] = True
                 elif pyterm.getLetter((i["Location"][0] + round(os.get_terminal_size().columns/2), i["Location"][1] + round(os.get_terminal_size().lines/2))) == "%":
                     for i2 in room_invis_walls:
                         if i2[3] == "%":
@@ -2801,9 +2817,6 @@ while True:
                                 if "Type" in list(mazerend.keys()):
                                     if mazerend["Type"] == "%":
                                         mazerend["Render"] = False
-                            break
-                    else:
-                        i2[2] = True
                 elif pyterm.getLetter((i["Location"][0] + round(os.get_terminal_size().columns/2), i["Location"][1] + round(os.get_terminal_size().lines/2))) == "&":
                     for i2 in room_invis_walls:
                         if i2[3] == "&":
@@ -2812,9 +2825,6 @@ while True:
                                 if "Type" in list(mazerend.keys()):
                                     if mazerend["Type"] == "&":
                                         mazerend["Render"] = False
-                            break
-                    else:
-                        i2[2] = True
             if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) in ["$", "%", "&"]:
                 for i2 in room_invis_walls:
                     if i2[3] == pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])):
@@ -2823,7 +2833,6 @@ while True:
                             if "Type" in list(mazerend.keys()):
                                 if mazerend["Type"] == pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])):
                                     mazerend["Render"] = False
-                        break
             #Win
             if pyterm.getLetter((round(player_x) + pyterm.getCenter("PlayerMove")[0], round(player_y) + pyterm.getCenter("PlayerMove")[1])) == "X":
                 addedResearch = AddResearch(random.randint(round(1.3 ** (EnteredRoom[0] - 1) * 150), round(1.3 ** (EnteredRoom[0] - 1) * 250)))
@@ -3429,6 +3438,7 @@ while True:
     # if keyboard.is_pressed("c"):
     #     research += AddResearch(1)
     #     research *= 2
+    #     RefreshShop()
     
     # if keyboard.is_pressed("v"):
     #     Shop = True
@@ -3450,7 +3460,7 @@ while True:
             pyterm.changeItemFrameContent("MinigameDesc", "Keep your cursor in the circle.")
             pyterm.changeItemFrameContent("MinigameName", "Circle")
         elif attacks[FocusPlayerAttack[1]]["Minigames"][0]["Name"] == "Aim":
-            pyterm.changeItemFrameContent("MinigameDesc", "Time your clicks when the bar is filled.")
+            pyterm.changeItemFrameContent("MinigameDesc", "Time your spaces when the bar is filled.")
             pyterm.changeItemFrameContent("MinigameName", "Aim")
         elif attacks[FocusPlayerAttack[1]]["Minigames"][0]["Name"] == "Keyboard":
             pyterm.changeItemFrameContent("MinigameDesc", "Click the corresponding keyboard keys.")
@@ -3627,11 +3637,11 @@ while True:
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 22 + 2) and LeftClick:
                 InventoryUiState = 5
                 InventoryState = 0
-            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 + RiseMenu - round(os.get_terminal_size().lines * 3/4) == round(location[1])) and LeftClick:
+            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] - 2 + RiseMenu - round(os.get_terminal_size().lines * 3/4) == round(location[1])) and LeftClick:
                 InventoryState -= 1
                 if InventoryState < 0:
                     InventoryState = math.floor(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])/23)
-            elif (pyterm.getBottomRight("Inventory")[0] - 22 <= location[0] <= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 + RiseMenu - round(os.get_terminal_size().lines * 3/4) == round(location[1])) and LeftClick:
+            elif (pyterm.getBottomRight("Inventory")[0] - 22 >= location[0] >= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] - 2 + RiseMenu - round(os.get_terminal_size().lines * 3/4) == round(location[1])) and LeftClick:
                 InventoryState += 1
                 if InventoryState > math.floor(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])/23):
                     InventoryState = 0
@@ -3651,8 +3661,8 @@ while True:
                 if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 26 + itemNo == round(location[1])) and LeftClick:
                     FocusInv = itemInv
             if (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 7 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 1) and LeftClick:
-                if Equipment["Extra"] != None:
-                    FocusInv = Equipment["Extra"]
+                if Equipment["Accessory"] != None:
+                    FocusInv = Equipment["Accessory"]
             elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 14 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 8) and LeftClick:
                 if Equipment["Offhand"] != None:
                     FocusInv = Equipment["Offhand"]
@@ -3697,7 +3707,7 @@ while True:
                 if (pyterm.getTopLeft("ItemButton")[0] <= location[0] <= pyterm.getTopLeft("ItemButton")[0] + 5) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
                     FocusInv = False
                 elif (pyterm.getBottomRight("ItemButton")[0] - 4 <= location[0] <= pyterm.getBottomRight("ItemButton")[0]) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
-                    if FocusInv["Type"] in ["Weapon", "Armor", "Extra", "Offhand"]:
+                    if FocusInv["Type"] in ["Weapon", "Armor", "Accessory", "Offhand"]:
                         NegateInvItemBuffs(Equipment[FocusInv["Type"]])
                         UseInvItem(FocusInv)
                         ApplyInvItemBuffs(FocusInv)
@@ -3714,7 +3724,7 @@ while True:
 
             if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 30 <= location[1] <= -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[1]):
                 pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
-                if LeftClick:
+                if LeftClick and not (ChooseAttack):
                     DisableOther = False
                     RiseUi = False
             if (not RiseUi) and (RiseMenu == 0):
@@ -3752,7 +3762,7 @@ while True:
 
             if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + 30 <= location[1] <= -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4) + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[0]):
                 pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -29 + RiseMenu - round(os.get_terminal_size().lines * 3/4), "top left", "top left")
-                if LeftClick:
+                if LeftClick and not (ChooseAttack):
                     DisableOther = False
                     RiseUi = False
             if (not RiseUi) and (RiseMenu == 0):
@@ -3831,11 +3841,11 @@ while True:
         elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
             InventoryUiState = 5
             InventoryState = 0
-        elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+        elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] - 2 == round(location[1])) and LeftClick:
             InventoryState -= 1
             if InventoryState < 0:
                 InventoryState = math.floor(len(InventoryCopy3[list(InventoryCopy3.keys())[InventoryUiState - 1]])/23)
-        elif (pyterm.getBottomRight("Inventory")[0] - 22 <= location[0] <= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+        elif (pyterm.getBottomRight("Inventory")[0] - 22 >= location[0] >= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] - 2 == round(location[1])) and LeftClick:
             InventoryState += 1
             if InventoryState > math.floor(len(InventoryCopy3[list(InventoryCopy3.keys())[InventoryUiState - 1]])/23):
                 InventoryState = 0
@@ -4083,11 +4093,11 @@ while True:
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 5
                 InventoryState = 0
-            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] - 2 == round(location[1])) and LeftClick:
                 InventoryState -= 1
                 if InventoryState < 0:
                     InventoryState = math.floor(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])/23)
-            elif (pyterm.getBottomRight("Inventory")[0] - 22 <= location[0] <= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+            elif (pyterm.getBottomRight("Inventory")[0] - 22 >= location[0] >= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] - 2 == round(location[1])) and LeftClick:
                 InventoryState += 1
                 if InventoryState > math.floor(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])/23):
                     InventoryState = 0
@@ -4107,22 +4117,22 @@ while True:
                 if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + 26 + itemNo == round(location[1])) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
                     FocusEnchant = itemInv
                     FakeInv = False
-            if (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 7 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 1) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
-                if Equipment["Extra"] != None:
-                    FocusEnchant = Equipment["Extra"]
-                    FakeInv = False
-            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 14 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 8) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
-                if Equipment["Offhand"] != None:
-                    FocusEnchant = Equipment["Offhand"]
-                    FakeInv = False
-            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 21 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 15) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
+            # if (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 7 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 1) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
+            #     if Equipment["Accessory"] != None:
+            #         FocusEnchant = Equipment["Accessory"]
+            #         FakeInv = False
+            # elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 14 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 8) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
+            #     if Equipment["Offhand"] != None:
+            #         FocusEnchant = Equipment["Offhand"]
+            #         FakeInv = False
+            if (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 21 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 15) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
                 if Equipment["Weapon"] != None:
                     FocusEnchant = Equipment["Weapon"]
                     FakeInv = False
-            elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 28 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 22) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
-                if Equipment["Armor"] != None:
-                    FocusEnchant = Equipment["Armor"]
-                    FakeInv = False
+            # elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 28 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 22) and LeftClick and (not OpenedFakeInv) and (itemInv["Type"] in ["Weapon", "Armor"]):
+            #     if Equipment["Armor"] != None:
+            #         FocusEnchant = Equipment["Armor"]
+            #         FakeInv = False
             
             for equipments in Equipment.values():
                 if equipments != None:
@@ -4163,11 +4173,11 @@ while True:
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 22 + 2) and LeftClick and (not OpenedFakeInv):
                 InventoryUiState = 5
                 InventoryState = 0
-            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] - 2 == round(location[1])) and LeftClick:
                 InventoryState -= 1
                 if InventoryState < 0:
                     InventoryState = math.floor(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])/23)
-            elif (pyterm.getBottomRight("Inventory")[0] - 22 <= location[0] <= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+            elif (pyterm.getBottomRight("Inventory")[0] - 22 >= location[0] >= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] - 2 == round(location[1])) and LeftClick:
                 InventoryState += 1
                 if InventoryState > math.floor(len(InventoryCopy[list(InventoryCopy.keys())[InventoryUiState - 1]])/23):
                     InventoryState = 0
@@ -4374,19 +4384,24 @@ while True:
 
             if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 12) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
                 InventoryUiState = 1
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 13 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 24) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
                 InventoryUiState = 2
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 25 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 36) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
                 InventoryUiState = 3
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 37 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 48) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
                 InventoryUiState = 4
+                InventoryState = 0
             elif (pyterm.getTopLeft("Inventory")[0] + 22 + 49 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 60) and (pyterm.getTopLeft("Inventory")[1] + 0 + 22 <= location[1] <= pyterm.getTopLeft("Inventory")[1] + 0 + 22 + 2) and LeftClick:
                 InventoryUiState = 5
-            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+                InventoryState = 0
+            elif (pyterm.getBottomLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 26) and (pyterm.getBottomLeft("Inventory")[1] - 2 == round(location[1])) and LeftClick:
                 InventoryState -= 1
                 if InventoryState < 0:
                     InventoryState = math.floor(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])/23)
-            elif (pyterm.getBottomRight("Inventory")[0] - 22 <= location[0] <= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] + 2 == round(location[1])) and LeftClick:
+            elif (pyterm.getBottomRight("Inventory")[0] - 22 >= location[0] >= pyterm.getBottomRight("Inventory")[0] - 26) and (pyterm.getBottomLeft("Inventory")[1] - 2 == round(location[1])) and LeftClick:
                 InventoryState += 1
                 if InventoryState > math.floor(len(Inventory[list(Inventory.keys())[InventoryUiState - 1]])/23):
                     InventoryState = 0
@@ -4406,8 +4421,8 @@ while True:
                 if (pyterm.getTopLeft("Inventory")[0] + 22 <= location[0] <= pyterm.getTopLeft("Inventory")[0] + 22 + 65) and (pyterm.getTopLeft("Inventory")[1] + 0 + 26 + itemNo == round(location[1])) and LeftClick:
                     FocusInv = itemInv
             if (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 7 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 1) and LeftClick:
-                if Equipment["Extra"] != None:
-                    FocusInv = Equipment["Extra"]
+                if Equipment["Accessory"] != None:
+                    FocusInv = Equipment["Accessory"]
             elif (pyterm.getBottomLeft("Inventory")[0] + 1 <= location[0] <= pyterm.getBottomLeft("Inventory")[0] + 20) and (pyterm.getBottomLeft("Inventory")[1] - 14 <= location[1] <= pyterm.getBottomLeft("Inventory")[1] - 8) and LeftClick:
                 if Equipment["Offhand"] != None:
                     FocusInv = Equipment["Offhand"]
@@ -4452,7 +4467,7 @@ while True:
                 if (pyterm.getTopLeft("ItemButton")[0] <= location[0] <= pyterm.getTopLeft("ItemButton")[0] + 5) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
                     FocusInv = False
                 elif (pyterm.getBottomRight("ItemButton")[0] - 4 <= location[0] <= pyterm.getBottomRight("ItemButton")[0]) and (pyterm.getTopLeft("ItemButton")[1] is round(location[1])) and LeftClick:
-                    if FocusInv["Type"] in ["Weapon", "Armor", "Extra", "Offhand"]:
+                    if FocusInv["Type"] in ["Weapon", "Armor", "Accessory", "Offhand"]:
                         NegateInvItemBuffs(Equipment[FocusInv["Type"]])
                         UseInvItem(FocusInv)
                         ApplyInvItemBuffs(FocusInv)
@@ -4469,7 +4484,7 @@ while True:
 
             if (10 <= location[0] <= 10 + pyterm.getStrWidthAndHeight(assets["TitleReturn"])[0]) and (-29 + 0 + 30 <= location[1] <= -29 + 0 + pyterm.getStrWidthAndHeight(assets.get("TitleReturnHover"))[1]):
                 pyterm.renderLiteralItem(assets["TitleReturnHover"], 10, -29 + 0, "top left", "top left")
-                if LeftClick:
+                if LeftClick and not (ChooseAttack):
                     FakeInv3 = False
                     FakeInv3Buffer = True
 

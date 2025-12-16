@@ -1479,7 +1479,7 @@ assets = {
 |Buy - 100.0| 2x Research
 └-----------┘                           """,
 "R-U2": """┌-----------┐
-|Buy - 500.0| +10% Research/Kill
+|Buy - 500.0| +25% Research/Kill
 └-----------┘                           """,
 "R-U3": """┌-----------┐
 |Buy - 5.00k| 1.1x Research/Light
